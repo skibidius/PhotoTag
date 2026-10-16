@@ -314,6 +314,48 @@ abstract class AppLocalizations {
   /// **'All photos'**
   String get projectsAllPhotos;
 
+  /// No description provided for @exportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export project'**
+  String get exportTitle;
+
+  /// No description provided for @exportOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Originals'**
+  String get exportOriginal;
+
+  /// No description provided for @exportWatermarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Watermarked'**
+  String get exportWatermarked;
+
+  /// No description provided for @exportBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Watermarked + originals'**
+  String get exportBoth;
+
+  /// No description provided for @exportEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This project has no photos.'**
+  String get exportEmpty;
+
+  /// No description provided for @exportNoOriginals.
+  ///
+  /// In en, this message translates to:
+  /// **'Original copies aren\'t available — enable “Keep original copy” in Settings.'**
+  String get exportNoOriginals;
+
+  /// No description provided for @exportPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing archive…'**
+  String get exportPreparing;
+
   /// No description provided for @photosAll.
   ///
   /// In en, this message translates to:
@@ -715,6 +757,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Русский'**
   String get languageRussian;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @aboutVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get aboutVersion;
+
+  /// No description provided for @aboutLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get aboutLicense;
+
+  /// No description provided for @aboutLicenseValue.
+  ///
+  /// In en, this message translates to:
+  /// **'MIT License'**
+  String get aboutLicenseValue;
 
   /// No description provided for @stampByAuthor.
   ///

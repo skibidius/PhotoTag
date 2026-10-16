@@ -55,6 +55,13 @@
   "projectsEmpty": "No projects yet",
   "projectsEmptyHint": "Group photos by site, job or client.",
   "projectsAllPhotos": "All photos",
+  "exportTitle": "Export project",
+  "exportOriginal": "Originals",
+  "exportWatermarked": "Watermarked",
+  "exportBoth": "Watermarked + originals",
+  "exportEmpty": "This project has no photos.",
+  "exportNoOriginals": "Original copies aren't available — enable “Keep original copy” in Settings.",
+  "exportPreparing": "Preparing archive…",
 
   "photosAll": "Photos",
   "photosAllCount": "Photos · {count}",
@@ -167,6 +174,11 @@
   "languageSystem": "System default",
   "languageEnglish": "English",
   "languageRussian": "Русский",
+
+  "about": "About",
+  "aboutVersion": "Version",
+  "aboutLicense": "License",
+  "aboutLicenseValue": "MIT License",
 
   "stampByAuthor": "by {author}",
   "@stampByAuthor": {

@@ -41,6 +41,13 @@
   "projectsEmpty": "Пока нет проектов",
   "projectsEmptyHint": "Группируйте фото по объекту, задаче или заказчику.",
   "projectsAllPhotos": "Все фото",
+  "exportTitle": "Экспорт проекта",
+  "exportOriginal": "Оригиналы",
+  "exportWatermarked": "С оттисками",
+  "exportBoth": "Оттиски + оригиналы",
+  "exportEmpty": "В этом проекте нет фото.",
+  "exportNoOriginals": "Оригиналы недоступны — включите «Сохранять оригинал» в настройках.",
+  "exportPreparing": "Готовим архив…",
 
   "photosAll": "Фото",
   "photosAllCount": "Фото · {count}",
@@ -118,6 +125,11 @@
   "languageSystem": "Как в системе",
   "languageEnglish": "English",
   "languageRussian": "Русский",
+
+  "about": "О приложении",
+  "aboutVersion": "Версия",
+  "aboutLicense": "Лицензия",
+  "aboutLicenseValue": "Лицензия MIT",
 
   "stampByAuthor": "автор: {author}",
   "stampCounter": "№ {value}"

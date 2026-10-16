@@ -123,6 +123,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get projectsAllPhotos => 'All photos';
 
   @override
+  String get exportTitle => 'Export project';
+
+  @override
+  String get exportOriginal => 'Originals';
+
+  @override
+  String get exportWatermarked => 'Watermarked';
+
+  @override
+  String get exportBoth => 'Watermarked + originals';
+
+  @override
+  String get exportEmpty => 'This project has no photos.';
+
+  @override
+  String get exportNoOriginals =>
+      'Original copies aren\'t available — enable “Keep original copy” in Settings.';
+
+  @override
+  String get exportPreparing => 'Preparing archive…';
+
+  @override
   String get photosAll => 'Photos';
 
   @override
@@ -340,6 +362,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageRussian => 'Русский';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get aboutVersion => 'Version';
+
+  @override
+  String get aboutLicense => 'License';
+
+  @override
+  String get aboutLicenseValue => 'MIT License';
 
   @override
   String stampByAuthor(String author) {

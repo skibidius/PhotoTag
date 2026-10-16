@@ -13,6 +13,7 @@ ready to drop into a report or send straight from the field.
   altitude, accuracy, date/time, reverse-geocoded address, note, author and an
   automatic photo counter
 - **Projects** to keep jobs, sites or clients apart
+- **Export** a project to a ZIP archive — originals, watermarked, or both
 - **English and Russian** interface
 - **Offline first** — GPS and geocoding work without a connection
 - Saves to the system gallery and shares from the app

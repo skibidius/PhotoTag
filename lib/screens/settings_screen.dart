@@ -6,6 +6,8 @@ import '../l10n/app_localizations.dart';
 import '../models/app_settings.dart';
 import '../services/settings_controller.dart';
 import '../utils/coords.dart';
+import '../utils/page_route.dart';
+import 'about_screen.dart';
 
 /// Full settings surface, grouped into logical sections.
 class SettingsScreen extends StatelessWidget {
@@ -49,26 +51,17 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 32),
         children: <Widget>[
           _Header(l10n.sectionCoordinates),
-          ListTile(
-            leading: const Icon(Icons.pin_drop_outlined),
-            title: Text(l10n.coordFormat),
-            trailing: DropdownButton<CoordFormat>(
-              value: settings.coordFormat,
-              underline: const SizedBox.shrink(),
-              borderRadius: BorderRadius.circular(16),
-              onChanged: (CoordFormat? v) {
-                if (v != null) {
-                  HapticFeedback.selectionClick();
-                  controller.update((AppSettings s) => s.copyWith(coordFormat: v));
-                }
-              },
-              items: CoordFormat.values
-                  .map((CoordFormat f) => DropdownMenuItem<CoordFormat>(
-                        value: f,
-                        child: Text(_coordLabel(l10n, f)),
-                      ))
-                  .toList(),
-            ),
+          _PickerTile<CoordFormat>(
+            icon: Icons.pin_drop_outlined,
+            label: l10n.coordFormat,
+            value: settings.coordFormat,
+            options: CoordFormat.values
+                .map((CoordFormat f) => (f, _coordLabel(l10n, f)))
+                .toList(),
+            onChanged: (CoordFormat v) {
+              HapticFeedback.selectionClick();
+              controller.update((AppSettings s) => s.copyWith(coordFormat: v));
+            },
           ),
 
           _Header(l10n.sectionAppearance),
@@ -271,26 +264,17 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _Header(l10n.language),
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: Text(l10n.language),
-            trailing: DropdownButton<AppLanguage>(
-              value: settings.language,
-              underline: const SizedBox.shrink(),
-              borderRadius: BorderRadius.circular(16),
-              onChanged: (AppLanguage? v) {
-                if (v != null) {
-                  HapticFeedback.selectionClick();
-                  controller.update((AppSettings s) => s.copyWith(language: v));
-                }
-              },
-              items: AppLanguage.values
-                  .map((AppLanguage l) => DropdownMenuItem<AppLanguage>(
-                        value: l,
-                        child: Text(_languageLabel(l10n, l)),
-                      ))
-                  .toList(),
-            ),
+          _PickerTile<AppLanguage>(
+            icon: Icons.language,
+            label: l10n.language,
+            value: settings.language,
+            options: AppLanguage.values
+                .map((AppLanguage l) => (l, _languageLabel(l10n, l)))
+                .toList(),
+            onChanged: (AppLanguage v) {
+              HapticFeedback.selectionClick();
+              controller.update((AppSettings s) => s.copyWith(language: v));
+            },
           ),
 
           _Header(l10n.sectionAbout),
@@ -298,6 +282,10 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.info_outline),
             title: Text(l10n.appTitle),
             subtitle: Text(l10n.appTagline),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              sharedAxisRoute(const AboutScreen()),
+            ),
           ),
         ],
       ),
@@ -322,6 +310,61 @@ class _Header extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
       ),
+    );
+  }
+}
+
+class _PickerTile<T> extends StatelessWidget {
+  const _PickerTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final String label;
+  final T value;
+  final List<(T, String)> options;
+  final ValueChanged<T> onChanged;
+
+  String get _currentLabel =>
+      options.firstWhere((o) => o.$1 == value, orElse: () => options.first).$2;
+
+  Future<void> _pick(BuildContext context) async {
+    final T? result = await showModalBottomSheet<T>(
+      context: context,
+      showDragHandle: true,
+      builder: (BuildContext context) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: <Widget>[
+            for (final (T, String) option in options)
+              ListTile(
+                title: Text(option.$2),
+                trailing:
+                    option.$1 == value ? const Icon(Icons.check) : null,
+                onTap: () => Navigator.of(context).pop(option.$1),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (result != null && result != value) onChanged(result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      subtitle: Text(
+        _currentLabel,
+        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+      ),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => _pick(context),
     );
   }
 }

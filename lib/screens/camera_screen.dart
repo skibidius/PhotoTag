@@ -419,14 +419,6 @@ class _CameraScreenState extends State<CameraScreen>
       fit: StackFit.expand,
       clipBehavior: Clip.none,
       children: <Widget>[
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onScaleStart: _onScaleStart,
-          onScaleUpdate: _onScaleUpdate,
-          onTapUp: (TapUpDetails d) =>
-              _onTapFocus(d, MediaQuery.sizeOf(context)),
-          child: _buildPreview(),
-        ),
         // Hidden capture target: renders the stamp at export resolution.
         Positioned(
           left: -100000,
@@ -442,60 +434,72 @@ class _CameraScreenState extends State<CameraScreen>
             ),
           ),
         ),
-        if (settings.showGrid) const _GridOverlay(),
-        if (_focusPoint != null)
-          Positioned(
-            left: _focusPoint!.dx - 38,
-            top: _focusPoint!.dy - 38,
-            child: IgnorePointer(
-              child: AnimatedOpacity(
-                opacity: _focusRingVisible ? 1 : 0,
-                duration: const Duration(milliseconds: 220),
-                child: AnimatedScale(
-                  scale: _focusRingVisible ? 1.0 : 1.3,
-                  duration: const Duration(milliseconds: 220),
-                  child: Container(
-                    width: 76,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        if (settings.showHud)
-          _StampPreview(settings: settings, data: liveCtx, accent: accent),
+        // The full-frame preview with the grid, focus ring and live stamp
+        // aligned to the photo frame (not the screen).
+        _buildPreview(settings, liveCtx, accent),
         _buildTopBar(settings, location, accent),
         _buildBottomControls(settings, accent),
       ],
     );
   }
 
-  Widget _buildPreview() {
+  Widget _buildPreview(
+      AppSettings settings, StampContext liveCtx, Color accent) {
     final CameraController? controller = _controller;
     if (controller == null || !controller.value.isInitialized) {
       return const SizedBox.expand();
     }
-    final Size size = MediaQuery.sizeOf(context);
-    final Size preview = controller.value.previewSize ?? size;
-    final double short = preview.width < preview.height ? preview.width : preview.height;
-    final double long = preview.width < preview.height ? preview.height : preview.width;
+    // Portrait aspect of the sensor, so the full frame is shown letterboxed
+    // instead of cropped by a cover fit.
+    final double previewAspect = 1 / controller.value.aspectRatio;
 
-    return ClipRect(
-      child: OverflowBox(
-        alignment: Alignment.center,
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-        child: FittedBox(
-          fit: BoxFit.cover,
-          child: SizedBox(
-            width: short,
-            height: long,
-            child: CameraPreview(controller),
-          ),
+    return Center(
+      child: AspectRatio(
+        aspectRatio: previewAspect,
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onScaleStart: _onScaleStart,
+              onScaleUpdate: _onScaleUpdate,
+              onTapUp: (TapUpDetails d) =>
+                  _onTapFocus(d, constraints.biggest),
+              child: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  CameraPreview(controller),
+                  if (settings.showGrid) const _GridOverlay(),
+                  if (_focusPoint != null)
+                    Positioned(
+                      left: _focusPoint!.dx - 38,
+                      top: _focusPoint!.dy - 38,
+                      child: IgnorePointer(
+                        child: AnimatedOpacity(
+                          opacity: _focusRingVisible ? 1 : 0,
+                          duration: const Duration(milliseconds: 220),
+                          child: AnimatedScale(
+                            scale: _focusRingVisible ? 1.0 : 1.3,
+                            duration: const Duration(milliseconds: 220),
+                            child: Container(
+                              width: 76,
+                              height: 76,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: Colors.white, width: 2),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (settings.showHud)
+                    _StampPreview(
+                        settings: settings, data: liveCtx, accent: accent),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
@@ -748,14 +752,13 @@ class _StampPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-      child: Padding(
-        // Keep the preview clear of the top bar and the capture controls.
-        padding: const EdgeInsets.fromLTRB(14, 118, 14, 168),
-        child: Align(
-          alignment: settings.stampPosition.alignment,
+      child: Align(
+        alignment: settings.stampPosition.alignment,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: MediaQuery.sizeOf(context).width * 0.78,
+              maxWidth: MediaQuery.sizeOf(context).width * 0.8,
             ),
             child: FittedBox(
               fit: BoxFit.scaleDown,

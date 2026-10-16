@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/photo_record.dart';
 import '../services/photo_store.dart';
+import '../services/project_export_service.dart';
 import '../services/project_store.dart';
 import '../utils/page_route.dart';
 import 'gallery_screen.dart';
@@ -77,12 +79,87 @@ class ProjectsScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _exportProject(BuildContext context, String project) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final List<PhotoRecord> records = context
+        .read<PhotoStore>()
+        .records
+        .where((PhotoRecord r) => r.project == project)
+        .toList();
+
+    if (records.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.exportEmpty)));
+      return;
+    }
+
+    final bool hasOriginals =
+        records.any((PhotoRecord r) => r.originalPath != null);
+
+    final ExportVariant? variant = await showModalBottomSheet<ExportVariant>(
+      context: context,
+      showDragHandle: true,
+      builder: (BuildContext context) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: Text(l10n.exportTitle,
+                  style: Theme.of(context).textTheme.titleLarge),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_outlined),
+              title: Text(l10n.exportOriginal),
+              enabled: hasOriginals,
+              subtitle: hasOriginals ? null : Text(l10n.exportNoOriginals),
+              onTap: () => Navigator.of(context).pop(ExportVariant.original),
+            ),
+            ListTile(
+              leading: const Icon(Icons.branding_watermark_outlined),
+              title: Text(l10n.exportWatermarked),
+              onTap: () => Navigator.of(context).pop(ExportVariant.watermarked),
+            ),
+            ListTile(
+              leading: const Icon(Icons.layers_outlined),
+              title: Text(l10n.exportBoth),
+              enabled: hasOriginals,
+              onTap: () => Navigator.of(context).pop(ExportVariant.both),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (variant == null) return;
+
+    HapticFeedback.selectionClick();
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.exportPreparing)));
+    }
+
+    final String zipPath = await ProjectExportService.export(
+      records: records,
+      projectName: project,
+      variant: variant,
+    );
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      try {
+        await SharePlus.instance.share(
+          ShareParams(files: <XFile>[XFile(zipPath)]),
+        );
+      } catch (_) {}
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ProjectStore projects = context.watch<ProjectStore>();
     final PhotoStore photos = context.watch<PhotoStore>();
     final AppLocalizations l10n = AppLocalizations.of(context);
-
     return Scaffold(
       appBar: AppBar(title: Text(l10n.tabProjects)),
       floatingActionButton: FloatingActionButton.extended(
@@ -111,13 +188,29 @@ class ProjectsScreen extends StatelessWidget {
                     subtitle: Text(l10n.photosCount(_countFor(photos, project))),
                     trailing: PopupMenuButton<String>(
                       onSelected: (String value) {
-                        if (value == 'delete') _confirmDelete(context, project);
+                        if (value == 'export') {
+                          _exportProject(context, project);
+                        } else if (value == 'delete') {
+                          _confirmDelete(context, project);
+                        }
                       },
                       itemBuilder: (BuildContext context) =>
                           <PopupMenuEntry<String>>[
                         PopupMenuItem<String>(
+                          value: 'export',
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.archive_outlined),
+                            title: Text(l10n.exportTitle),
+                          ),
+                        ),
+                        PopupMenuItem<String>(
                           value: 'delete',
-                          child: Text(l10n.delete),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.delete_outline),
+                            title: Text(l10n.delete),
+                          ),
                         ),
                       ],
                     ),

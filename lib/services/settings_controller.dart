@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/app_settings.dart';
 
 /// Holds the current [AppSettings] and persists every change to disk.
+///
+/// Writes are debounced so rapid updates (dragging a slider, typing) stay
+/// smooth instead of hitting disk on every change.
 class SettingsController extends ChangeNotifier {
   static const String _key = 'settings.v1';
 
@@ -14,6 +18,8 @@ class SettingsController extends ChangeNotifier {
 
   bool _loaded = false;
   bool get loaded => _loaded;
+
+  Timer? _saveTimer;
 
   Future<void> load() async {
     try {
@@ -34,7 +40,12 @@ class SettingsController extends ChangeNotifier {
   Future<void> update(AppSettings Function(AppSettings) transform) async {
     _value = transform(_value);
     notifyListeners();
-    await _persist();
+    _schedulePersist();
+  }
+
+  void _schedulePersist() {
+    _saveTimer?.cancel();
+    _saveTimer = Timer(const Duration(milliseconds: 400), _persist);
   }
 
   Future<void> _persist() async {
@@ -44,5 +55,11 @@ class SettingsController extends ChangeNotifier {
     } catch (_) {
       // Persistence is best-effort; a failed write must never break capture.
     }
+  }
+
+  @override
+  void dispose() {
+    _saveTimer?.cancel();
+    super.dispose();
   }
 }

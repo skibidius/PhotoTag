@@ -21,6 +21,9 @@ enum StampSize { small, medium, large }
 /// Whether the stamp is rendered with light or dark text.
 enum StampTone { light, dark }
 
+/// The app's interface language.
+enum AppLanguage { system, english, russian }
+
 /// Captures every user-controllable aspect of the app. Instances are immutable
 /// and copied through [copyWith]; persistence is handled by the settings
 /// controller.
@@ -49,6 +52,7 @@ class AppSettings {
     this.showHud = true,
     this.saveOriginal = false,
     this.highResolution = true,
+    this.language = AppLanguage.system,
   });
 
   final CoordFormat coordFormat;
@@ -77,6 +81,7 @@ class AppSettings {
   final bool showHud;
   final bool saveOriginal;
   final bool highResolution;
+  final AppLanguage language;
 
   AppSettings copyWith({
     CoordFormat? coordFormat,
@@ -102,6 +107,7 @@ class AppSettings {
     bool? showHud,
     bool? saveOriginal,
     bool? highResolution,
+    AppLanguage? language,
   }) {
     return AppSettings(
       coordFormat: coordFormat ?? this.coordFormat,
@@ -127,6 +133,7 @@ class AppSettings {
       showHud: showHud ?? this.showHud,
       saveOriginal: saveOriginal ?? this.saveOriginal,
       highResolution: highResolution ?? this.highResolution,
+      language: language ?? this.language,
     );
   }
 
@@ -154,6 +161,7 @@ class AppSettings {
         'showHud': showHud,
         'saveOriginal': saveOriginal,
         'highResolution': highResolution,
+        'language': language.name,
       };
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -188,6 +196,7 @@ class AppSettings {
       showHud: json['showHud'] as bool? ?? true,
       saveOriginal: json['saveOriginal'] as bool? ?? false,
       highResolution: json['highResolution'] as bool? ?? true,
+      language: enumByName(AppLanguage.values, json['language'] as String?, AppLanguage.system),
     );
   }
 }
@@ -207,60 +216,6 @@ extension StampPositionX on StampPosition {
         return Alignment.bottomCenter;
       case StampPosition.bottomRight:
         return Alignment.bottomRight;
-    }
-  }
-
-  String get label {
-    switch (this) {
-      case StampPosition.topLeft:
-        return 'Top left';
-      case StampPosition.topCenter:
-        return 'Top center';
-      case StampPosition.topRight:
-        return 'Top right';
-      case StampPosition.bottomLeft:
-        return 'Bottom left';
-      case StampPosition.bottomCenter:
-        return 'Bottom center';
-      case StampPosition.bottomRight:
-        return 'Bottom right';
-    }
-  }
-}
-
-extension StampStyleX on StampStyle {
-  String get label {
-    switch (this) {
-      case StampStyle.card:
-        return 'Card';
-      case StampStyle.minimal:
-        return 'Minimal';
-      case StampStyle.outline:
-        return 'Outline';
-    }
-  }
-}
-
-extension StampSizeX on StampSize {
-  String get label {
-    switch (this) {
-      case StampSize.small:
-        return 'Small';
-      case StampSize.medium:
-        return 'Medium';
-      case StampSize.large:
-        return 'Large';
-    }
-  }
-}
-
-extension StampToneX on StampTone {
-  String get label {
-    switch (this) {
-      case StampTone.light:
-        return 'Light';
-      case StampTone.dark:
-        return 'Dark';
     }
   }
 }

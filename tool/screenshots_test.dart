@@ -10,9 +10,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:phototag/l10n/app_localizations.dart';
 import 'package:phototag/models/app_settings.dart';
 import 'package:phototag/models/photo_record.dart';
 import 'package:phototag/screens/projects_screen.dart';
@@ -61,6 +63,7 @@ Future<void> _loadFonts() async {
 
 Future<void> _render(
   WidgetTester tester, {
+  required String locale,
   required Widget screen,
   required String golden,
 }) async {
@@ -72,6 +75,9 @@ Future<void> _render(
     MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
+      locale: Locale(locale),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: screen,
     ),
   );
@@ -83,24 +89,29 @@ Future<void> _render(
 // Demo data
 // -----------------------------------------------------------------------------
 
-AppSettings _demoSettings() => const AppSettings(
-      note: 'Facade inspection',
+AppSettings _demoSettings(String locale) => AppSettings(
+      note: locale == 'ru' ? 'Осмотр фасада' : 'Facade inspection',
       author: 'A. Volkov',
       showNote: true,
       showAuthor: true,
       counter: 42,
     );
 
-StampContext _demoContext() => StampContext(
+String _projectName(String locale) =>
+    locale == 'ru' ? 'Северное крыло' : 'North wing';
+
+StampContext _demoContext(String locale) => StampContext(
       timestamp: DateTime(2026, 10, 16, 14, 32, 5),
       latitude: 55.7558,
       longitude: 37.6173,
       bearing: 315,
       altitude: 156,
       accuracy: 5,
-      address: 'Tverskaya St, 1, Moscow',
-      project: 'North wing',
-      note: 'Facade inspection',
+      address: locale == 'ru'
+          ? 'ул. Тверская, 1, Москва'
+          : 'Tverskaya St, 1, Moscow',
+      project: _projectName(locale),
+      note: locale == 'ru' ? 'Осмотр фасада' : 'Facade inspection',
       author: 'A. Volkov',
       counter: 42,
     );
@@ -187,11 +198,13 @@ class _CameraMock extends StatelessWidget {
     required this.settings,
     required this.data,
     required this.accent,
+    required this.project,
   });
 
   final AppSettings settings;
   final StampContext data;
   final Color accent;
+  final String project;
 
   @override
   Widget build(BuildContext context) {
@@ -201,18 +214,19 @@ class _CameraMock extends StatelessWidget {
         fit: StackFit.expand,
         children: <Widget>[
           const _Scene(seed: 1),
-          Align(
-            alignment: settings.stampPosition.alignment,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 118, 14, 168),
+            child: Align(
+              alignment: settings.stampPosition.alignment,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxWidth: MediaQuery.sizeOf(context).width * 0.8,
+                  maxWidth: MediaQuery.sizeOf(context).width * 0.78,
                 ),
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: settings.stampPosition.alignment,
-                  child: StampOverlay(settings: settings, data: data, accent: accent),
+                  child: StampOverlay(
+                      settings: settings, data: data, accent: accent),
                 ),
               ),
             ),
@@ -227,26 +241,35 @@ class _CameraMock extends StatelessWidget {
   Widget _topBar() {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal:12, vertical: 8),
-        child: Row(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.45),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(Icons.folder_outlined, size: 18, color: Colors.white),
-                  SizedBox(width: 6),
-                  Text('North wing', style: TextStyle(color: Colors.white, fontSize: 13)),
-                  Icon(Icons.arrow_drop_down, color: Colors.white70, size: 18),
-                ],
-              ),
+            Row(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.45),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      const Icon(Icons.folder_outlined, size: 18, color: Colors.white),
+                      const SizedBox(width: 6),
+                      Text(project,
+                          style: const TextStyle(color: Colors.white, fontSize: 13)),
+                      const Icon(Icons.arrow_drop_down, color: Colors.white70, size: 18),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                _circle(child: const Icon(Icons.grid_4x4, color: Colors.white)),
+                _circle(child: const Icon(Icons.settings_outlined, color: Colors.white)),
+              ],
             ),
-            const Spacer(),
+            const SizedBox(height: 4),
             _pill(
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -260,9 +283,6 @@ class _CameraMock extends StatelessWidget {
                 ],
               ),
             ),
-            const Spacer(),
-            _circle(child: const Icon(Icons.grid_4x4, color: Colors.white)),
-            _circle(child: const Icon(Icons.settings_outlined, color: Colors.white)),
           ],
         ),
       ),
@@ -275,36 +295,71 @@ class _CameraMock extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 18),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              _circle(child: const Icon(Icons.flash_off_outlined, color: Colors.white)),
-              const Spacer(),
-              Container(
-                width: 78,
-                height: 78,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                ),
-                child: Center(
-                  child: Container(
-                    width: 62,
-                    height: 62,
-                    decoration: const BoxDecoration(
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  _zoomChip('0.5×', false),
+                  _zoomChip('1×', true),
+                  _zoomChip('2×', false),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: <Widget>[
+                  _circle(child: const Icon(Icons.flash_off_outlined, color: Colors.white)),
+                  const Spacer(),
+                  Container(
+                    width: 78,
+                    height: 78,
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white,
+                      border: Border.all(color: Colors.white, width: 4),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 62,
+                        height: 62,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const Spacer(),
+                  _circle(
+                      child: const Icon(Icons.cameraswitch_outlined,
+                          color: Colors.white)),
+                ],
               ),
-              const Spacer(),
-              _circle(child: const Icon(Icons.cameraswitch_outlined, color: Colors.white)),
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget _zoomChip(String label, bool selected) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? Colors.white : Colors.black.withValues(alpha: 0.45),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected ? Colors.black : Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      );
 
   Widget _circle({required Widget child}) => Material(
         color: Colors.black.withValues(alpha: 0.45),
@@ -379,7 +434,7 @@ class _GalleryMock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Photos · 6')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).photosAllCount(6))),
       body: GridView.builder(
         padding: const EdgeInsets.all(4),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -434,103 +489,112 @@ void main() {
 
   setUpAll(() async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
+    await initializeDateFormatting();
     await _loadFonts();
   });
 
-  final Color accent = AppTheme.light().colorScheme.primary;
+  for (final String locale in <String>['en', 'ru']) {
+    final Color accent = AppTheme.light().colorScheme.primary;
 
-  testWidgets('camera', (WidgetTester tester) async {
-    await _render(
-      tester,
-      screen: _CameraMock(
-        settings: _demoSettings(),
-        data: _demoContext(),
-        accent: accent,
-      ),
-      golden: '../docs/screenshots/camera.png',
-    );
-  });
+    testWidgets('$locale/camera', (WidgetTester tester) async {
+      await _render(
+        tester,
+        locale: locale,
+        screen: _CameraMock(
+          settings: _demoSettings(locale),
+          data: _demoContext(locale),
+          accent: accent,
+          project: _projectName(locale),
+        ),
+        golden: '../docs/screenshots/$locale/camera.png',
+      );
+    });
 
-  testWidgets('watermark', (WidgetTester tester) async {
-    await _render(
-      tester,
-      screen: _WatermarkShot(
-        settings: _demoSettings(),
-        data: _demoContext(),
-        accent: accent,
-      ),
-      golden: '../docs/screenshots/watermark.png',
-    );
-  });
+    testWidgets('$locale/watermark', (WidgetTester tester) async {
+      await _render(
+        tester,
+        locale: locale,
+        screen: _WatermarkShot(
+          settings: _demoSettings(locale),
+          data: _demoContext(locale),
+          accent: accent,
+        ),
+        golden: '../docs/screenshots/$locale/watermark.png',
+      );
+    });
 
-  testWidgets('projects', (WidgetTester tester) async {
-    final ProjectStore projects = ProjectStore();
-    await projects.add('North wing');
-    await projects.add('Site survey');
-    await projects.add('Client — Acme');
+    testWidgets('$locale/projects', (WidgetTester tester) async {
+      final ProjectStore projects = ProjectStore();
+      await projects.add(_projectName(locale));
+      await projects.add(locale == 'ru' ? 'Обследование участка' : 'Site survey');
+      await projects.add(locale == 'ru' ? 'Клиент — Acme' : 'Client — Acme');
 
-    final PhotoStore photos = PhotoStore();
-    photos.debugSetRecords(<PhotoRecord>[
-      PhotoRecord(
-        id: 'a',
-        path: '',
-        thumbPath: '',
-        takenAt: DateTime(2026, 10, 16, 14, 0),
-        project: 'North wing',
-        counter: 42,
-        coordText: '55.755800° N · 37.617300° E',
-      ),
-      PhotoRecord(
-        id: 'b',
-        path: '',
-        thumbPath: '',
-        takenAt: DateTime(2026, 10, 16, 13, 30),
-        project: 'North wing',
-        counter: 41,
-        coordText: '55.755800° N · 37.617300° E',
-      ),
-      PhotoRecord(
-        id: 'c',
-        path: '',
-        thumbPath: '',
-        takenAt: DateTime(2026, 10, 15, 9, 0),
-        project: 'Site survey',
-        counter: 40,
-        coordText: '55.755800° N · 37.617300° E',
-      ),
-    ]);
+      final PhotoStore photos = PhotoStore();
+      photos.debugSetRecords(<PhotoRecord>[
+        PhotoRecord(
+          id: 'a',
+          path: '',
+          thumbPath: '',
+          takenAt: DateTime(2026, 10, 16, 14, 0),
+          project: _projectName(locale),
+          counter: 42,
+          coordText: '55.755800° N · 37.617300° E',
+        ),
+        PhotoRecord(
+          id: 'b',
+          path: '',
+          thumbPath: '',
+          takenAt: DateTime(2026, 10, 16, 13, 30),
+          project: _projectName(locale),
+          counter: 41,
+          coordText: '55.755800° N · 37.617300° E',
+        ),
+        PhotoRecord(
+          id: 'c',
+          path: '',
+          thumbPath: '',
+          takenAt: DateTime(2026, 10, 15, 9, 0),
+          project: locale == 'ru' ? 'Обследование участка' : 'Site survey',
+          counter: 40,
+          coordText: '55.755800° N · 37.617300° E',
+        ),
+      ]);
 
-    await _render(
-      tester,
-      screen: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<ProjectStore>.value(value: projects),
-          ChangeNotifierProvider<PhotoStore>.value(value: photos),
-        ],
-        child: const ProjectsScreen(),
-      ),
-      golden: '../docs/screenshots/projects.png',
-    );
-  });
+      await _render(
+        tester,
+        locale: locale,
+        screen: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<ProjectStore>.value(value: projects),
+            ChangeNotifierProvider<PhotoStore>.value(value: photos),
+          ],
+          child: const ProjectsScreen(),
+        ),
+        golden: '../docs/screenshots/$locale/projects.png',
+      );
+    });
 
-  testWidgets('settings', (WidgetTester tester) async {
-    final SettingsController controller = SettingsController();
-    await controller.load();
-    await _render(
-      tester,
-      screen: ChangeNotifierProvider<SettingsController>.value(
-        value: controller,
-        child: const SettingsScreen(),
-      ),
-      golden: '../docs/screenshots/settings.png',
-    );
-  });
+    testWidgets('$locale/settings', (WidgetTester tester) async {
+      final SettingsController controller = SettingsController();
+      await controller.load();
+      await _render(
+        tester,
+        locale: locale,
+        screen: ChangeNotifierProvider<SettingsController>.value(
+          value: controller,
+          child: const SettingsScreen(),
+        ),
+        golden: '../docs/screenshots/$locale/settings.png',
+      );
+    });
 
-  testWidgets('gallery', (WidgetTester tester) async {
-    await _render(
-      tester,
-      screen: const _GalleryMock(),
-      golden: '../docs/screenshots/gallery.png',
-    );
-  });
+    testWidgets('$locale/gallery', (WidgetTester tester) async {
+      await _render(
+        tester,
+        locale: locale,
+        screen: const _GalleryMock(),
+        golden: '../docs/screenshots/$locale/gallery.png',
+      );
+    });
+  }
 }

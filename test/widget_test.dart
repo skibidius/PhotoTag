@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:phototag/l10n/app_localizations.dart';
 import 'package:phototag/models/app_settings.dart';
 import 'package:phototag/models/photo_record.dart';
 import 'package:phototag/widgets/stamp_overlay.dart';
@@ -20,6 +21,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: StampOverlay(
             settings: settings,

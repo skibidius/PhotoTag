@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// An embedded map showing where a photo was taken, with a pin at the exact
 /// location. Rendered in-app with OpenStreetMap tiles (no API key required).
 class MapScreen extends StatelessWidget {
@@ -19,9 +21,10 @@ class MapScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme scheme = Theme.of(context).colorScheme;
+    final AppLocalizations l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Location')),
+      appBar: AppBar(title: Text(l10n.mapTitle)),
       body: FlutterMap(
         options: MapOptions(
           initialCenter: LatLng(latitude, longitude),
@@ -50,8 +53,8 @@ class MapScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SimpleAttributionWidget(
-            source: Text('OpenStreetMap contributors'),
+          SimpleAttributionWidget(
+            source: Text(l10n.mapAttribution),
           ),
         ],
       ),

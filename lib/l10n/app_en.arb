@@ -1,0 +1,187 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "PhotoTag",
+  "appTagline": "GPS camera with location watermarks",
+
+  "tabCamera": "Camera",
+  "tabProjects": "Projects",
+  "tabPhotos": "Photos",
+
+  "cancel": "Cancel",
+  "create": "Create",
+  "delete": "Delete",
+  "enable": "Enable",
+  "view": "View",
+  "share": "Share",
+
+  "cameraNoCamera": "No camera is available on this device.",
+  "cameraPermissionDenied": "Camera permission is required to capture photos.",
+  "cameraCannotStart": "Unable to start the camera.",
+  "cameraCannotInit": "Unable to initialize the camera.",
+  "cameraTryAgain": "Try again",
+  "cameraPhotoSaved": "Photo saved",
+  "cameraCaptureFailed": "Could not capture the photo",
+  "cameraLocationUnavailable": "Location is unavailable",
+  "cameraGrid": "Grid",
+  "cameraSettings": "Settings",
+  "cameraSwitch": "Switch camera",
+  "cameraFlash": "Flash",
+  "locationOff": "Location off",
+  "locationNoPermission": "No permission",
+  "locationLocating": "Locating…",
+  "locationAccuracy": "±{meters} m",
+  "@locationAccuracy": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+
+  "project": "Project",
+  "projectNone": "No project",
+  "projectNew": "New project",
+  "projectName": "Project name",
+  "projectDeleteTitle": "Delete project?",
+  "projectDeleteBody": "“{name}” will be removed. The photos keep their location but are no longer grouped.",
+  "@projectDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "projectsEmpty": "No projects yet",
+  "projectsEmptyHint": "Group photos by site, job or client.",
+  "projectsAllPhotos": "All photos",
+
+  "photosAll": "Photos",
+  "photosAllCount": "Photos · {count}",
+  "@photosAllCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosEmpty": "No photos yet",
+  "photosEmptyHint": "Photos you capture appear here.",
+  "photosCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "@photosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "photoDeleteTitle": "Delete photo?",
+  "photoDeleteBody": "This photo and its location data will be removed.",
+  "photoShowOnMap": "Show on map",
+  "photoAccuracy": "Accuracy ±{meters} m",
+  "@photoAccuracy": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+
+  "mapTitle": "Location",
+  "mapAttribution": "OpenStreetMap contributors",
+
+  "settingsTitle": "Settings",
+  "sectionCoordinates": "Coordinates",
+  "sectionAppearance": "Stamp appearance",
+  "sectionFields": "Stamp fields",
+  "sectionDetails": "Details",
+  "sectionCamera": "Camera",
+  "sectionAbout": "About",
+
+  "coordFormat": "Format",
+  "coordDecimal": "Decimal degrees",
+  "coordDms": "Degrees · minutes · seconds",
+  "coordDdm": "Degrees · decimal minutes",
+  "coordUtm": "UTM",
+  "coordMgrs": "MGRS",
+
+  "stampStyle": "Style",
+  "styleCard": "Card",
+  "styleMinimal": "Minimal",
+  "styleOutline": "Outline",
+  "stampPosition": "Position",
+  "posTopLeft": "Top left",
+  "posTopCenter": "Top center",
+  "posTopRight": "Top right",
+  "posBottomLeft": "Bottom left",
+  "posBottomCenter": "Bottom center",
+  "posBottomRight": "Bottom right",
+  "stampSize": "Size",
+  "sizeSmall": "S",
+  "sizeMedium": "M",
+  "sizeLarge": "L",
+  "stampTone": "Text colour",
+  "toneLight": "Light",
+  "toneDark": "Dark",
+  "stampOpacity": "Background opacity · {percent}%",
+  "@stampOpacity": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "fieldDateTime": "Date & time",
+  "fieldCoordinates": "Coordinates",
+  "fieldBearing": "Compass bearing",
+  "fieldAltitude": "Altitude",
+  "fieldAccuracy": "Accuracy",
+  "fieldAddress": "Address",
+  "fieldPhotoNumber": "Photo number",
+
+  "detailsNote": "Note",
+  "detailsNoteHint": "e.g. Foundation inspection",
+  "detailsAuthor": "Author",
+  "detailsAuthorHint": "Your name or company",
+  "detailsCounter": "Photo counter",
+  "detailsNextNumber": "Next photo will be № {value}",
+  "@detailsNextNumber": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "detailsResetCounter": "Reset counter",
+
+  "cameraGridSetting": "Rule-of-thirds grid",
+  "cameraHud": "Live stamp preview",
+  "cameraMaxResolution": "Maximum resolution",
+  "cameraMaxResolutionHint": "Capture at the sensor's full resolution",
+  "cameraKeepOriginal": "Keep original copy",
+  "cameraKeepOriginalHint": "Also save the photo without the stamp",
+
+  "language": "Language",
+  "languageSystem": "System default",
+  "languageEnglish": "English",
+  "languageRussian": "Русский",
+
+  "stampByAuthor": "by {author}",
+  "@stampByAuthor": {
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "stampCounter": "№ {value}",
+  "@stampCounter": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  }
+}

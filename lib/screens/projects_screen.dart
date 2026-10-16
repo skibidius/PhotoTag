@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/photo_record.dart';
 import '../services/photo_store.dart';
 import '../services/project_store.dart';
@@ -17,28 +18,30 @@ class ProjectsScreen extends StatelessWidget {
 
   Future<void> _createProject(BuildContext context) async {
     final ProjectStore store = context.read<ProjectStore>();
+    final AppLocalizations l10n = AppLocalizations.of(context);
     final TextEditingController controller = TextEditingController();
     final String? name = await showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('New project'),
+        title: Text(l10n.projectNew),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Project name',
-            border: OutlineInputBorder(),
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            labelText: l10n.projectName,
+            border: const OutlineInputBorder(),
           ),
           onSubmitted: (String v) => Navigator.of(context).pop(v),
         ),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text('Create'),
+            child: Text(l10n.create),
           ),
         ],
       ),
@@ -50,20 +53,20 @@ class ProjectsScreen extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, String project) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('Delete project?'),
-        content: Text(
-            '“$project” will be removed. The photos keep their location but are no longer grouped.'),
+        title: Text(l10n.projectDeleteTitle),
+        content: Text(l10n.projectDeleteBody(project)),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -78,13 +81,14 @@ class ProjectsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ProjectStore projects = context.watch<ProjectStore>();
     final PhotoStore photos = context.watch<PhotoStore>();
+    final AppLocalizations l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Projects')),
+      appBar: AppBar(title: Text(l10n.tabProjects)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _createProject(context),
         icon: const Icon(Icons.add),
-        label: const Text('New project'),
+        label: Text(l10n.projectNew),
       ),
       body: projects.projects.isEmpty
           ? const _EmptyProjects()
@@ -93,8 +97,8 @@ class ProjectsScreen extends StatelessWidget {
               children: <Widget>[
                 ListTile(
                   leading: const Icon(Icons.photo_library_outlined),
-                  title: const Text('All photos'),
-                  subtitle: Text('${photos.records.length}'),
+                  title: Text(l10n.projectsAllPhotos),
+                  subtitle: Text(l10n.photosCount(photos.records.length)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context)
                       .push(sharedAxisRoute(const GalleryScreen())),
@@ -104,16 +108,16 @@ class ProjectsScreen extends StatelessWidget {
                   ListTile(
                     leading: const Icon(Icons.folder_outlined),
                     title: Text(project),
-                    subtitle: Text('${_countFor(photos, project)} photos'),
+                    subtitle: Text(l10n.photosCount(_countFor(photos, project))),
                     trailing: PopupMenuButton<String>(
                       onSelected: (String value) {
                         if (value == 'delete') _confirmDelete(context, project);
                       },
                       itemBuilder: (BuildContext context) =>
-                          const <PopupMenuEntry<String>>[
+                          <PopupMenuEntry<String>>[
                         PopupMenuItem<String>(
                           value: 'delete',
-                          child: Text('Delete'),
+                          child: Text(l10n.delete),
                         ),
                       ],
                     ),
@@ -132,6 +136,7 @@ class _EmptyProjects extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -142,10 +147,12 @@ class _EmptyProjects extends StatelessWidget {
             color: Theme.of(context).colorScheme.outline,
           ),
           const SizedBox(height: 16),
-          Text('No projects yet', style: Theme.of(context).textTheme.titleMedium),
+          Text(l10n.projectsEmpty,
+              style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 4),
           Text(
-            'Group photos by site, job or client.',
+            l10n.projectsEmptyHint,
+            textAlign: TextAlign.center,
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium

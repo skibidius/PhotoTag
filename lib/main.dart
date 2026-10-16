@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
+import 'l10n/app_localizations.dart';
+import 'models/app_settings.dart';
 import 'screens/home_screen.dart';
 import 'services/location_service.dart';
 import 'services/photo_store.dart';
@@ -11,6 +14,7 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting();
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
   ]);
@@ -57,14 +61,32 @@ class PhotoTagApp extends StatelessWidget {
         ChangeNotifierProvider<ProjectStore>.value(value: projects),
         ChangeNotifierProvider<LocationService>.value(value: location),
       ],
-      child: MaterialApp(
-        title: 'PhotoTag',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.system,
-        home: const HomeScreen(),
+      child: Consumer<SettingsController>(
+        builder: (BuildContext context, SettingsController controller, _) {
+          return MaterialApp(
+            title: 'PhotoTag',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: ThemeMode.system,
+            locale: _localeFor(controller.value.language),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const HomeScreen(),
+          );
+        },
       ),
     );
+  }
+
+  Locale? _localeFor(AppLanguage language) {
+    switch (language) {
+      case AppLanguage.system:
+        return null;
+      case AppLanguage.english:
+        return const Locale('en');
+      case AppLanguage.russian:
+        return const Locale('ru');
+    }
   }
 }

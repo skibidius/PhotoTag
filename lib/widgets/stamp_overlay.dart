@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/app_settings.dart';
 import '../models/photo_record.dart';
 import '../utils/formatters.dart';
@@ -70,7 +71,14 @@ class StampOverlay extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _lines(text, secondary, border, s),
+                    children: _lines(
+                      text,
+                      secondary,
+                      border,
+                      s,
+                      AppLocalizations.of(context),
+                      Localizations.localeOf(context).toString(),
+                    ),
                   ),
                 ),
               ],
@@ -92,10 +100,11 @@ class StampOverlay extends StatelessWidget {
     }
   }
 
-  List<Widget> _lines(Color text, Color secondary, Color border, double s) {
+  List<Widget> _lines(Color text, Color secondary, Color border, double s,
+      AppLocalizations l10n, String locale) {
     final List<Widget> lines = <Widget>[];
 
-    final String dateTime = _dateTimeText;
+    final String dateTime = _dateTimeText(locale);
     final String coords = data.coordText;
     final String meta = _metaText;
     final String address = _addressText;
@@ -181,7 +190,7 @@ class StampOverlay extends StatelessWidget {
       ));
     }
 
-    if (_footerText.isNotEmpty) {
+    if (_footerText(l10n).isNotEmpty) {
       addSpace(1.4);
       lines.add(Container(
         width: double.infinity,
@@ -190,7 +199,7 @@ class StampOverlay extends StatelessWidget {
       ));
       addSpace(1.1);
       lines.add(Text(
-        _footerText,
+        _footerText(l10n),
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
@@ -214,7 +223,7 @@ class StampOverlay extends StatelessWidget {
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text(
-            '№ ${data.counter.toString().padLeft(3, '0')}',
+            l10n.stampCounter(data.counter.toString().padLeft(3, '0')),
             style: TextStyle(
               fontFamily: 'RobotoMono',
               fontSize: 24 * s,
@@ -237,13 +246,13 @@ class StampOverlay extends StatelessWidget {
     return lines;
   }
 
-  String get _dateTimeText {
+  String _dateTimeText(String locale) {
     if (!settings.showDate && !settings.showTime) return '';
     if (settings.showDate && settings.showTime) {
-      return Formatters.dateTime(data.timestamp);
+      return Formatters.dateTime(data.timestamp, locale);
     }
-    if (settings.showDate) return Formatters.date(data.timestamp);
-    return Formatters.time(data.timestamp);
+    if (settings.showDate) return Formatters.date(data.timestamp, locale);
+    return Formatters.time(data.timestamp, locale);
   }
 
   String get _addressText {
@@ -252,7 +261,7 @@ class StampOverlay extends StatelessWidget {
     return (a == null || a.isEmpty) ? '' : a;
   }
 
-  String get _footerText {
+  String _footerText(AppLocalizations l10n) {
     final List<String> parts = <String>[];
     if (data.project != null && data.project!.isNotEmpty) {
       parts.add(data.project!);
@@ -261,7 +270,7 @@ class StampOverlay extends StatelessWidget {
       parts.add(data.note!);
     }
     if (settings.showAuthor && data.author != null && data.author!.isNotEmpty) {
-      parts.add('by ${data.author}');
+      parts.add(l10n.stampByAuthor(data.author!));
     }
     return parts.join('  ·  ');
   }

@@ -298,20 +298,5 @@ enum CoordFormat {
   dms,
   ddm,
   utm,
-  mgrs;
-
-  String get label {
-    switch (this) {
-      case CoordFormat.decimal:
-        return 'Decimal degrees';
-      case CoordFormat.dms:
-        return 'Degrees · minutes · seconds';
-      case CoordFormat.ddm:
-        return 'Degrees · decimal minutes';
-      case CoordFormat.utm:
-        return 'UTM';
-      case CoordFormat.mgrs:
-        return 'MGRS';
-    }
-  }
+  mgrs,
 }

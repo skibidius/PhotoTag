@@ -4,12 +4,14 @@ import 'package:intl/intl.dart';
 class Formatters {
   Formatters._();
 
-  static String date(DateTime t) => DateFormat('d MMM yyyy', 'en_US').format(t);
+  static String date(DateTime t, String locale) =>
+      DateFormat('d MMM yyyy', locale).format(t);
 
-  static String time(DateTime t) => DateFormat('HH:mm:ss', 'en_US').format(t);
+  static String time(DateTime t, String locale) =>
+      DateFormat('HH:mm:ss', locale).format(t);
 
-  static String dateTime(DateTime t) =>
-      DateFormat('d MMM yyyy · HH:mm:ss', 'en_US').format(t);
+  static String dateTime(DateTime t, String locale) =>
+      DateFormat('d MMM yyyy · HH:mm:ss', locale).format(t);
 
   /// Rounds a heading to the nearest 16-wind cardinal direction.
   static String cardinal(double degrees) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/app_settings.dart';
 import '../services/settings_controller.dart';
 import '../utils/coords.dart';
@@ -10,20 +11,47 @@ import '../utils/coords.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
+  String _coordLabel(AppLocalizations l10n, CoordFormat f) {
+    switch (f) {
+      case CoordFormat.decimal:
+        return l10n.coordDecimal;
+      case CoordFormat.dms:
+        return l10n.coordDms;
+      case CoordFormat.ddm:
+        return l10n.coordDdm;
+      case CoordFormat.utm:
+        return l10n.coordUtm;
+      case CoordFormat.mgrs:
+        return l10n.coordMgrs;
+    }
+  }
+
+  String _languageLabel(AppLocalizations l10n, AppLanguage language) {
+    switch (language) {
+      case AppLanguage.system:
+        return l10n.languageSystem;
+      case AppLanguage.english:
+        return l10n.languageEnglish;
+      case AppLanguage.russian:
+        return l10n.languageRussian;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final SettingsController controller = context.watch<SettingsController>();
     final AppSettings settings = controller.value;
+    final AppLocalizations l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: <Widget>[
-          const _Header('Coordinates'),
+          _Header(l10n.sectionCoordinates),
           ListTile(
             leading: const Icon(Icons.pin_drop_outlined),
-            title: const Text('Format'),
+            title: Text(l10n.coordFormat),
             trailing: DropdownButton<CoordFormat>(
               value: settings.coordFormat,
               underline: const SizedBox.shrink(),
@@ -35,20 +63,22 @@ class SettingsScreen extends StatelessWidget {
                 }
               },
               items: CoordFormat.values
-                  .map((CoordFormat f) =>
-                      DropdownMenuItem<CoordFormat>(value: f, child: Text(f.label)))
+                  .map((CoordFormat f) => DropdownMenuItem<CoordFormat>(
+                        value: f,
+                        child: Text(_coordLabel(l10n, f)),
+                      ))
                   .toList(),
             ),
           ),
 
-          const _Header('Stamp appearance'),
+          _Header(l10n.sectionAppearance),
           _Segmented<StampStyle>(
-            label: 'Style',
+            label: l10n.stampStyle,
             value: settings.stampStyle,
-            options: const <(StampStyle, String)>[
-              (StampStyle.card, 'Card'),
-              (StampStyle.minimal, 'Minimal'),
-              (StampStyle.outline, 'Outline'),
+            options: <(StampStyle, String)>[
+              (StampStyle.card, l10n.styleCard),
+              (StampStyle.minimal, l10n.styleMinimal),
+              (StampStyle.outline, l10n.styleOutline),
             ],
             onChanged: (StampStyle v) {
               HapticFeedback.selectionClick();
@@ -57,6 +87,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _PositionPicker(
+            label: l10n.stampPosition,
             value: settings.stampPosition,
             onChanged: (StampPosition v) {
               HapticFeedback.selectionClick();
@@ -64,12 +95,12 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           _Segmented<StampSize>(
-            label: 'Size',
+            label: l10n.stampSize,
             value: settings.stampSize,
-            options: const <(StampSize, String)>[
-              (StampSize.small, 'S'),
-              (StampSize.medium, 'M'),
-              (StampSize.large, 'L'),
+            options: <(StampSize, String)>[
+              (StampSize.small, l10n.sizeSmall),
+              (StampSize.medium, l10n.sizeMedium),
+              (StampSize.large, l10n.sizeLarge),
             ],
             onChanged: (StampSize v) {
               HapticFeedback.selectionClick();
@@ -77,11 +108,11 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           _Segmented<StampTone>(
-            label: 'Text colour',
+            label: l10n.stampTone,
             value: settings.stampTone,
-            options: const <(StampTone, String)>[
-              (StampTone.light, 'Light'),
-              (StampTone.dark, 'Dark'),
+            options: <(StampTone, String)>[
+              (StampTone.light, l10n.toneLight),
+              (StampTone.dark, l10n.toneDark),
             ],
             onChanged: (StampTone v) {
               HapticFeedback.selectionClick();
@@ -90,7 +121,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.opacity_outlined),
-            title: const Text('Background opacity'),
+            title: Text(l10n.stampOpacity((settings.opacity * 100).round())),
             subtitle: Slider(
               value: settings.opacity,
               min: 0.3,
@@ -100,29 +131,30 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
 
-          const _Header('Stamp fields'),
+          _Header(l10n.sectionFields),
           _Toggle(
             icon: Icons.calendar_today_outlined,
-            label: 'Date & time',
+            label: l10n.fieldDateTime,
             value: settings.showDate && settings.showTime,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
-              controller.update((AppSettings s) =>
-                  s.copyWith(showDate: v, showTime: v));
+              controller.update(
+                  (AppSettings s) => s.copyWith(showDate: v, showTime: v));
             },
           ),
           _Toggle(
             icon: Icons.place_outlined,
-            label: 'Coordinates',
+            label: l10n.fieldCoordinates,
             value: settings.showCoordinates,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
-              controller.update((AppSettings s) => s.copyWith(showCoordinates: v));
+              controller
+                  .update((AppSettings s) => s.copyWith(showCoordinates: v));
             },
           ),
           _Toggle(
             icon: Icons.navigation_outlined,
-            label: 'Compass bearing',
+            label: l10n.fieldBearing,
             value: settings.showBearing,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
@@ -131,7 +163,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           _Toggle(
             icon: Icons.height_outlined,
-            label: 'Altitude',
+            label: l10n.fieldAltitude,
             value: settings.showAltitude,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
@@ -140,7 +172,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           _Toggle(
             icon: Icons.gps_fixed,
-            label: 'Accuracy',
+            label: l10n.fieldAccuracy,
             value: settings.showAccuracy,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
@@ -149,7 +181,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           _Toggle(
             icon: Icons.signpost_outlined,
-            label: 'Address',
+            label: l10n.fieldAddress,
             value: settings.showAddress,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
@@ -158,7 +190,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           _Toggle(
             icon: Icons.tag,
-            label: 'Photo number',
+            label: l10n.fieldPhotoNumber,
             value: settings.showCounter,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
@@ -166,30 +198,31 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
 
-          const _Header('Details'),
+          _Header(l10n.sectionDetails),
           _TextField(
             icon: Icons.notes_outlined,
-            label: 'Note',
-            hint: 'e.g. Foundation inspection',
+            label: l10n.detailsNote,
+            hint: l10n.detailsNoteHint,
             value: settings.note,
-            onChanged: (String v) => controller
-                .update((AppSettings s) => s.copyWith(note: v, showNote: v.isNotEmpty)),
+            onChanged: (String v) => controller.update(
+                (AppSettings s) => s.copyWith(note: v, showNote: v.isNotEmpty)),
           ),
           _TextField(
             icon: Icons.person_outline,
-            label: 'Author',
-            hint: 'Your name or company',
+            label: l10n.detailsAuthor,
+            hint: l10n.detailsAuthorHint,
             value: settings.author,
-            onChanged: (String v) => controller
-                .update((AppSettings s) => s.copyWith(author: v, showAuthor: v.isNotEmpty)),
+            onChanged: (String v) => controller.update((AppSettings s) =>
+                s.copyWith(author: v, showAuthor: v.isNotEmpty)),
           ),
           ListTile(
             leading: const Icon(Icons.pin_outlined),
-            title: const Text('Photo counter'),
-            subtitle: Text('Next photo will be № ${settings.counter.toString().padLeft(3, '0')}'),
+            title: Text(l10n.detailsCounter),
+            subtitle: Text(l10n
+                .detailsNextNumber(settings.counter.toString().padLeft(3, '0'))),
             trailing: IconButton(
               icon: const Icon(Icons.restart_alt),
-              tooltip: 'Reset counter',
+              tooltip: l10n.detailsResetCounter,
               onPressed: () {
                 HapticFeedback.selectionClick();
                 controller.update((AppSettings s) => s.copyWith(counter: 1));
@@ -197,10 +230,10 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
 
-          const _Header('Camera'),
+          _Header(l10n.sectionCamera),
           _Toggle(
             icon: Icons.grid_4x4,
-            label: 'Rule-of-thirds grid',
+            label: l10n.cameraGridSetting,
             value: settings.showGrid,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
@@ -209,7 +242,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           _Toggle(
             icon: Icons.visibility_outlined,
-            label: 'Live stamp preview',
+            label: l10n.cameraHud,
             value: settings.showHud,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
@@ -218,8 +251,8 @@ class SettingsScreen extends StatelessWidget {
           ),
           _Toggle(
             icon: Icons.high_quality_outlined,
-            label: 'Maximum resolution',
-            subtitle: 'Capture at the sensor\'s full resolution',
+            label: l10n.cameraMaxResolution,
+            subtitle: l10n.cameraMaxResolutionHint,
             value: settings.highResolution,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
@@ -228,13 +261,43 @@ class SettingsScreen extends StatelessWidget {
           ),
           _Toggle(
             icon: Icons.layers_outlined,
-            label: 'Keep original copy',
-            subtitle: 'Also save the photo without the stamp',
+            label: l10n.cameraKeepOriginal,
+            subtitle: l10n.cameraKeepOriginalHint,
             value: settings.saveOriginal,
             onChanged: (bool v) {
               HapticFeedback.selectionClick();
               controller.update((AppSettings s) => s.copyWith(saveOriginal: v));
             },
+          ),
+
+          _Header(l10n.language),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: Text(l10n.language),
+            trailing: DropdownButton<AppLanguage>(
+              value: settings.language,
+              underline: const SizedBox.shrink(),
+              borderRadius: BorderRadius.circular(16),
+              onChanged: (AppLanguage? v) {
+                if (v != null) {
+                  HapticFeedback.selectionClick();
+                  controller.update((AppSettings s) => s.copyWith(language: v));
+                }
+              },
+              items: AppLanguage.values
+                  .map((AppLanguage l) => DropdownMenuItem<AppLanguage>(
+                        value: l,
+                        child: Text(_languageLabel(l10n, l)),
+                      ))
+                  .toList(),
+            ),
+          ),
+
+          _Header(l10n.sectionAbout),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: Text(l10n.appTitle),
+            subtitle: Text(l10n.appTagline),
           ),
         ],
       ),
@@ -310,7 +373,7 @@ class _Segmented<T> extends StatelessWidget {
       child: Row(
         children: <Widget>[
           SizedBox(
-            width: 120,
+            width: 110,
             child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
           ),
           Expanded(
@@ -331,8 +394,13 @@ class _Segmented<T> extends StatelessWidget {
 }
 
 class _PositionPicker extends StatelessWidget {
-  const _PositionPicker({required this.value, required this.onChanged});
+  const _PositionPicker({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
 
+  final String label;
   final StampPosition value;
   final ValueChanged<StampPosition> onChanged;
 
@@ -353,7 +421,7 @@ class _PositionPicker extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Position', style: Theme.of(context).textTheme.bodyMedium),
+          Text(label, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 3,
@@ -398,7 +466,7 @@ class _PositionPicker extends StatelessWidget {
   }
 }
 
-class _TextField extends StatelessWidget {
+class _TextField extends StatefulWidget {
   const _TextField({
     required this.icon,
     required this.label,
@@ -414,17 +482,42 @@ class _TextField extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   @override
+  State<_TextField> createState() => _TextFieldState();
+}
+
+class _TextFieldState extends State<_TextField> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.value);
+
+  @override
+  void didUpdateWidget(_TextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Keep in sync if the value changes elsewhere, without disturbing typing.
+    if (widget.value != oldWidget.value && _controller.text != widget.value) {
+      _controller.text = widget.value;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon),
-      title: TextField(
-        controller: TextEditingController(text: value),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+      child: TextField(
+        controller: _controller,
+        textCapitalization: TextCapitalization.sentences,
         decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          border: const UnderlineInputBorder(),
+          labelText: widget.label,
+          hintText: widget.hint,
+          prefixIcon: Icon(widget.icon),
+          border: const OutlineInputBorder(),
         ),
-        onChanged: onChanged,
+        onChanged: widget.onChanged,
       ),
     );
   }

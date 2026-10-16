@@ -5,6 +5,7 @@ on:
     branches: [main]
     tags: ['v*']
   pull_request:
+  workflow_dispatch:
 
 jobs:
   analyze:
@@ -43,12 +44,16 @@ jobs:
       - run: flutter pub get
       - run: flutter build apk --release
       - run: flutter build appbundle --release
+      - name: Rename artifacts
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/phototag.apk
+          cp build/app/outputs/bundle/release/app-release.aab dist/phototag.aab
       - uses: actions/upload-artifact@v4
         with:
-          name: android-release
-          path: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
+          name: android
+          if-no-files-found: error
+          path: dist/*
 
   build-ios:
     name: Build iOS
@@ -61,31 +66,35 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
+      - name: Package
+        run: |
+          mkdir -p dist
+          cd build/ios/iphoneos
+          zip -r -q "$GITHUB_WORKSPACE/dist/phototag-ios.zip" Runner.app
       - uses: actions/upload-artifact@v4
         with:
-          name: ios-release
-          path: build/ios/iphoneos/Runner.app
+          name: ios
+          if-no-files-found: error
+          path: dist/*
 
   release:
     name: Release
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: [build-android, build-ios]
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          path: artifacts
-      - name: Package
-        run: |
-          set -e
-          cd artifacts
-          zip -r android-release.zip android-release
-          zip -r ios-release.zip ios-release
+          path: dist
+          merge-multiple: true
+      - name: Show files
+        run: ls -lh dist
       - uses: softprops/action-gh-release@v2
         with:
+          generate_release_notes: true
           files: |
-            artifacts/android-release.zip
-            artifacts/ios-release.zip
+            dist/phototag.apk
+            dist/phototag.aab
+            dist/phototag-ios.zip

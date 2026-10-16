@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:gal/gal.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/app_settings.dart';
 import '../models/photo_record.dart';
 import '../services/image_processor.dart';
@@ -20,6 +21,9 @@ import '../utils/page_route.dart';
 import '../widgets/stamp_overlay.dart';
 import 'gallery_screen.dart';
 import 'settings_screen.dart';
+
+/// Camera startup failures, localised at render time.
+enum _CameraError { noCamera, permission, cannotStart, cannotInit }
 
 /// The in-app camera. It captures at the maximum available resolution, renders
 /// the stamp from the same widget shown in the preview, and burns it into the
@@ -34,19 +38,23 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen>
     with WidgetsBindingObserver {
   static const double _capturePixelRatio = 6.0;
-
   final GlobalKey _captureKey = GlobalKey();
 
   CameraController? _controller;
   List<CameraDescription> _cameras = <CameraDescription>[];
   int _cameraIndex = 0;
   bool _initializing = true;
-  String? _error;
+  _CameraError? _error;
 
   FlashMode _flashMode = FlashMode.off;
   double _zoom = 1.0;
   double _minZoom = 1.0;
   double _maxZoom = 1.0;
+  double _scaleStartZoom = 1.0;
+
+  Offset? _focusPoint;
+  bool _focusRingVisible = false;
+  Timer? _focusTimer;
 
   bool _capturing = false;
   StampContext? _captureCtx;
@@ -75,11 +83,12 @@ class _CameraScreenState extends State<CameraScreen>
   Future<void> _ensureLocation() async {
     final bool ok = await _location.start();
     if (!ok && mounted) {
+      final AppLocalizations l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Location is unavailable'),
+          content: Text(l10n.cameraLocationUnavailable),
           action: SnackBarAction(
-            label: 'Enable',
+            label: l10n.enable,
             onPressed: () => _location.openSettings(),
           ),
         ),
@@ -90,6 +99,7 @@ class _CameraScreenState extends State<CameraScreen>
   @override
   void dispose() {
     _clock?.cancel();
+    _focusTimer?.cancel();
     _location.removeListener(_onLocationChanged);
     WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
@@ -126,7 +136,7 @@ class _CameraScreenState extends State<CameraScreen>
       _cameras = await availableCameras();
       if (_cameras.isEmpty) {
         setState(() {
-          _error = 'No camera is available on this device.';
+          _error = _CameraError.noCamera;
           _initializing = false;
         });
         return;
@@ -137,14 +147,15 @@ class _CameraScreenState extends State<CameraScreen>
       await _initController(_cameras[_cameraIndex]);
     } on CameraException catch (e) {
       setState(() {
-        _error = e.code == 'CameraAccessDenied' || e.code == 'CameraAccessDeniedWithoutPrompt'
-            ? 'Camera permission is required to capture photos.'
-            : (e.description ?? 'Unable to start the camera.');
+        _error = e.code == 'CameraAccessDenied' ||
+                e.code == 'CameraAccessDeniedWithoutPrompt'
+            ? _CameraError.permission
+            : _CameraError.cannotStart;
         _initializing = false;
       });
     } catch (e) {
       setState(() {
-        _error = 'Unable to start the camera.';
+        _error = _CameraError.cannotStart;
         _initializing = false;
       });
     }
@@ -163,12 +174,14 @@ class _CameraScreenState extends State<CameraScreen>
       await controller.initialize();
       _minZoom = await controller.getMinZoomLevel();
       _maxZoom = await controller.getMaxZoomLevel();
+      _zoom = 1.0.clamp(_minZoom, _maxZoom);
+      await controller.setZoomLevel(_zoom);
       await controller.setFlashMode(_flashMode);
       if (mounted) setState(() => _initializing = false);
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Unable to initialize the camera.';
+          _error = _CameraError.cannotInit;
           _initializing = false;
         });
       }
@@ -178,7 +191,14 @@ class _CameraScreenState extends State<CameraScreen>
   Future<void> _toggleCamera() async {
     HapticFeedback.selectionClick();
     if (_cameras.length < 2) return;
-    _cameraIndex = (_cameraIndex + 1) % _cameras.length;
+    final CameraLensDirection current = _cameras[_cameraIndex].lensDirection;
+    final CameraLensDirection target = current == CameraLensDirection.back
+        ? CameraLensDirection.front
+        : CameraLensDirection.back;
+    final int idx =
+        _cameras.indexWhere((CameraDescription c) => c.lensDirection == target);
+    if (idx < 0) return;
+    _cameraIndex = idx;
     await _initController(_cameras[_cameraIndex]);
   }
 
@@ -205,6 +225,32 @@ class _CameraScreenState extends State<CameraScreen>
     _zoom = clamped;
     _controller?.setZoomLevel(clamped);
     setState(() {});
+  }
+
+  void _onScaleStart(ScaleStartDetails details) {
+    _scaleStartZoom = _zoom;
+  }
+
+  void _onScaleUpdate(ScaleUpdateDetails details) {
+    if (details.pointerCount < 2) return;
+    _setZoom(_scaleStartZoom * details.scale);
+  }
+
+  void _onTapFocus(TapUpDetails details, Size size) {
+    final Offset pos = details.localPosition;
+    final double nx = (pos.dx / size.width).clamp(0.0, 1.0);
+    final double ny = (pos.dy / size.height).clamp(0.0, 1.0);
+    _controller?.setFocusPoint(Offset(nx, ny));
+    _controller?.setExposurePoint(Offset(nx, ny));
+    HapticFeedback.selectionClick();
+    setState(() {
+      _focusPoint = pos;
+      _focusRingVisible = true;
+    });
+    _focusTimer?.cancel();
+    _focusTimer = Timer(const Duration(milliseconds: 900), () {
+      if (mounted) setState(() => _focusRingVisible = false);
+    });
   }
 
   Future<void> _capture() async {
@@ -273,11 +319,12 @@ class _CameraScreenState extends State<CameraScreen>
 
       HapticFeedback.lightImpact();
       if (mounted) {
+        final AppLocalizations l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Photo saved'),
+            content: Text(l10n.cameraPhotoSaved),
             action: SnackBarAction(
-              label: 'View',
+              label: l10n.view,
               onPressed: () => _openGallery(),
             ),
           ),
@@ -289,7 +336,7 @@ class _CameraScreenState extends State<CameraScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not capture the photo')),
+          SnackBar(content: Text(AppLocalizations.of(context).cameraCaptureFailed)),
         );
       }
     } finally {
@@ -372,7 +419,14 @@ class _CameraScreenState extends State<CameraScreen>
       fit: StackFit.expand,
       clipBehavior: Clip.none,
       children: <Widget>[
-        _buildPreview(),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onScaleStart: _onScaleStart,
+          onScaleUpdate: _onScaleUpdate,
+          onTapUp: (TapUpDetails d) =>
+              _onTapFocus(d, MediaQuery.sizeOf(context)),
+          child: _buildPreview(),
+        ),
         // Hidden capture target: renders the stamp at export resolution.
         Positioned(
           left: -100000,
@@ -389,6 +443,29 @@ class _CameraScreenState extends State<CameraScreen>
           ),
         ),
         if (settings.showGrid) const _GridOverlay(),
+        if (_focusPoint != null)
+          Positioned(
+            left: _focusPoint!.dx - 38,
+            top: _focusPoint!.dy - 38,
+            child: IgnorePointer(
+              child: AnimatedOpacity(
+                opacity: _focusRingVisible ? 1 : 0,
+                duration: const Duration(milliseconds: 220),
+                child: AnimatedScale(
+                  scale: _focusRingVisible ? 1.0 : 1.3,
+                  duration: const Duration(milliseconds: 220),
+                  child: Container(
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         if (settings.showHud)
           _StampPreview(settings: settings, data: liveCtx, accent: accent),
         _buildTopBar(settings, location, accent),
@@ -425,6 +502,13 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   Widget _buildError(AppSettings settings, Color accent) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final String message = switch (_error!) {
+      _CameraError.noCamera => l10n.cameraNoCamera,
+      _CameraError.permission => l10n.cameraPermissionDenied,
+      _CameraError.cannotStart => l10n.cameraCannotStart,
+      _CameraError.cannotInit => l10n.cameraCannotInit,
+    };
     return Container(
       color: Colors.black,
       padding: const EdgeInsets.all(32),
@@ -435,7 +519,7 @@ class _CameraScreenState extends State<CameraScreen>
               color: Colors.white54, size: 56),
           const SizedBox(height: 20),
           Text(
-            _error!,
+            message,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
@@ -443,7 +527,7 @@ class _CameraScreenState extends State<CameraScreen>
           FilledButton.icon(
             onPressed: _initCamera,
             icon: const Icon(Icons.refresh),
-            label: const Text('Try again'),
+            label: Text(l10n.cameraTryAgain),
           ),
         ],
       ),
@@ -452,30 +536,38 @@ class _CameraScreenState extends State<CameraScreen>
 
   Widget _buildTopBar(
       AppSettings settings, LocationService location, Color accent) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            _ProjectChip(onTap: _openProjectPicker),
-            const Spacer(),
+            Row(
+              children: <Widget>[
+                Flexible(child: _ProjectChip(onTap: _openProjectPicker)),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => _settings.update(
+                    (AppSettings s) => s.copyWith(showGrid: !s.showGrid),
+                  ),
+                  icon: Icon(
+                    settings.showGrid
+                        ? Icons.grid_4x4
+                        : Icons.grid_4x4_outlined,
+                    color: Colors.white,
+                  ),
+                  tooltip: l10n.cameraGrid,
+                ),
+                IconButton(
+                  onPressed: _openSettings,
+                  icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                  tooltip: l10n.cameraSettings,
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
             _LocationPill(location: location, accent: accent),
-            const Spacer(),
-            IconButton(
-              onPressed: () => _settings.update(
-                (AppSettings s) => s.copyWith(showGrid: !s.showGrid),
-              ),
-              icon: Icon(
-                settings.showGrid ? Icons.grid_4x4 : Icons.grid_4x4_outlined,
-                color: Colors.white,
-              ),
-              tooltip: 'Grid',
-            ),
-            IconButton(
-              onPressed: _openSettings,
-              icon: const Icon(Icons.settings_outlined, color: Colors.white),
-              tooltip: 'Settings',
-            ),
           ],
         ),
       ),
@@ -488,6 +580,7 @@ class _CameraScreenState extends State<CameraScreen>
       context: context,
       showDragHandle: true,
       builder: (BuildContext context) {
+        final AppLocalizations l10n = AppLocalizations.of(context);
         return SafeArea(
           child: ListView(
             shrinkWrap: true,
@@ -495,13 +588,13 @@ class _CameraScreenState extends State<CameraScreen>
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                 child: Text(
-                  'Project',
+                  l10n.project,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               ListTile(
                 leading: const Icon(Icons.block_outlined),
-                title: const Text('No project'),
+                title: Text(l10n.projectNone),
                 trailing: store.active == null ? const Icon(Icons.check) : null,
                 onTap: () => Navigator.of(context).pop(''),
               ),
@@ -515,7 +608,7 @@ class _CameraScreenState extends State<CameraScreen>
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.add),
-                title: const Text('New project'),
+                title: Text(l10n.projectNew),
                 onTap: () async {
                   Navigator.of(context).pop();
                   await _createProject();
@@ -534,28 +627,30 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   Future<void> _createProject() async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
     final TextEditingController controller = TextEditingController();
     final String? name = await showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('New project'),
+        title: Text(l10n.projectNew),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Project name',
-            border: OutlineInputBorder(),
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            labelText: l10n.projectName,
+            border: const OutlineInputBorder(),
           ),
           onSubmitted: (String v) => Navigator.of(context).pop(v),
         ),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text('Create'),
+            child: Text(l10n.create),
           ),
         ],
       ),
@@ -567,6 +662,7 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   Widget _buildBottomControls(AppSettings settings, Color accent) {
+    final List<double> presets = _zoomPresets;
     return SafeArea(
       child: Align(
         alignment: Alignment.bottomCenter,
@@ -575,14 +671,16 @@ class _CameraScreenState extends State<CameraScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              if (_maxZoom > _minZoom)
+              if (presets.length > 1)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _ZoomSlider(
-                    value: _zoom,
-                    min: _minZoom,
-                    max: _maxZoom,
-                    onChanged: _setZoom,
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: _ZoomPresets(
+                    presets: presets,
+                    current: _zoom,
+                    onSelected: (double z) {
+                      HapticFeedback.selectionClick();
+                      _setZoom(z);
+                    },
                   ),
                 ),
               Row(
@@ -590,7 +688,7 @@ class _CameraScreenState extends State<CameraScreen>
                   _ControlButton(
                     icon: _flashIcon(),
                     onTap: _cycleFlash,
-                    tooltip: 'Flash',
+                    tooltip: AppLocalizations.of(context).cameraFlash,
                   ),
                   const Spacer(),
                   _ShutterButton(capturing: _capturing, onTap: _capture),
@@ -598,7 +696,7 @@ class _CameraScreenState extends State<CameraScreen>
                   _ControlButton(
                     icon: Icons.cameraswitch_outlined,
                     onTap: _cameras.length > 1 ? _toggleCamera : null,
-                    tooltip: 'Switch camera',
+                    tooltip: AppLocalizations.of(context).cameraSwitch,
                   ),
                 ],
               ),
@@ -607,6 +705,19 @@ class _CameraScreenState extends State<CameraScreen>
         ),
       ),
     );
+  }
+
+  /// The lens / zoom presets offered by the current camera, e.g. 0.5×, 1×, 2×.
+  List<double> get _zoomPresets {
+    final Set<double> set = <double>{1.0};
+    if (_minZoom <= 0.55) set.add(0.5);
+    if (_maxZoom >= 2.0) set.add(2.0);
+    if (_maxZoom >= 3.0) set.add(3.0);
+    final List<double> list = set
+        .where((double z) => z >= _minZoom - 0.01 && z <= _maxZoom + 0.01)
+        .toList()
+      ..sort();
+    return list;
   }
 
   IconData _flashIcon() {
@@ -637,13 +748,14 @@ class _StampPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-      child: Align(
-        alignment: settings.stampPosition.alignment,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
+      child: Padding(
+        // Keep the preview clear of the top bar and the capture controls.
+        padding: const EdgeInsets.fromLTRB(14, 118, 14, 168),
+        child: Align(
+          alignment: settings.stampPosition.alignment,
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: MediaQuery.sizeOf(context).width * 0.8,
+              maxWidth: MediaQuery.sizeOf(context).width * 0.78,
             ),
             child: FittedBox(
               fit: BoxFit.scaleDown,
@@ -702,24 +814,25 @@ class _LocationPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LocationFix? fix = location.fix;
+    final AppLocalizations l10n = AppLocalizations.of(context);
 
     String text;
     IconData icon;
     Color color;
     if (!location.serviceEnabled) {
-      text = 'Location off';
+      text = l10n.locationOff;
       icon = Icons.location_off_outlined;
       color = Colors.orangeAccent;
     } else if (!location.permissionGranted) {
-      text = 'No permission';
+      text = l10n.locationNoPermission;
       icon = Icons.location_disabled_outlined;
       color = Colors.orangeAccent;
     } else if (fix == null) {
-      text = 'Locating…';
+      text = l10n.locationLocating;
       icon = Icons.my_location_outlined;
       color = Colors.white70;
     } else {
-      text = '±${fix.accuracy?.round() ?? '–'} m';
+      text = l10n.locationAccuracy(fix.accuracy?.round().toString() ?? '–');
       icon = Icons.gps_fixed;
       color = accent;
     }
@@ -782,7 +895,7 @@ class _ProjectChip extends StatelessWidget {
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 110),
                 child: Text(
-                  active ?? 'No project',
+                  active ?? AppLocalizations.of(context).projectNone,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: Colors.white, fontSize: 13),
@@ -883,44 +996,52 @@ class _ShutterButtonState extends State<_ShutterButton> {
   }
 }
 
-class _ZoomSlider extends StatelessWidget {
-  const _ZoomSlider({
-    required this.value,
-    required this.min,
-    required this.max,
-    required this.onChanged,
+class _ZoomPresets extends StatelessWidget {
+  const _ZoomPresets({
+    required this.presets,
+    required this.current,
+    required this.onSelected,
   });
 
-  final double value;
-  final double min;
-  final double max;
-  final ValueChanged<double> onChanged;
+  final List<double> presets;
+  final double current;
+  final ValueChanged<double> onSelected;
+
+  static String _label(double z) =>
+      z == z.roundToDouble() ? '${z.toInt()}×' : '$z×';
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: <Widget>[
-        const Icon(Icons.zoom_out, color: Colors.white70, size: 18),
-        Expanded(
-          child: SliderTheme(
-            data: SliderThemeData(
-              trackHeight: 3,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-              activeTrackColor: Colors.white,
-              inactiveTrackColor: Colors.white24,
-              thumbColor: Colors.white,
-            ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              onChanged: onChanged,
+      mainAxisSize: MainAxisSize.min,
+      children: presets.map((double preset) {
+        final bool selected = (current - preset).abs() < 0.08;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Material(
+            color: selected
+                ? Colors.white
+                : Colors.black.withValues(alpha: 0.45),
+            shape: const StadiumBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => onSelected(preset),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  _label(preset),
+                  style: TextStyle(
+                    color: selected ? Colors.black : Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-        const Icon(Icons.zoom_in, color: Colors.white70, size: 18),
-      ],
+        );
+      }).toList(),
     );
   }
 }

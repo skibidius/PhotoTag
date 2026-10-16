@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/photo_record.dart';
 import '../services/photo_store.dart';
 import '../utils/page_route.dart';
@@ -18,6 +19,7 @@ class GalleryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final PhotoStore store = context.watch<PhotoStore>();
+    final AppLocalizations l10n = AppLocalizations.of(context);
     final List<PhotoRecord> records = projectFilter == null
         ? store.records
         : store.records
@@ -26,7 +28,10 @@ class GalleryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(projectFilter ?? 'Photos${records.isEmpty ? '' : ' · ${records.length}'}'),
+        title: Text(projectFilter ??
+            (records.isEmpty
+                ? l10n.photosAll
+                : l10n.photosAllCount(records.length))),
       ),
       body: records.isEmpty
           ? const _EmptyGallery()
@@ -39,7 +44,11 @@ class GalleryScreen extends StatelessWidget {
               ),
               itemCount: records.length,
               itemBuilder: (BuildContext context, int index) {
-                return _PhotoTile(record: records[index]);
+                return _PhotoTile(
+                  record: records[index],
+                  records: records,
+                  index: index,
+                );
               },
             ),
     );
@@ -47,9 +56,15 @@ class GalleryScreen extends StatelessWidget {
 }
 
 class _PhotoTile extends StatelessWidget {
-  const _PhotoTile({required this.record});
+  const _PhotoTile({
+    required this.record,
+    required this.records,
+    required this.index,
+  });
 
   final PhotoRecord record;
+  final List<PhotoRecord> records;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +75,9 @@ class _PhotoTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           onTap: () => Navigator.of(context).push(
-            sharedAxisRoute(PhotoDetailScreen(record: record)),
+            sharedAxisRoute(
+              PhotoDetailScreen(records: records, initialIndex: index),
+            ),
           ),
           child: Image.file(
             File(record.thumbPath),
@@ -80,6 +97,7 @@ class _EmptyGallery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -91,12 +109,12 @@ class _EmptyGallery extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No photos yet',
+            l10n.photosEmpty,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
           Text(
-            'Photos you capture appear here.',
+            l10n.photosEmptyHint,
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium

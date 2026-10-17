@@ -505,13 +505,17 @@ class _CameraScreenState extends State<CameraScreen>
     if (controller == null || !controller.value.isInitialized) {
       return const SizedBox.expand();
     }
-    // Portrait aspect of the sensor, so the full frame is shown letterboxed
-    // instead of cropped by a cover fit.
-    final double previewAspect = 1 / controller.value.aspectRatio;
+    final Size preview = controller.value.previewSize ?? Size.zero;
+    final double short =
+        preview.width < preview.height ? preview.width : preview.height;
+    final double long =
+        preview.width < preview.height ? preview.height : preview.width;
 
+    // A 4:3 viewfinder, matching the cropped output. The camera stream is
+    // scaled to cover the frame, so what you see is what you get.
     return Center(
       child: AspectRatio(
-        aspectRatio: previewAspect,
+        aspectRatio: 3 / 4,
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             return GestureDetector(
@@ -523,7 +527,16 @@ class _CameraScreenState extends State<CameraScreen>
               child: Stack(
                 fit: StackFit.expand,
                 children: <Widget>[
-                  CameraPreview(controller),
+                  ClipRect(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: short,
+                        height: long,
+                        child: CameraPreview(controller),
+                      ),
+                    ),
+                  ),
                   if (settings.showGrid) const _GridOverlay(),
                   if (_focusPoint != null)
                     Positioned(

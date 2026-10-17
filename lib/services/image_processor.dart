@@ -63,11 +63,13 @@ ProcessedPhoto _process(_CompositeArgs args) {
     return (jpeg: args.photo, thumbnail: args.photo);
   }
 
-  // Normalise EXIF orientation so the overlay matches the framing.
+  // Normalise EXIF orientation so the overlay matches the framing, then crop
+  // to a 4:3 frame so every photo has the classic camera aspect ratio.
   final int orientation = decoded.exif.imageIfd.orientation ?? 1;
-  final img.Image photo =
+  final img.Image oriented =
       orientation == 1 ? decoded : img.bakeOrientation(decoded);
-  photo.exif.imageIfd.orientation = 1;
+  oriented.exif.imageIfd.orientation = 1;
+  final img.Image photo = _cropToFourThree(oriented);
 
   final img.Image? stamp = img.decodePng(args.stamp);
   if (stamp != null) {
@@ -147,6 +149,38 @@ ProcessedPhoto _process(_CompositeArgs args) {
       Uint8List.fromList(img.encodeJpg(thumb, quality: 82));
 
   return (jpeg: jpeg, thumbnail: thumbnail);
+}
+
+/// Crops the image to the largest centred 4:3 region, keeping its orientation.
+img.Image _cropToFourThree(img.Image image) {
+  const double target = 4 / 3;
+  final bool portrait = image.height >= image.width;
+  final double ratio =
+      portrait ? image.height / image.width : image.width / image.height;
+  if ((ratio - target).abs() < 0.005) return image;
+
+  if (portrait) {
+    final int height =
+        (image.width * target).round().clamp(1, image.height);
+    final int y = (image.height - height) ~/ 2;
+    return img.copyCrop(
+      image,
+      x: 0,
+      y: y,
+      width: image.width,
+      height: height,
+    );
+  }
+
+  final int width = (image.height * target).round().clamp(1, image.width);
+  final int x = (image.width - width) ~/ 2;
+  return img.copyCrop(
+    image,
+    x: x,
+    y: 0,
+    width: width,
+    height: image.height,
+  );
 }
 
 void _writeMetadata(img.Image photo, _CompositeArgs args) {

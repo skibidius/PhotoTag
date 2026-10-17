@@ -57,6 +57,7 @@ class AppSettings {
     this.saveOriginal = true,
     this.language = AppLanguage.system,
     this.photoQuality = PhotoQuality.maximum,
+    this.basemap = 'yandex-map',
   });
 
   final CoordFormat coordFormat;
@@ -87,6 +88,9 @@ class AppSettings {
   final AppLanguage language;
   final PhotoQuality photoQuality;
 
+  /// Key of the last basemap chosen on the map screen.
+  final String basemap;
+
   AppSettings copyWith({
     CoordFormat? coordFormat,
     StampStyle? stampStyle,
@@ -112,6 +116,7 @@ class AppSettings {
     bool? saveOriginal,
     AppLanguage? language,
     PhotoQuality? photoQuality,
+    String? basemap,
   }) {
     return AppSettings(
       coordFormat: coordFormat ?? this.coordFormat,
@@ -138,6 +143,7 @@ class AppSettings {
       saveOriginal: saveOriginal ?? this.saveOriginal,
       language: language ?? this.language,
       photoQuality: photoQuality ?? this.photoQuality,
+      basemap: basemap ?? this.basemap,
     );
   }
 
@@ -166,6 +172,7 @@ class AppSettings {
         'saveOriginal': saveOriginal,
         'language': language.name,
         'photoQuality': photoQuality.name,
+        'basemap': basemap,
       };
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -201,6 +208,7 @@ class AppSettings {
       saveOriginal: json['saveOriginal'] as bool? ?? true,
       language: enumByName(AppLanguage.values, json['language'] as String?, AppLanguage.system),
       photoQuality: enumByName(PhotoQuality.values, json['photoQuality'] as String?, PhotoQuality.maximum),
+      basemap: json['basemap'] as String? ?? 'yandex-map',
     );
   }
 }

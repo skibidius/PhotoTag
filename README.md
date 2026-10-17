@@ -22,7 +22,11 @@ ready to drop into a report or send straight from the field.
 - Saves to the system gallery and shares from the app
 - In-app update check
 - Tap to focus, pinch to zoom, lens presets, flash, grid and a live stamp preview
-- **Google Photos-style gallery** — swipe sideways to browse, down to close, tap for info
+- **Google Photos-style gallery** — swipe sideways to browse, down to close,
+  swipe up or tap for info
+- **Project map** — every geotagged photo of a project on one map, with a camera
+  direction cone, a photo preview card and switchable Yandex, Google and OSM
+  basemaps (the choice is remembered)
 
 ## Screenshots
 

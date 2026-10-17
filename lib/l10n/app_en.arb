@@ -107,7 +107,10 @@
   },
 
   "mapTitle": "Location",
-  "mapAttribution": "OpenStreetMap contributors",
+  "mapStyle": "Map style",
+  "mapFitAll": "Show all photos",
+  "mapNoPhotos": "No photos with location",
+  "mapNoPhotosHint": "Capture photos with GPS enabled to see them on the map.",
 
   "settingsTitle": "Settings",
   "sectionCoordinates": "Coordinates",

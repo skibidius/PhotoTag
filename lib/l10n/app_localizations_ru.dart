@@ -211,7 +211,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mapTitle => 'Местоположение';
 
   @override
-  String get mapAttribution => 'Участники OpenStreetMap';
+  String get mapStyle => 'Стиль карты';
+
+  @override
+  String get mapFitAll => 'Показать все фото';
+
+  @override
+  String get mapNoPhotos => 'Нет фото с геометками';
+
+  @override
+  String get mapNoPhotosHint =>
+      'Снимайте с включённым GPS, чтобы увидеть фото на карте.';
 
   @override
   String get settingsTitle => 'Настройки';

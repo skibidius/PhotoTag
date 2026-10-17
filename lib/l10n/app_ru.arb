@@ -65,7 +65,10 @@
   "photoAccuracy": "Точность ±{meters} м",
 
   "mapTitle": "Местоположение",
-  "mapAttribution": "Участники OpenStreetMap",
+  "mapStyle": "Стиль карты",
+  "mapFitAll": "Показать все фото",
+  "mapNoPhotos": "Нет фото с геометками",
+  "mapNoPhotosHint": "Снимайте с включённым GPS, чтобы увидеть фото на карте.",
 
   "settingsTitle": "Настройки",
   "sectionCoordinates": "Координаты",

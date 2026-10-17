@@ -208,7 +208,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapTitle => 'Location';
 
   @override
-  String get mapAttribution => 'OpenStreetMap contributors';
+  String get mapStyle => 'Map style';
+
+  @override
+  String get mapFitAll => 'Show all photos';
+
+  @override
+  String get mapNoPhotos => 'No photos with location';
+
+  @override
+  String get mapNoPhotosHint =>
+      'Capture photos with GPS enabled to see them on the map.';
 
   @override
   String get settingsTitle => 'Settings';

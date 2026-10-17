@@ -11,7 +11,7 @@ import '../models/photo_record.dart';
 import '../services/photo_store.dart';
 import '../utils/formatters.dart';
 import '../utils/page_route.dart';
-import 'map_screen.dart';
+import 'photo_map_screen.dart';
 
 /// A Google-Photos-style viewer: full-screen photos, swipe sideways to change,
 /// swipe down to dismiss, swipe up for info, pinch to zoom, tap to toggle the
@@ -154,6 +154,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen>
 
   void _showInfo() {
     final PhotoRecord record = _record;
+    final AppLocalizations l10n = AppLocalizations.of(context);
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -164,10 +165,12 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen>
             ? () {
                 Navigator.of(sheetContext).pop();
                 Navigator.of(context).push(
-                  sharedAxisRoute(MapScreen(
-                    latitude: record.latitude!,
-                    longitude: record.longitude!,
-                    label: record.address,
+                  sharedAxisRoute(PhotoMapScreen(
+                    title: l10n.mapTitle,
+                    records: _records
+                        .where((PhotoRecord r) => r.hasLocation)
+                        .toList(),
+                    initialSelectedId: record.id,
                   )),
                 );
               }

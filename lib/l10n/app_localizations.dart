@@ -440,11 +440,29 @@ abstract class AppLocalizations {
   /// **'Location'**
   String get mapTitle;
 
-  /// No description provided for @mapAttribution.
+  /// No description provided for @mapStyle.
   ///
   /// In en, this message translates to:
-  /// **'OpenStreetMap contributors'**
-  String get mapAttribution;
+  /// **'Map style'**
+  String get mapStyle;
+
+  /// No description provided for @mapFitAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all photos'**
+  String get mapFitAll;
+
+  /// No description provided for @mapNoPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos with location'**
+  String get mapNoPhotos;
+
+  /// No description provided for @mapNoPhotosHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture photos with GPS enabled to see them on the map.'**
+  String get mapNoPhotosHint;
 
   /// No description provided for @settingsTitle.
   ///

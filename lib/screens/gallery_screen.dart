@@ -10,6 +10,7 @@ import '../services/photo_store.dart';
 import '../utils/formatters.dart';
 import '../utils/page_route.dart';
 import 'photo_detail_screen.dart';
+import 'photo_map_screen.dart';
 
 /// A grid of captured photos, grouped by month like Google Photos. When
 /// [projectFilter] is provided, only photos belonging to that project are shown.
@@ -28,12 +29,28 @@ class GalleryScreen extends StatelessWidget {
             .where((PhotoRecord r) => r.project == projectFilter)
             .toList();
 
+    final List<PhotoRecord> located =
+        records.where((PhotoRecord r) => r.hasLocation).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(projectFilter ??
             (records.isEmpty
                 ? l10n.photosAll
                 : l10n.photosAllCount(records.length))),
+        actions: <Widget>[
+          if (located.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.map_outlined),
+              tooltip: l10n.photoShowOnMap,
+              onPressed: () => Navigator.of(context).push(
+                sharedAxisRoute(PhotoMapScreen(
+                  title: projectFilter ?? l10n.photosAll,
+                  records: located,
+                )),
+              ),
+            ),
+        ],
       ),
       body: records.isEmpty
           ? const _EmptyGallery()

@@ -10,6 +10,7 @@ import '../services/project_export_service.dart';
 import '../services/project_store.dart';
 import '../utils/page_route.dart';
 import 'gallery_screen.dart';
+import 'photo_map_screen.dart';
 
 /// Lists projects with their photo counts, and lets you create or remove them.
 class ProjectsScreen extends StatelessWidget {
@@ -17,6 +18,11 @@ class ProjectsScreen extends StatelessWidget {
 
   int _countFor(PhotoStore photos, String project) =>
       photos.records.where((PhotoRecord r) => r.project == project).length;
+
+  bool _hasLocated(PhotoStore photos, String? project) => photos.records.any(
+        (PhotoRecord r) =>
+            r.hasLocation && (project == null || r.project == project),
+      );
 
   Future<void> _createProject(BuildContext context) async {
     final ProjectStore store = context.read<ProjectStore>();
@@ -77,6 +83,30 @@ class ProjectsScreen extends StatelessWidget {
       HapticFeedback.mediumImpact();
       await context.read<ProjectStore>().remove(project);
     }
+  }
+
+  void _openMap(BuildContext context, String? project) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final List<PhotoRecord> records = context
+        .read<PhotoStore>()
+        .records
+        .where((PhotoRecord r) =>
+            r.hasLocation && (project == null || r.project == project))
+        .toList();
+
+    if (records.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.mapNoPhotos)));
+      return;
+    }
+
+    HapticFeedback.selectionClick();
+    Navigator.of(context).push(
+      sharedAxisRoute(PhotoMapScreen(
+        title: project ?? l10n.photosAll,
+        records: records,
+      )),
+    );
   }
 
   Future<void> _exportProject(BuildContext context, String project) async {
@@ -176,7 +206,18 @@ class ProjectsScreen extends StatelessWidget {
                   leading: const Icon(Icons.photo_library_outlined),
                   title: Text(l10n.projectsAllPhotos),
                   subtitle: Text(l10n.photosCount(photos.records.length)),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      if (_hasLocated(photos, null))
+                        IconButton(
+                          icon: const Icon(Icons.map_outlined),
+                          tooltip: l10n.photoShowOnMap,
+                          onPressed: () => _openMap(context, null),
+                        ),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
                   onTap: () => Navigator.of(context)
                       .push(sharedAxisRoute(const GalleryScreen())),
                 ),
@@ -186,10 +227,21 @@ class ProjectsScreen extends StatelessWidget {
                     leading: const Icon(Icons.folder_outlined),
                     title: Text(project),
                     subtitle: Text(l10n.photosCount(_countFor(photos, project))),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      tooltip: l10n.exportTitle,
-                      onPressed: () => _showProjectMenu(context, project),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        if (_hasLocated(photos, project))
+                          IconButton(
+                            icon: const Icon(Icons.map_outlined),
+                            tooltip: l10n.photoShowOnMap,
+                            onPressed: () => _openMap(context, project),
+                          ),
+                        IconButton(
+                          icon: const Icon(Icons.more_vert),
+                          tooltip: l10n.exportTitle,
+                          onPressed: () => _showProjectMenu(context, project),
+                        ),
+                      ],
                     ),
                     onTap: () => Navigator.of(context).push(
                       sharedAxisRoute(GalleryScreen(projectFilter: project)),
@@ -210,6 +262,11 @@ class ProjectsScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
+              leading: const Icon(Icons.map_outlined),
+              title: Text(l10n.photoShowOnMap),
+              onTap: () => Navigator.of(context).pop('map'),
+            ),
+            ListTile(
               leading: const Icon(Icons.archive_outlined),
               title: Text(l10n.exportTitle),
               onTap: () => Navigator.of(context).pop('export'),
@@ -224,7 +281,9 @@ class ProjectsScreen extends StatelessWidget {
       ),
     );
     if (!context.mounted) return;
-    if (action == 'export') {
+    if (action == 'map') {
+      _openMap(context, project);
+    } else if (action == 'export') {
       await _exportProject(context, project);
     } else if (action == 'delete') {
       await _confirmDelete(context, project);

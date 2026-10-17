@@ -218,6 +218,12 @@ abstract class AppLocalizations {
   /// **'Location is unavailable'**
   String get cameraLocationUnavailable;
 
+  /// No description provided for @permissionsNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera and location permissions are required'**
+  String get permissionsNeeded;
+
   /// No description provided for @cameraGrid.
   ///
   /// In en, this message translates to:

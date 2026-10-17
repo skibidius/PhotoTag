@@ -24,6 +24,7 @@
   "cameraCaptureFailed": "Не удалось сделать снимок",
   "savingCount": "{count, plural, =1{Сохраняем 1 фото…} few{Сохраняем {count} фото…} many{Сохраняем {count} фото…} other{Сохраняем {count} фото…}}",
   "cameraLocationUnavailable": "Геолокация недоступна",
+  "permissionsNeeded": "Нужны разрешения на камеру и геолокацию",
   "cameraGrid": "Сетка",
   "cameraSettings": "Настройки",
   "cameraSwitch": "Сменить камеру",

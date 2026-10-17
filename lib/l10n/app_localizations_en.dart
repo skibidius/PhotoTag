@@ -79,6 +79,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraLocationUnavailable => 'Location is unavailable';
 
   @override
+  String get permissionsNeeded =>
+      'Camera and location permissions are required';
+
+  @override
   String get cameraGrid => 'Grid';
 
   @override

@@ -47,7 +47,7 @@ and open it. Allow installation from unknown sources when prompted.
 AltStore → *Sources* → **+**:
 
 ```
-https://raw.githubusercontent.com/skibidius/PhotoTag/altstore/altstore.json
+https://skibidius.github.io/PhotoTag/altstore.json
 ```
 
 PhotoTag then shows up in AltStore and installs/updates in one tap. If you

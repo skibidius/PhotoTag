@@ -31,6 +31,7 @@
     }
   },
   "cameraLocationUnavailable": "Location is unavailable",
+  "permissionsNeeded": "Camera and location permissions are required",
   "cameraGrid": "Grid",
   "cameraSettings": "Settings",
   "cameraSwitch": "Switch camera",

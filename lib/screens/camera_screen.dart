@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -76,13 +78,43 @@ class _CameraScreenState extends State<CameraScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initCamera();
     _location.addListener(_onLocationChanged);
     _clock = Timer.periodic(
       const Duration(seconds: 1),
       (_) => setState(() => _now = DateTime.now()),
     );
-    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureLocation());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
+  }
+
+  /// Requests permissions up front, then starts the camera and location.
+  Future<void> _bootstrap() async {
+    await _requestPermissions();
+    await _initCamera();
+    await _ensureLocation();
+  }
+
+  Future<void> _requestPermissions() async {
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      // iOS camera/geolocation plugins prompt on their own.
+      return;
+    }
+    final Map<Permission, PermissionStatus> statuses =
+        await <Permission>[Permission.camera, Permission.locationWhenInUse]
+            .request();
+    final bool blocked =
+        statuses.values.any((PermissionStatus s) => s.isPermanentlyDenied);
+    if (blocked && mounted) {
+      final AppLocalizations l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.permissionsNeeded),
+          action: SnackBarAction(
+            label: l10n.enable,
+            onPressed: openAppSettings,
+          ),
+        ),
+      );
+    }
   }
 
   @override

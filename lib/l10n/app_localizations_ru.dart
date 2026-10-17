@@ -80,6 +80,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cameraLocationUnavailable => 'Геолокация недоступна';
 
   @override
+  String get permissionsNeeded => 'Нужны разрешения на камеру и геолокацию';
+
+  @override
   String get cameraGrid => 'Сетка';
 
   @override

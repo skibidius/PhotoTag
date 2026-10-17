@@ -1,0 +1,32 @@
+{
+  "name": "PhotoTag",
+  "identifier": "com.phototag.source",
+  "subtitle": "GPS camera with location watermarks",
+  "description": "Field photos with coordinates, direction, altitude and time stamped straight into the image. Projects, offline geocoding and ZIP export.",
+  "website": "https://github.com/skibidius/PhotoTag",
+  "tintColor": "#009586",
+  "iconURL": "https://skibidius.github.io/PhotoTag/icon.png",
+  "featuredApps": ["com.phototag"],
+  "apps": [
+    {
+      "name": "PhotoTag",
+      "bundleIdentifier": "com.phototag",
+      "developerName": "skibidius",
+      "subtitle": "GPS camera with location watermarks",
+      "localizedDescription": "Point, shoot, and the photo comes back with coordinates, compass direction, altitude and time burned into the corner. Built for field reports, site surveys and inspections.",
+      "iconURL": "https://skibidius.github.io/PhotoTag/icon.png",
+      "tintColor": "#009586",
+      "category": "utilities",
+      "versions": [
+        {
+          "version": "1.5.0",
+          "buildVersion": "9",
+          "date": "2026-10-17",
+          "downloadURL": "https://github.com/skibidius/PhotoTag/releases/download/v1.5.0/phototag.ipa",
+          "size": 9020856,
+          "minOSVersion": "13.0"
+        }
+      ]
+    }
+  ]
+}

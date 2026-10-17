@@ -62,9 +62,8 @@ class LocationService extends ChangeNotifier {
   Future<bool> start() async {
     if (_running) return true;
 
-    _serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!_serviceEnabled) return false;
-
+    // Ask for permission before checking whether services are enabled, so the
+    // system prompt always appears on first launch.
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -72,6 +71,9 @@ class LocationService extends ChangeNotifier {
     _permissionGranted = permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always;
     if (!_permissionGranted) return false;
+
+    _serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!_serviceEnabled) return false;
 
     _running = true;
 

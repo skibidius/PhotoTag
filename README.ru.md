@@ -48,7 +48,7 @@
 AltStore → *Sources* → **+**:
 
 ```
-https://raw.githubusercontent.com/skibidius/PhotoTag/altstore/altstore.json
+https://skibidius.github.io/PhotoTag/altstore.json
 ```
 
 PhotoTag появится в AltStore и будет ставиться и обновляться в одно касание.

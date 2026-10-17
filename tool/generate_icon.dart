@@ -48,10 +48,10 @@ void _compass(img.Image image,
     {required int cx, required int cy, required double radius}) {
   const double ringThickness = 10;
   const int ringAlpha = 56;
-  final double tickInner = radius - 34;
-  final double tickOuter = radius + 6;
-  const double tickHalfWidth = 6;
-  const int tickAlpha = 76;
+  final double tickInner = radius;
+  final double tickOuter = radius + 32;
+  const double tickHalfWidth = 5;
+  const int tickAlpha = ringAlpha;
   final List<double> angles = <double>[
     0,
     math.pi / 2,

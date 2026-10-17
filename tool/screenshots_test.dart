@@ -250,44 +250,47 @@ class _CameraMock extends StatelessWidget {
   }
 
   Widget _topBar() {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-        child: Row(
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.45),
-                borderRadius: BorderRadius.circular(999),
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          child: Row(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Icon(Icons.folder_outlined, size: 18, color: Colors.white),
+                    const SizedBox(width: 6),
+                    Text(project,
+                        style: const TextStyle(color: Colors.white, fontSize: 13)),
+                    const Icon(Icons.arrow_drop_down,
+                        color: Colors.white70, size: 18),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Icon(Icons.folder_outlined, size: 18, color: Colors.white),
-                  const SizedBox(width: 6),
-                  Text(project,
-                      style: const TextStyle(color: Colors.white, fontSize: 13)),
-                  const Icon(Icons.arrow_drop_down,
-                      color: Colors.white70, size: 18),
-                ],
+              const Spacer(),
+              _pill(
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const <Widget>[
+                    Icon(Icons.gps_fixed, size: 16, color: Color(0xFF4FD1C5)),
+                    SizedBox(width: 6),
+                    Text('±5 m', style: TextStyle(color: Colors.white, fontSize: 12)),
+                    SizedBox(width: 8),
+                    Icon(Icons.navigation, size: 14, color: Colors.white70),
+                    Text('315°', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  ],
+                ),
               ),
-            ),
-            const Spacer(),
-            _pill(
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const <Widget>[
-                  Icon(Icons.gps_fixed, size: 16, color: Color(0xFF4FD1C5)),
-                  SizedBox(width: 6),
-                  Text('±5 m', style: TextStyle(color: Colors.white, fontSize: 12)),
-                  SizedBox(width: 8),
-                  Icon(Icons.navigation, size: 14, color: Colors.white70),
-                  Text('315°', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

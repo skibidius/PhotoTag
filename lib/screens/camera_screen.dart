@@ -603,15 +603,20 @@ class _CameraScreenState extends State<CameraScreen>
 
   Widget _buildTopBar(
       AppSettings settings, LocationService location, Color accent) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-        child: Row(
-          children: <Widget>[
-            Flexible(child: _ProjectChip(onTap: _openProjectPicker)),
-            const Spacer(),
-            _LocationPill(location: location, accent: accent),
-          ],
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          child: Row(
+            children: <Widget>[
+              Flexible(child: _ProjectChip(onTap: _openProjectPicker)),
+              const Spacer(),
+              _LocationPill(location: location, accent: accent),
+            ],
+          ),
         ),
       ),
     );
@@ -737,9 +742,11 @@ class _CameraScreenState extends State<CameraScreen>
 
   Widget _buildBottomControls(AppSettings settings, Color accent) {
     final List<double> presets = _zoomPresets;
-    return SafeArea(
-      child: Align(
-        alignment: Alignment.bottomCenter,
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
           child: Column(

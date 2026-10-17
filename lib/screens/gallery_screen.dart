@@ -124,15 +124,12 @@ class _PhotoTile extends StatelessWidget {
             ),
           );
         },
-        child: Hero(
-          tag: 'photo_${record.id}',
-          child: Image.file(
-            File(record.thumbPath),
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.low,
-            errorBuilder: (_, _, _) => const Center(
-              child: Icon(Icons.broken_image_outlined),
-            ),
+        child: Image.file(
+          File(record.thumbPath),
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.low,
+          errorBuilder: (_, _, _) => const Center(
+            child: Icon(Icons.broken_image_outlined),
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +14,8 @@ import '../utils/page_route.dart';
 import 'map_screen.dart';
 
 /// A Google-Photos-style viewer: full-screen photos, swipe sideways to change,
-/// swipe down to dismiss, pinch to zoom, tap to toggle the chrome.
+/// swipe down to dismiss, swipe up for info, pinch to zoom, tap to toggle the
+/// chrome.
 class PhotoDetailScreen extends StatefulWidget {
   const PhotoDetailScreen({
     super.key,
@@ -40,7 +42,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen>
     duration: const Duration(milliseconds: 220),
   );
   double _dragOffset = 0;
-  double _dragStart = 0;
+  double _springStart = 0;
 
   bool _zoomed = false;
   bool _chromeVisible = true;
@@ -53,7 +55,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen>
     _spring.addListener(() {
       setState(() {
         _dragOffset =
-            _dragStart * (1 - Curves.easeOutCubic.transform(_spring.value));
+            _springStart * (1 - Curves.easeOutCubic.transform(_spring.value));
       });
     });
   }
@@ -65,32 +67,40 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen>
     super.dispose();
   }
 
-  void _onDragStart(DragStartDetails details) {
-    if (_zoomed) return;
+  void _springBack() {
+    _springStart = _dragOffset;
+    _spring.forward(from: 0);
+  }
+
+  void _onDragStart() {
     _spring.stop();
   }
 
-  void _onDragUpdate(DragUpdateDetails details) {
-    if (_zoomed) return;
-    setState(() => _dragOffset += details.delta.dy);
+  void _onDragUpdate(double dy) {
+    setState(() => _dragOffset += dy);
   }
 
-  void _onDragEnd(DragEndDetails details) {
-    if (_zoomed) return;
-    final double velocity = details.primaryVelocity ?? 0;
-    if (_dragOffset.abs() > 120 || velocity.abs() > 700) {
+  void _onDragEnd(double velocity) {
+    // Swipe down: dismiss.
+    if (_dragOffset > 120 || velocity > 700) {
       HapticFeedback.selectionClick();
       Navigator.of(context).pop();
       return;
     }
-    _dragStart = _dragOffset;
-    _spring.forward(from: 0);
+    // Swipe up: open the info sheet.
+    if (_dragOffset < -90 || velocity < -700) {
+      _springBack();
+      _showInfo();
+      return;
+    }
+    _springBack();
   }
 
   double get _scrimOpacity =>
-      (1 - (_dragOffset.abs() / 420)).clamp(0.15, 1.0);
+      (1 - (math.max(0, _dragOffset) / 420)).clamp(0.15, 1.0);
 
-  double get _photoScale => (1 - (_dragOffset.abs() / 1800)).clamp(0.78, 1.0);
+  double get _photoScale =>
+      (1 - (_dragOffset.abs() / 1800)).clamp(0.78, 1.0);
 
   String get _locale => Localizations.localeOf(context).toString();
 
@@ -148,12 +158,12 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen>
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (BuildContext context) => _InfoSheet(
+      builder: (BuildContext sheetContext) => _InfoSheet(
         record: record,
         onShowMap: record.hasLocation
             ? () {
-                Navigator.of(context).pop();
-                Navigator.of(this.context).push(
+                Navigator.of(sheetContext).pop();
+                Navigator.of(context).push(
                   sharedAxisRoute(MapScreen(
                     latitude: record.latitude!,
                     longitude: record.longitude!,
@@ -177,9 +187,6 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen>
         body: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => setState(() => _chromeVisible = !_chromeVisible),
-          onVerticalDragStart: _onDragStart,
-          onVerticalDragUpdate: _onDragUpdate,
-          onVerticalDragEnd: _onDragEnd,
           child: Stack(
             fit: StackFit.expand,
             children: <Widget>[
@@ -208,6 +215,9 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen>
                           setState(() => _zoomed = z);
                         }
                       },
+                      onDragStart: _onDragStart,
+                      onDragUpdate: _onDragUpdate,
+                      onDragEnd: _onDragEnd,
                     ),
                   ),
                 ),
@@ -313,10 +323,19 @@ class _TopBar extends StatelessWidget {
 }
 
 class _ZoomablePage extends StatefulWidget {
-  const _ZoomablePage({required this.record, required this.onZoomChanged});
+  const _ZoomablePage({
+    required this.record,
+    required this.onZoomChanged,
+    required this.onDragStart,
+    required this.onDragUpdate,
+    required this.onDragEnd,
+  });
 
   final PhotoRecord record;
   final ValueChanged<bool> onZoomChanged;
+  final VoidCallback onDragStart;
+  final ValueChanged<double> onDragUpdate;
+  final ValueChanged<double> onDragEnd;
 
   @override
   State<_ZoomablePage> createState() => _ZoomablePageState();
@@ -349,19 +368,28 @@ class _ZoomablePageState extends State<_ZoomablePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: 'photo_${widget.record.id}',
-      child: InteractiveViewer(
-        transformationController: _transform,
-        panEnabled: _zoomed,
-        minScale: 1.0,
-        maxScale: 5.0,
-        child: Center(
-          child: Image.file(
-            File(widget.record.path),
-            fit: BoxFit.contain,
-            filterQuality: FilterQuality.high,
-          ),
+    return InteractiveViewer(
+      transformationController: _transform,
+      panEnabled: _zoomed,
+      scaleEnabled: true,
+      minScale: 1.0,
+      maxScale: 5.0,
+      onInteractionStart: (ScaleStartDetails details) {
+        if (!_zoomed) widget.onDragStart();
+      },
+      onInteractionUpdate: (ScaleUpdateDetails details) {
+        if (_zoomed || details.pointerCount > 1) return;
+        widget.onDragUpdate(details.focalPointDelta.dy);
+      },
+      onInteractionEnd: (ScaleEndDetails details) {
+        if (_zoomed) return;
+        widget.onDragEnd(details.velocity.pixelsPerSecond.dy);
+      },
+      child: Center(
+        child: Image.file(
+          File(widget.record.path),
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
         ),
       ),
     );

@@ -235,17 +235,14 @@ class StampOverlay extends StatelessWidget {
       lines.add(Align(
         alignment: Alignment.centerRight,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 18 * s, vertical: 8 * s),
+          padding: EdgeInsets.symmetric(horizontal: 18 * s, vertical: 7 * s),
           decoration: BoxDecoration(
-            color: isCard
-                ? accent.withValues(alpha: 0.20)
-                : accent.withValues(alpha: 0.95),
+            color: accent,
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text(
             l10n.stampCounter(data.counter.toString().padLeft(3, '0')),
-            style: _ts(24 * s, FontWeight.w500,
-                isCard ? onAccent : onAccent, const <Shadow>[],
+            style: _ts(25 * s, FontWeight.w600, onAccent, const <Shadow>[],
                 mono: true, letterSpacing: 1),
           ),
         ),

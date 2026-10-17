@@ -22,6 +22,7 @@
   "cameraTryAgain": "Повторить",
   "cameraPhotoSaved": "Фото сохранено",
   "cameraCaptureFailed": "Не удалось сделать снимок",
+  "savingCount": "{count, plural, =1{Сохраняем 1 фото…} few{Сохраняем {count} фото…} many{Сохраняем {count} фото…} other{Сохраняем {count} фото…}}",
   "cameraLocationUnavailable": "Геолокация недоступна",
   "cameraGrid": "Сетка",
   "cameraSettings": "Настройки",
@@ -130,6 +131,11 @@
   "aboutVersion": "Версия",
   "aboutLicense": "Лицензия",
   "aboutLicenseValue": "Лицензия MIT",
+  "checkForUpdates": "Проверить обновления",
+  "checkingUpdates": "Проверяем…",
+  "upToDate": "У вас последняя версия",
+  "updateAvailable": "Доступна версия {version}",
+  "update": "Обновить",
 
   "stampByAuthor": "автор: {author}",
   "stampCounter": "№ {value}"

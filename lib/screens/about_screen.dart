@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/update_service.dart';
 
 /// A small About screen with the app icon, name, version and license.
 class AboutScreen extends StatefulWidget {
@@ -88,8 +89,77 @@ class _AboutScreenState extends State<AboutScreen> {
             title: Text(l10n.aboutLicense),
             trailing: Text(l10n.aboutLicenseValue),
           ),
+          const _UpdateTile(),
         ],
       ),
+    );
+  }
+}
+
+class _UpdateTile extends StatefulWidget {
+  const _UpdateTile();
+
+  @override
+  State<_UpdateTile> createState() => _UpdateTileState();
+}
+
+class _UpdateTileState extends State<_UpdateTile> {
+  bool _checking = true;
+  UpdateInfo? _update;
+
+  @override
+  void initState() {
+    super.initState();
+    _check();
+  }
+
+  Future<void> _check({bool manual = false}) async {
+    setState(() => _checking = true);
+    final UpdateInfo? info = await UpdateService.check();
+    if (!mounted) return;
+    setState(() {
+      _update = info;
+      _checking = false;
+    });
+    if (info == null && manual) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).upToDate)),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+
+    if (_checking) {
+      return ListTile(
+        leading: const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+        title: Text(l10n.checkingUpdates),
+      );
+    }
+
+    final UpdateInfo? update = _update;
+    if (update != null) {
+      return ListTile(
+        leading: const Icon(Icons.system_update_outlined),
+        title: Text(l10n.updateAvailable(update.version)),
+        trailing: FilledButton(
+          onPressed: () => UpdateService.openUpdate(update),
+          child: Text(l10n.update),
+        ),
+      );
+    }
+
+    return ListTile(
+      leading: const Icon(Icons.refresh),
+      title: Text(l10n.checkForUpdates),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => _check(manual: true),
     );
   }
 }

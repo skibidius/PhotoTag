@@ -15,10 +15,12 @@ ready to drop into a report or send straight from the field.
 - **Projects** to keep jobs, sites or clients apart
 - **Export** a project to a ZIP archive — originals, watermarked, or both
 - **English and Russian** interface
+- **Background queue** — keep shooting while photos are watermarked
 - **Offline first** — GPS and geocoding work without a connection
 - Coordinates, altitude and direction are also written into the photo's EXIF
   metadata
 - Saves to the system gallery and shares from the app
+- In-app update check
 - Tap to focus, pinch to zoom, lens presets, flash, grid and a live stamp preview
 
 ## Screenshots

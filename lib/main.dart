@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'models/app_settings.dart';
 import 'screens/home_screen.dart';
+import 'services/capture_queue.dart';
 import 'services/location_service.dart';
 import 'services/photo_store.dart';
 import 'services/project_store.dart';
@@ -36,6 +37,7 @@ Future<void> main() async {
     photos: photos,
     projects: projects,
     location: location,
+    captureQueue: CaptureQueue(photos),
   ));
 }
 
@@ -46,12 +48,14 @@ class PhotoTagApp extends StatelessWidget {
     required this.photos,
     required this.projects,
     required this.location,
+    required this.captureQueue,
   });
 
   final SettingsController settings;
   final PhotoStore photos;
   final ProjectStore projects;
   final LocationService location;
+  final CaptureQueue captureQueue;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +65,7 @@ class PhotoTagApp extends StatelessWidget {
         ChangeNotifierProvider<PhotoStore>.value(value: photos),
         ChangeNotifierProvider<ProjectStore>.value(value: projects),
         ChangeNotifierProvider<LocationService>.value(value: location),
+        ChangeNotifierProvider<CaptureQueue>.value(value: captureQueue),
       ],
       child: Consumer<SettingsController>(
         builder: (BuildContext context, SettingsController controller, _) {

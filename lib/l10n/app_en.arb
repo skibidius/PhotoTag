@@ -22,6 +22,14 @@
   "cameraTryAgain": "Try again",
   "cameraPhotoSaved": "Photo saved",
   "cameraCaptureFailed": "Could not capture the photo",
+  "savingCount": "{count, plural, =1{Saving 1 photo…} other{Saving {count} photos…}}",
+  "@savingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cameraLocationUnavailable": "Location is unavailable",
   "cameraGrid": "Grid",
   "cameraSettings": "Settings",
@@ -179,6 +187,18 @@
   "aboutVersion": "Version",
   "aboutLicense": "License",
   "aboutLicenseValue": "MIT License",
+  "checkForUpdates": "Check for updates",
+  "checkingUpdates": "Checking…",
+  "upToDate": "You're up to date",
+  "updateAvailable": "Version {version} is available",
+  "@updateAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "update": "Update",
 
   "stampByAuthor": "by {author}",
   "@stampByAuthor": {

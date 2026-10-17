@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/update_service.dart';
 import 'camera_screen.dart';
 import 'gallery_screen.dart';
 import 'projects_screen.dart';
@@ -16,6 +17,28 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdates());
+  }
+
+  Future<void> _checkForUpdates() async {
+    final UpdateInfo? info = await UpdateService.check();
+    if (info == null || !mounted) return;
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.updateAvailable(info.version)),
+        duration: const Duration(seconds: 8),
+        action: SnackBarAction(
+          label: l10n.update,
+          onPressed: () => UpdateService.openUpdate(info),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

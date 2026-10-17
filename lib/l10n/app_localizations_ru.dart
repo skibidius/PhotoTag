@@ -64,6 +64,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cameraCaptureFailed => 'Не удалось сделать снимок';
 
   @override
+  String savingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Сохраняем $count фото…',
+      many: 'Сохраняем $count фото…',
+      few: 'Сохраняем $count фото…',
+      one: 'Сохраняем 1 фото…',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get cameraLocationUnavailable => 'Геолокация недоступна';
 
   @override
@@ -374,6 +387,23 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutLicenseValue => 'Лицензия MIT';
+
+  @override
+  String get checkForUpdates => 'Проверить обновления';
+
+  @override
+  String get checkingUpdates => 'Проверяем…';
+
+  @override
+  String get upToDate => 'У вас последняя версия';
+
+  @override
+  String updateAvailable(String version) {
+    return 'Доступна версия $version';
+  }
+
+  @override
+  String get update => 'Обновить';
 
   @override
   String stampByAuthor(String author) {

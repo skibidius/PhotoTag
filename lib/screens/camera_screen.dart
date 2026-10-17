@@ -5,22 +5,19 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:gal/gal.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/app_settings.dart';
 import '../models/photo_record.dart';
-import '../services/image_processor.dart';
+import '../services/capture_queue.dart';
 import '../services/geocode_service.dart';
 import '../services/location_service.dart';
-import '../services/photo_store.dart';
 import '../services/project_store.dart';
 import '../services/settings_controller.dart';
 import '../utils/page_route.dart';
 import '../utils/route_observer.dart';
 import '../widgets/stamp_overlay.dart';
-import 'gallery_screen.dart';
 import 'settings_screen.dart';
 
 /// Camera startup failures, localised at render time.
@@ -72,8 +69,8 @@ class _CameraScreenState extends State<CameraScreen>
 
   LocationService get _location => context.read<LocationService>();
   SettingsController get _settings => context.read<SettingsController>();
-  PhotoStore get _photos => context.read<PhotoStore>();
   ProjectStore get _projects => context.read<ProjectStore>();
+  CaptureQueue get _queue => context.read<CaptureQueue>();
 
   @override
   void initState() {
@@ -339,51 +336,28 @@ class _CameraScreenState extends State<CameraScreen>
       );
 
       final Uint8List stampPng = await _renderStampPng(ctx);
-      final ProcessedPhoto processed = await ImageProcessor.process(
+
+      // Queue the heavy work (watermarking + encoding) so the shutter stays
+      // instant and the user can keep shooting.
+      _queue.enqueue(CaptureTask(
         photoBytes: photoBytes,
         stampPng: stampPng,
         position: settings.stampPosition,
         timestamp: ctx.timestamp,
+        counter: settings.counter,
+        coordText: ctx.coordText,
+        saveOriginal: settings.saveOriginal,
         latitude: fix?.latitude,
         longitude: fix?.longitude,
         altitude: fix?.altitude,
         bearing: fix?.heading,
-      );
-
-      final PhotoRecord record = await _photos.save(
-        jpeg: processed.jpeg,
-        thumbnailJpeg: processed.thumbnail,
-        originalJpeg: settings.saveOriginal ? photoBytes : null,
-        takenAt: ctx.timestamp,
-        latitude: fix?.latitude,
-        longitude: fix?.longitude,
-        altitude: fix?.altitude,
         accuracy: fix?.accuracy,
-        bearing: fix?.heading,
         address: _address,
         note: settings.note,
         project: _projects.active,
-        counter: settings.counter,
-        coordText: ctx.coordText,
-      );
+      ));
 
-      // Show the result right away, then copy to the system gallery in the
-      // background so the shutter feels fast.
       HapticFeedback.lightImpact();
-      if (mounted) {
-        final AppLocalizations l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.cameraPhotoSaved),
-            action: SnackBarAction(
-              label: l10n.view,
-              onPressed: () => _openGallery(),
-            ),
-          ),
-        );
-      }
-      unawaited(_saveToSystemGallery(record.path));
-
       // Advance the automatic photo counter.
       await _settings.update((AppSettings s) => s.copyWith(counter: s.counter + 1));
     } catch (e) {
@@ -396,15 +370,6 @@ class _CameraScreenState extends State<CameraScreen>
       if (mounted) setState(() => _capturing = false);
       if (_captureCtx != null && mounted) setState(() => _captureCtx = null);
     }
-  }
-
-  Future<void> _saveToSystemGallery(String path) async {
-    try {
-      if (!await Gal.hasAccess(toAlbum: false)) {
-        await Gal.requestAccess(toAlbum: false);
-      }
-      await Gal.putImage(path, album: 'PhotoTag');
-    } catch (_) {}
   }
 
   Future<Uint8List> _renderStampPng(StampContext ctx) async {
@@ -422,10 +387,6 @@ class _CameraScreenState extends State<CameraScreen>
     } finally {
       image.dispose();
     }
-  }
-
-  void _openGallery() {
-    Navigator.of(context).push(sharedAxisRoute(const GalleryScreen()));
   }
 
   void _openSettings() {
@@ -752,6 +713,7 @@ class _CameraScreenState extends State<CameraScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              const _QueueIndicator(),
               if (presets.length > 1)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 14),
@@ -987,6 +949,53 @@ class _ProjectChip extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _QueueIndicator extends StatelessWidget {
+  const _QueueIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    final CaptureQueue queue = context.watch<CaptureQueue>();
+    final int count = queue.pendingCount;
+    final AppLocalizations l10n = AppLocalizations.of(context);
+
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      child: count == 0
+          ? const SizedBox(width: double.infinity)
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.savingCount(count),
+                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }

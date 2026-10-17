@@ -65,6 +65,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraCaptureFailed => 'Could not capture the photo';
 
   @override
+  String savingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Saving $count photos…',
+      one: 'Saving 1 photo…',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get cameraLocationUnavailable => 'Location is unavailable';
 
   @override
@@ -374,6 +385,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutLicenseValue => 'MIT License';
+
+  @override
+  String get checkForUpdates => 'Check for updates';
+
+  @override
+  String get checkingUpdates => 'Checking…';
+
+  @override
+  String get upToDate => 'You\'re up to date';
+
+  @override
+  String updateAvailable(String version) {
+    return 'Version $version is available';
+  }
+
+  @override
+  String get update => 'Update';
 
   @override
   String stampByAuthor(String author) {

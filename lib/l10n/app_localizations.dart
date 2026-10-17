@@ -206,6 +206,12 @@ abstract class AppLocalizations {
   /// **'Could not capture the photo'**
   String get cameraCaptureFailed;
 
+  /// No description provided for @savingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Saving 1 photo…} other{Saving {count} photos…}}'**
+  String savingCount(int count);
+
   /// No description provided for @cameraLocationUnavailable.
   ///
   /// In en, this message translates to:
@@ -781,6 +787,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'MIT License'**
   String get aboutLicenseValue;
+
+  /// No description provided for @checkForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get checkForUpdates;
+
+  /// No description provided for @checkingUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get checkingUpdates;
+
+  /// No description provided for @upToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re up to date'**
+  String get upToDate;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is available'**
+  String updateAvailable(String version);
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
 
   /// No description provided for @stampByAuthor.
   ///

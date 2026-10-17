@@ -46,3 +46,9 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Android release signing (kept in CI secrets, never committed)
+android/key.properties
+android/app/release.p12
+*.jks
+*.p12

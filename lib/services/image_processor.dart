@@ -24,6 +24,7 @@ class ImageProcessor {
     double? longitude,
     double? altitude,
     double? bearing,
+    int jpegQuality = 100,
   }) {
     return compute(
       _process,
@@ -36,6 +37,7 @@ class ImageProcessor {
         lng: longitude,
         altitude: altitude,
         bearing: bearing,
+        jpegQuality: jpegQuality,
       ),
       debugLabel: 'process-photo',
     );
@@ -51,6 +53,7 @@ typedef _CompositeArgs = ({
   double? lng,
   double? altitude,
   double? bearing,
+  int jpegQuality,
 });
 
 ProcessedPhoto _process(_CompositeArgs args) {
@@ -129,7 +132,8 @@ ProcessedPhoto _process(_CompositeArgs args) {
 
   _writeMetadata(photo, args);
 
-  final Uint8List jpeg = Uint8List.fromList(img.encodeJpg(photo, quality: 100));
+  final Uint8List jpeg = Uint8List.fromList(
+      img.encodeJpg(photo, quality: args.jpegQuality));
 
   final int thumbWidth =
       photo.width < ImageProcessor._thumbnailWidth ? photo.width : ImageProcessor._thumbnailWidth;

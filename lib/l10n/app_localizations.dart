@@ -212,6 +212,18 @@ abstract class AppLocalizations {
   /// **'Could not capture the photo'**
   String get cameraCaptureFailed;
 
+  /// No description provided for @projectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a project to start shooting'**
+  String get projectRequired;
+
+  /// No description provided for @chooseProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get chooseProject;
+
   /// No description provided for @savingCount.
   ///
   /// In en, this message translates to:
@@ -746,6 +758,30 @@ abstract class AppLocalizations {
   /// **'Also save the photo without the stamp'**
   String get cameraKeepOriginalHint;
 
+  /// No description provided for @photoQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo quality'**
+  String get photoQuality;
+
+  /// No description provided for @qualityMaximum.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum'**
+  String get qualityMaximum;
+
+  /// No description provided for @qualityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get qualityHigh;
+
+  /// No description provided for @qualityBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get qualityBalanced;
+
   /// No description provided for @language.
   ///
   /// In en, this message translates to:
@@ -769,6 +805,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Русский'**
   String get languageRussian;
+
+  /// No description provided for @info.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get info;
 
   /// No description provided for @about.
   ///

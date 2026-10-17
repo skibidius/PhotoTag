@@ -13,6 +13,9 @@ class Formatters {
   static String dateTime(DateTime t, String locale) =>
       DateFormat('d MMM yyyy · HH:mm:ss', locale).format(t);
 
+  static String monthYear(DateTime t, String locale) =>
+      DateFormat('MMMM yyyy', locale).format(t);
+
   /// Rounds a heading to the nearest 16-wind cardinal direction.
   static String cardinal(double degrees) {
     const List<String> dirs = <String>[

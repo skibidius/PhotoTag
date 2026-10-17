@@ -23,6 +23,8 @@
   "openSettings": "Open settings",
   "cameraPhotoSaved": "Photo saved",
   "cameraCaptureFailed": "Could not capture the photo",
+  "projectRequired": "Select a project to start shooting",
+  "chooseProject": "Choose",
   "savingCount": "{count, plural, =1{Saving 1 photo…} other{Saving {count} photos…}}",
   "@savingCount": {
     "placeholders": {
@@ -178,12 +180,17 @@
   "cameraMaxResolutionHint": "Capture at the sensor's full resolution",
   "cameraKeepOriginal": "Keep original copy",
   "cameraKeepOriginalHint": "Also save the photo without the stamp",
+  "photoQuality": "Photo quality",
+  "qualityMaximum": "Maximum",
+  "qualityHigh": "High",
+  "qualityBalanced": "Balanced",
 
   "language": "Language",
   "languageSystem": "System default",
   "languageEnglish": "English",
   "languageRussian": "Русский",
 
+  "info": "Info",
   "about": "About",
   "aboutVersion": "Version",
   "aboutLicense": "License",

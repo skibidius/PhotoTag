@@ -17,6 +17,7 @@ class CaptureTask {
     required this.counter,
     required this.coordText,
     required this.saveOriginal,
+    this.jpegQuality = 100,
     this.latitude,
     this.longitude,
     this.altitude,
@@ -34,6 +35,7 @@ class CaptureTask {
   final int counter;
   final String coordText;
   final bool saveOriginal;
+  final int jpegQuality;
 
   final double? latitude;
   final double? longitude;
@@ -88,6 +90,7 @@ class CaptureQueue extends ChangeNotifier {
           longitude: task.longitude,
           altitude: task.altitude,
           bearing: task.bearing,
+          jpegQuality: task.jpegQuality,
         );
 
         final record = await _store.save(

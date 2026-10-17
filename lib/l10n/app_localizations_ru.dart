@@ -67,6 +67,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cameraCaptureFailed => 'Не удалось сделать снимок';
 
   @override
+  String get projectRequired => 'Выберите проект, чтобы начать съёмку';
+
+  @override
+  String get chooseProject => 'Выбрать';
+
+  @override
   String savingCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -368,6 +374,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cameraKeepOriginalHint => 'Также сохранять фото без вотермарки';
 
   @override
+  String get photoQuality => 'Качество фото';
+
+  @override
+  String get qualityMaximum => 'Максимальное';
+
+  @override
+  String get qualityHigh => 'Высокое';
+
+  @override
+  String get qualityBalanced => 'Сбалансированное';
+
+  @override
   String get language => 'Язык';
 
   @override
@@ -378,6 +396,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get languageRussian => 'Русский';
+
+  @override
+  String get info => 'Информация';
 
   @override
   String get about => 'О приложении';

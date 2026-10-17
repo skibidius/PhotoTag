@@ -8,7 +8,7 @@ ready to drop into a report or send straight from the field.
 
 ## Features
 
-- **In-app camera** that captures at the sensor's full resolution
+- **In-app camera** with the Camera2 engine on Android and selectable quality
 - **Watermark** with coordinates (decimal, DMS, DDM, UTM, MGRS), bearing,
   altitude, accuracy, date/time, reverse-geocoded address, note, author and an
   automatic photo counter
@@ -22,6 +22,7 @@ ready to drop into a report or send straight from the field.
 - Saves to the system gallery and shares from the app
 - In-app update check
 - Tap to focus, pinch to zoom, lens presets, flash, grid and a live stamp preview
+- **Google Photos-style gallery** — swipe sideways to browse, down to close, tap for info
 
 ## Screenshots
 

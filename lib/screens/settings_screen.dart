@@ -238,14 +238,18 @@ class SettingsScreen extends StatelessWidget {
               controller.update((AppSettings s) => s.copyWith(showHud: v));
             },
           ),
-          _Toggle(
+          _PickerTile<PhotoQuality>(
             icon: Icons.high_quality_outlined,
-            label: l10n.cameraMaxResolution,
-            subtitle: l10n.cameraMaxResolutionHint,
-            value: settings.highResolution,
-            onChanged: (bool v) {
+            label: l10n.photoQuality,
+            value: settings.photoQuality,
+            options: <(PhotoQuality, String)>[
+              (PhotoQuality.maximum, l10n.qualityMaximum),
+              (PhotoQuality.high, l10n.qualityHigh),
+              (PhotoQuality.balanced, l10n.qualityBalanced),
+            ],
+            onChanged: (PhotoQuality v) {
               HapticFeedback.selectionClick();
-              controller.update((AppSettings s) => s.copyWith(highResolution: v));
+              controller.update((AppSettings s) => s.copyWith(photoQuality: v));
             },
           ),
           _Toggle(

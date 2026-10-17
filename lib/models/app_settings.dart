@@ -24,6 +24,10 @@ enum StampTone { light, dark }
 /// The app's interface language.
 enum AppLanguage { system, english, russian }
 
+/// Capture quality preset. Higher presets use the sensor's full resolution and
+/// a richer JPEG encode.
+enum PhotoQuality { maximum, high, balanced }
+
 /// Captures every user-controllable aspect of the app. Instances are immutable
 /// and copied through [copyWith]; persistence is handled by the settings
 /// controller.
@@ -51,8 +55,8 @@ class AppSettings {
     this.showGrid = false,
     this.showHud = true,
     this.saveOriginal = true,
-    this.highResolution = true,
     this.language = AppLanguage.system,
+    this.photoQuality = PhotoQuality.maximum,
   });
 
   final CoordFormat coordFormat;
@@ -80,8 +84,8 @@ class AppSettings {
   final bool showGrid;
   final bool showHud;
   final bool saveOriginal;
-  final bool highResolution;
   final AppLanguage language;
+  final PhotoQuality photoQuality;
 
   AppSettings copyWith({
     CoordFormat? coordFormat,
@@ -106,8 +110,8 @@ class AppSettings {
     bool? showGrid,
     bool? showHud,
     bool? saveOriginal,
-    bool? highResolution,
     AppLanguage? language,
+    PhotoQuality? photoQuality,
   }) {
     return AppSettings(
       coordFormat: coordFormat ?? this.coordFormat,
@@ -132,8 +136,8 @@ class AppSettings {
       showGrid: showGrid ?? this.showGrid,
       showHud: showHud ?? this.showHud,
       saveOriginal: saveOriginal ?? this.saveOriginal,
-      highResolution: highResolution ?? this.highResolution,
       language: language ?? this.language,
+      photoQuality: photoQuality ?? this.photoQuality,
     );
   }
 
@@ -160,8 +164,8 @@ class AppSettings {
         'showGrid': showGrid,
         'showHud': showHud,
         'saveOriginal': saveOriginal,
-        'highResolution': highResolution,
         'language': language.name,
+        'photoQuality': photoQuality.name,
       };
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -195,8 +199,8 @@ class AppSettings {
       showGrid: json['showGrid'] as bool? ?? false,
       showHud: json['showHud'] as bool? ?? true,
       saveOriginal: json['saveOriginal'] as bool? ?? true,
-      highResolution: json['highResolution'] as bool? ?? true,
       language: enumByName(AppLanguage.values, json['language'] as String?, AppLanguage.system),
+      photoQuality: enumByName(PhotoQuality.values, json['photoQuality'] as String?, PhotoQuality.maximum),
     );
   }
 }
@@ -216,6 +220,20 @@ extension StampPositionX on StampPosition {
         return Alignment.bottomCenter;
       case StampPosition.bottomRight:
         return Alignment.bottomRight;
+    }
+  }
+}
+
+extension PhotoQualityX on PhotoQuality {
+  /// JPEG quality used when re-encoding the stamped photo.
+  int get jpegQuality {
+    switch (this) {
+      case PhotoQuality.maximum:
+        return 100;
+      case PhotoQuality.high:
+        return 95;
+      case PhotoQuality.balanced:
+        return 90;
     }
   }
 }

@@ -68,6 +68,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraCaptureFailed => 'Could not capture the photo';
 
   @override
+  String get projectRequired => 'Select a project to start shooting';
+
+  @override
+  String get chooseProject => 'Choose';
+
+  @override
   String savingCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -366,6 +372,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraKeepOriginalHint => 'Also save the photo without the stamp';
 
   @override
+  String get photoQuality => 'Photo quality';
+
+  @override
+  String get qualityMaximum => 'Maximum';
+
+  @override
+  String get qualityHigh => 'High';
+
+  @override
+  String get qualityBalanced => 'Balanced';
+
+  @override
   String get language => 'Language';
 
   @override
@@ -376,6 +394,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageRussian => 'Русский';
+
+  @override
+  String get info => 'Info';
 
   @override
   String get about => 'About';

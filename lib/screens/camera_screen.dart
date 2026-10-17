@@ -217,7 +217,7 @@ class _CameraScreenState extends State<CameraScreen>
     await _controller?.dispose();
     final CameraController controller = CameraController(
       description,
-      ResolutionPreset.max,
+      _resolutionFor(_settings.value.photoQuality),
       enableAudio: false,
       imageFormatGroup: ImageFormatGroup.jpeg,
     );
@@ -315,6 +315,22 @@ class _CameraScreenState extends State<CameraScreen>
       return;
     }
 
+    // A photo must belong to a project.
+    if (_projects.active == null) {
+      HapticFeedback.selectionClick();
+      final AppLocalizations l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.projectRequired),
+          action: SnackBarAction(
+            label: l10n.chooseProject,
+            onPressed: _openProjectPicker,
+          ),
+        ),
+      );
+      return;
+    }
+
     HapticFeedback.mediumImpact();
     setState(() => _capturing = true);
 
@@ -353,6 +369,7 @@ class _CameraScreenState extends State<CameraScreen>
         counter: settings.counter,
         coordText: ctx.coordText,
         saveOriginal: settings.saveOriginal,
+        jpegQuality: settings.photoQuality.jpegQuality,
         latitude: fix?.latitude,
         longitude: fix?.longitude,
         altitude: fix?.altitude,
@@ -421,6 +438,7 @@ class _CameraScreenState extends State<CameraScreen>
   Widget build(BuildContext context) {
     final AppSettings settings = context.watch<SettingsController>().value;
     final LocationService location = context.watch<LocationService>();
+    final String? activeProject = context.watch<ProjectStore>().active;
     final Color accent = Theme.of(context).colorScheme.primary;
     final StampContext liveCtx = _liveContext(settings);
 
@@ -430,14 +448,15 @@ class _CameraScreenState extends State<CameraScreen>
         fit: StackFit.expand,
         clipBehavior: Clip.none,
         children: <Widget>[
-          _buildBody(settings, location, accent, liveCtx),
+          _buildBody(settings, location, accent, liveCtx,
+              hasProject: activeProject != null),
         ],
       ),
     );
   }
 
   Widget _buildBody(AppSettings settings, LocationService location,
-      Color accent, StampContext liveCtx) {
+      Color accent, StampContext liveCtx, {required bool hasProject}) {
     if (_error != null) return _buildError(settings, accent);
     if (_initializing) {
       return const Center(
@@ -468,7 +487,7 @@ class _CameraScreenState extends State<CameraScreen>
         _buildPreview(settings, liveCtx, accent),
         _buildTopBar(settings, location, accent),
         _buildSideControls(settings, accent),
-        _buildBottomControls(settings, accent),
+        _buildBottomControls(settings, accent, hasProject: hasProject),
       ],
     );
   }
@@ -715,7 +734,8 @@ class _CameraScreenState extends State<CameraScreen>
     }
   }
 
-  Widget _buildBottomControls(AppSettings settings, Color accent) {
+  Widget _buildBottomControls(AppSettings settings, Color accent,
+      {required bool hasProject}) {
     final List<double> presets = _zoomPresets;
     return Positioned(
       bottom: 0,
@@ -748,7 +768,11 @@ class _CameraScreenState extends State<CameraScreen>
                     tooltip: AppLocalizations.of(context).cameraFlash,
                   ),
                   const Spacer(),
-                  _ShutterButton(capturing: _capturing, onTap: _capture),
+                  _ShutterButton(
+                    capturing: _capturing,
+                    enabled: hasProject,
+                    onTap: _capture,
+                  ),
                   const Spacer(),
                   _ControlButton(
                     icon: Icons.cameraswitch_outlined,
@@ -775,6 +799,17 @@ class _CameraScreenState extends State<CameraScreen>
         .toList()
       ..sort();
     return list;
+  }
+
+  ResolutionPreset _resolutionFor(PhotoQuality quality) {
+    switch (quality) {
+      case PhotoQuality.maximum:
+        return ResolutionPreset.max;
+      case PhotoQuality.high:
+        return ResolutionPreset.veryHigh;
+      case PhotoQuality.balanced:
+        return ResolutionPreset.high;
+    }
   }
 
   IconData _flashIcon() {
@@ -1043,9 +1078,14 @@ class _ControlButton extends StatelessWidget {
 }
 
 class _ShutterButton extends StatefulWidget {
-  const _ShutterButton({required this.capturing, required this.onTap});
+  const _ShutterButton({
+    required this.capturing,
+    required this.enabled,
+    required this.onTap,
+  });
 
   final bool capturing;
+  final bool enabled;
   final VoidCallback onTap;
 
   @override
@@ -1057,6 +1097,7 @@ class _ShutterButtonState extends State<_ShutterButton> {
 
   @override
   Widget build(BuildContext context) {
+    final bool enabled = widget.enabled;
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapCancel: () => setState(() => _pressed = false),
@@ -1066,32 +1107,36 @@ class _ShutterButtonState extends State<_ShutterButton> {
         scale: _pressed ? 0.88 : 1.0,
         duration: const Duration(milliseconds: 110),
         curve: Curves.easeOut,
-        child: Container(
-          width: 78,
-          height: 78,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 4),
-            color: widget.capturing ? Colors.white38 : Colors.white24,
-          ),
-          child: Center(
-            child: widget.capturing
-                ? const SizedBox(
-                    width: 26,
-                    height: 26,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                      color: Colors.white,
+        child: Opacity(
+          opacity: enabled ? 1 : 0.45,
+          child: Container(
+            width: 78,
+            height: 78,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: enabled ? Colors.white : Colors.white54, width: 4),
+              color: widget.capturing ? Colors.white38 : Colors.white24,
+            ),
+            child: Center(
+              child: widget.capturing
+                  ? const SizedBox(
+                      width: 26,
+                      height: 26,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Container(
+                      width: 62,
+                      height: 62,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: enabled ? Colors.white : Colors.white54,
+                      ),
                     ),
-                  )
-                : Container(
-                    width: 62,
-                    height: 62,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                  ),
+            ),
           ),
         ),
       ),

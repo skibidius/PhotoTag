@@ -7,25 +7,26 @@
 <meta name="description" content="Field photos with coordinates, compass direction, altitude and time stamped straight into the image. Android and iOS.">
 <link rel="icon" href="icon.png">
 <style>
-  /* Material You tonal tokens */
   :root{
-    --primary:#00696d; --on-primary:#ffffff;
-    --primary-container:#9ff1f2; --on-primary-container:#002021;
-    --secondary-container:#cce8e5; --on-secondary-container:#0a1f1e;
-    --surface:#f7fbfa; --on-surface:#171d1d;
-    --surface-container:#edf3f2; --surface-container-high:#e6eeed;
-    --on-surface-variant:#3f4948; --outline-variant:#bec9c8;
-    --shadow:0 2px 6px rgba(0,32,33,.10), 0 12px 28px rgba(0,32,33,.08);
+    --primary:#0d9488; --on-primary:#ffffff;
+    --primary-container:#ccfbf1; --on-primary-container:#134e4a;
+    --secondary-container:#dbeafe; --on-secondary-container:#1e3a8a;
+    --surface:#f8fafc; --on-surface:#0f172a;
+    --surface-container:#eef3f8; --surface-container-high:#e5edf4;
+    --on-surface-variant:#475569; --outline-variant:#d6dfe7;
+    --glow:rgba(13,148,136,.20);
+    --shadow:0 2px 6px rgba(15,23,42,.06), 0 14px 30px rgba(15,23,42,.07);
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --primary:#80d4d5; --on-primary:#003738;
-      --primary-container:#004f51; --on-primary-container:#9ff1f2;
-      --secondary-container:#2b4a48; --on-secondary-container:#cce8e5;
-      --surface:#0e1514; --on-surface:#dde4e3;
-      --surface-container:#1a2120; --surface-container-high:#242b2a;
-      --on-surface-variant:#bec9c8; --outline-variant:#3f4948;
-      --shadow:0 2px 6px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.35);
+      --primary:#2dd4bf; --on-primary:#04211d;
+      --primary-container:#0f3d3a; --on-primary-container:#99f6e4;
+      --secondary-container:#1e3a5f; --on-secondary-container:#bfdbfe;
+      --surface:#0b0f14; --on-surface:#e6edf3;
+      --surface-container:#141b23; --surface-container-high:#1b2530;
+      --on-surface-variant:#9aa9b8; --outline-variant:#243141;
+      --glow:rgba(45,212,191,.16);
+      --shadow:0 2px 6px rgba(0,0,0,.35), 0 16px 34px rgba(0,0,0,.28);
     }
   }
   *{box-sizing:border-box}
@@ -35,37 +36,34 @@
     font-family:-apple-system,BlinkMacSystemFont,"Google Sans","Roboto","Segoe UI",Helvetica,Arial,sans-serif;
     line-height:1.5; -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:1040px; margin:0 auto; padding:0 20px}
+  .wrap{max-width:1000px; margin:0 auto; padding:0 22px}
 
-  /* App bar */
   .appbar{
     position:sticky; top:0; z-index:10;
-    background:color-mix(in srgb, var(--surface) 88%, transparent);
-    backdrop-filter:blur(12px);
+    background:var(--surface);
     border-bottom:1px solid var(--outline-variant);
   }
-  .appbar .wrap{display:flex; align-items:center; gap:12px; height:64px}
-  .appbar img{width:32px; height:32px; border-radius:8px}
+  .appbar .wrap{display:flex; align-items:center; gap:12px; height:62px}
+  .appbar img{width:30px; height:30px; border-radius:8px}
   .appbar .title{font-weight:600; letter-spacing:.2px}
   .appbar .spacer{flex:1}
   .appbar a{
     color:var(--on-surface-variant); text-decoration:none; font-size:14px; font-weight:500;
     padding:8px 14px; border-radius:999px;
   }
-  .appbar a:hover{background:var(--surface-container)}
+  .appbar a:hover{background:var(--surface-container); color:var(--on-surface)}
 
-  /* Hero */
   .hero{
-    padding:64px 0 24px; text-align:center;
-    background:
-      radial-gradient(900px 420px at 50% -8%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 70%);
+    position:relative; padding:60px 0 26px; text-align:center;
   }
-  .logo{
-    width:104px; height:104px; border-radius:26px; box-shadow:var(--shadow);
+  .hero::before{
+    content:""; position:absolute; inset:0; pointer-events:none; z-index:-1;
+    background:radial-gradient(620px 300px at 50% -6%, var(--glow), transparent 72%);
   }
-  h1{font-size:clamp(36px, 6vw, 48px); line-height:1.08; margin:22px 0 10px; font-weight:600; letter-spacing:-.02em}
-  .tagline{font-size:18px; color:var(--on-surface-variant); max-width:640px; margin:0 auto}
-  .actions{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; align-items:center; margin-top:30px}
+  .logo{width:104px; height:104px; border-radius:26px; box-shadow:var(--shadow); display:inline-block}
+  h1{font-size:clamp(36px, 6vw, 50px); line-height:1.06; margin:22px 0 10px; font-weight:600; letter-spacing:-.025em}
+  .tagline{font-size:18px; color:var(--on-surface-variant); max-width:620px; margin:0 auto}
+  .actions{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; align-items:center; margin-top:28px}
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:10px;
     min-height:52px; padding:0 28px; border-radius:999px; font-size:16px; font-weight:600;
@@ -73,71 +71,62 @@
     transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
   }
   .btn:active{transform:scale(.98)}
-  .btn.filled{background:var(--primary); color:var(--on-primary); box-shadow:0 6px 18px color-mix(in srgb, var(--primary) 35%, transparent)}
-  .btn.filled:hover{box-shadow:0 10px 26px color-mix(in srgb, var(--primary) 42%, transparent)}
+  .btn.filled{
+    background:var(--primary); color:var(--on-primary);
+    box-shadow:0 8px 20px color-mix(in srgb, var(--primary) 32%, transparent);
+  }
+  .btn.filled:hover{box-shadow:0 12px 28px color-mix(in srgb, var(--primary) 40%, transparent)}
   .btn.tonal{background:var(--secondary-container); color:var(--on-secondary-container)}
-  .btn.tonal:hover{background:color-mix(in srgb, var(--secondary-container) 80%, var(--on-secondary-container) 6%)}
-  .btn.outlined{background:transparent; color:var(--primary); border:1px solid var(--outline-variant)}
-  .btn.outlined:hover{background:color-mix(in srgb, var(--primary) 8%, transparent)}
+  .btn.outlined{background:transparent; color:inherit; border:1px solid color-mix(in srgb, currentColor 40%, transparent)}
+  .btn.outlined:hover{background:color-mix(in srgb, currentColor 8%, transparent)}
 
   .altstore-card{
-    display:inline-flex; align-items:center; padding:10px 16px;
-    background:var(--surface-container); border-radius:20px;
+    display:inline-flex; align-items:center; padding:9px 15px;
+    background:var(--surface-container); border-radius:18px;
   }
-  .altstore-card img{height:44px; width:auto; display:block}
-  .hint{color:var(--on-surface-variant); font-size:14px; margin:18px auto 0; max-width:620px}
+  .altstore-card img{height:42px; width:auto; display:block}
+  .hint{color:var(--on-surface-variant); font-size:14px; margin:18px auto 0; max-width:600px}
   .hint a{color:var(--primary); text-decoration:none; font-weight:500}
   .hint a:hover{text-decoration:underline}
 
-  /* Sections */
   section{padding:34px 0}
-  h2{font-size:24px; font-weight:600; margin:0 0 16px}
-  .sub{color:var(--on-surface-variant); margin:-8px 0 18px; font-size:15px}
+  h2{font-size:23px; font-weight:600; margin:0 0 16px}
 
-  /* Screenshots: scroll strip, no clipped centering, no visible scrollbar */
-  .shots{
-    display:flex; gap:12px; overflow-x:auto; justify-content:flex-start;
-    padding:4px 4px 10px; scroll-snap-type:x mandatory;
-    scrollbar-width:none; -ms-overflow-style:none;
-  }
-  .shots::-webkit-scrollbar{display:none}
+  /* Screenshots: wraps into a grid, so nothing is ever clipped at the edges */
+  .shots{display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:14px}
   .shots img{
-    flex:0 0 172px; width:172px; height:auto; border-radius:20px;
-    box-shadow:var(--shadow); scroll-snap-align:start; background:var(--surface-container);
+    width:100%; height:auto; border-radius:16px; display:block;
+    box-shadow:var(--shadow); background:var(--surface-container);
   }
 
-  /* Feature cards */
   .features{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px}
-  .feature{
-    background:var(--surface-container); border-radius:24px; padding:22px;
-  }
+  .feature{background:var(--surface-container); border-radius:24px; padding:22px}
   .feature .ic{
     width:40px; height:40px; border-radius:12px; display:grid; place-items:center;
-    background:var(--primary-container); color:var(--on-primary-container); margin-bottom:12px;
-    font-size:20px;
+    background:var(--primary-container); color:var(--on-primary-container); margin-bottom:12px; font-size:19px;
   }
   .feature h3{margin:0 0 6px; font-size:16px; font-weight:600}
   .feature p{margin:0; color:var(--on-surface-variant); font-size:14px}
 
-  /* Closing card */
   .closing{
-    background:linear-gradient(135deg, var(--primary-container), var(--secondary-container));
-    color:var(--on-primary-container);
-    border-radius:28px; padding:34px; text-align:center; margin:20px 0 10px;
+    background:linear-gradient(135deg,#0d9488 0%, #0ea5e9 55%, #6366f1 100%);
+    color:#ffffff; border-radius:28px; padding:36px 28px; text-align:center; margin:18px 0 8px;
+    box-shadow:0 18px 44px rgba(14,165,233,.25);
   }
-  .closing h2{color:inherit; margin-bottom:6px}
-  .closing p{margin:0 0 18px; opacity:.85}
-  .closing .btn{display:inline-flex; margin:4px}
-  .closing .btn.filled{background:var(--on-primary-container); color:var(--primary-container)}
-  .closing .btn.outlined{color:var(--on-primary-container); border-color:color-mix(in srgb, var(--on-primary-container) 45%, transparent)}
+  .closing h2{color:#fff; margin-bottom:6px}
+  .closing p{margin:0 0 20px; opacity:.9}
+  .closing .btn{margin:5px}
+  .closing .btn.filled{background:#fff; color:#0f172a; box-shadow:none}
+  .closing .btn.outlined{color:#fff; border-color:rgba(255,255,255,.55)}
+  .closing .btn.outlined:hover{background:rgba(255,255,255,.12)}
 
-  footer{color:var(--on-surface-variant); font-size:13px; text-align:center; padding:36px 0 60px}
+  footer{color:var(--on-surface-variant); font-size:13px; text-align:center; padding:34px 0 58px}
   footer a{color:var(--on-surface-variant)}
   footer a:hover{color:var(--primary)}
 
   @media (max-width:520px){
-    .hero{padding-top:44px}
-    .shots img{flex-basis:150px; width:150px}
+    .hero{padding-top:42px}
+    .shots{grid-template-columns:repeat(2, 1fr)}
   }
 </style>
 </head>

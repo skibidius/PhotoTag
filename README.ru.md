@@ -37,7 +37,22 @@
   </tr>
 </table>
 
-## Запуск
+## Установка
+
+**Android** — [скачайте последний APK](https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.apk)
+и откройте его. При необходимости разрешите установку из неизвестных источников.
+
+**iOS** — [скачайте последний IPA](https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.ipa)
+и установите через [AltStore](https://altstore.io/):
+
+1. Установите AltStore на iPhone или iPad и войдите под своим Apple ID.
+2. Сохраните `phototag.ipa` в приложении «Файлы».
+3. Откройте AltStore → *My Apps* → **+** и выберите IPA (или поделитесь файлом
+   в AltStore).
+4. AltStore подпишет приложение вашим аккаунтом. С бесплатным Apple ID подпись
+   нужно обновлять раз в 7 дней; с платным — раз в год.
+
+## Запуск из исходников
 
 Нужен Flutter 3.24 или новее.
 

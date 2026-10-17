@@ -66,11 +66,13 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
-      - name: Package
+      - name: Package unsigned IPA
         run: |
           mkdir -p dist
-          cd build/ios/iphoneos
-          zip -r -q "$GITHUB_WORKSPACE/dist/phototag-ios.zip" Runner.app
+          rm -rf Payload
+          mkdir Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          zip -r -q dist/phototag.ipa Payload
       - uses: actions/upload-artifact@v4
         with:
           name: ios
@@ -97,4 +99,4 @@ jobs:
           files: |
             dist/phototag.apk
             dist/phototag.aab
-            dist/phototag-ios.zip
+            dist/phototag.ipa

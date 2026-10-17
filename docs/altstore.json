@@ -33,11 +33,11 @@
       },
       "versions": [
         {
-          "version": "1.8.0",
-          "buildVersion": "13",
+          "version": "1.8.1",
+          "buildVersion": "14",
           "date": "2026-10-17",
-          "downloadURL": "https://github.com/skibidius/PhotoTag/releases/download/v1.8.0/phototag.ipa",
-          "size": 9054994,
+          "downloadURL": "https://github.com/skibidius/PhotoTag/releases/download/v1.8.1/phototag.ipa",
+          "size": 9050088,
           "minOSVersion": "13.0"
         }
       ]

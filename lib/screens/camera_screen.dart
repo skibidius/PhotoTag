@@ -487,6 +487,13 @@ class _CameraScreenState extends State<CameraScreen>
         _buildPreview(settings, liveCtx, accent),
         _buildTopBar(settings, location, accent),
         _buildSideControls(settings, accent),
+        if (!hasProject)
+          Positioned(
+            left: 24,
+            right: 24,
+            bottom: 200,
+            child: _NoProjectPrompt(onTap: _openProjectPicker),
+          ),
         _buildBottomControls(settings, accent, hasProject: hasProject),
       ],
     );
@@ -1045,6 +1052,43 @@ class _QueueIndicator extends StatelessWidget {
                 ),
               ),
             ),
+    );
+  }
+}
+
+class _NoProjectPrompt extends StatelessWidget {
+  const _NoProjectPrompt({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.62),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+      ),
+      child: Row(
+        children: <Widget>[
+          const Icon(Icons.create_new_folder_outlined,
+              color: Colors.white70, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              l10n.projectRequired,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+            ),
+          ),
+          TextButton(
+            onPressed: onTap,
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            child: Text(l10n.chooseProject),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -86,35 +84,11 @@ class _CameraScreenState extends State<CameraScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
   }
 
-  /// Requests permissions up front, then starts the camera and location.
+  /// Starts the camera and location. Both plugins ask for their own
+  /// permission the first time they are initialised.
   Future<void> _bootstrap() async {
-    await _requestPermissions();
     await _initCamera();
     await _ensureLocation();
-  }
-
-  Future<void> _requestPermissions() async {
-    if (defaultTargetPlatform != TargetPlatform.android) {
-      // iOS camera/geolocation plugins prompt on their own.
-      return;
-    }
-    final Map<Permission, PermissionStatus> statuses =
-        await <Permission>[Permission.camera, Permission.locationWhenInUse]
-            .request();
-    final bool blocked =
-        statuses.values.any((PermissionStatus s) => s.isPermanentlyDenied);
-    if (blocked && mounted) {
-      final AppLocalizations l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.permissionsNeeded),
-          action: SnackBarAction(
-            label: l10n.enable,
-            onPressed: openAppSettings,
-          ),
-        ),
-      );
-    }
   }
 
   @override
@@ -589,6 +563,14 @@ class _CameraScreenState extends State<CameraScreen>
             icon: const Icon(Icons.refresh),
             label: Text(l10n.cameraTryAgain),
           ),
+          if (_error == _CameraError.permission) ...<Widget>[
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => _location.openAppSettings(),
+              style: TextButton.styleFrom(foregroundColor: Colors.white),
+              child: Text(l10n.openSettings),
+            ),
+          ],
         ],
       ),
     );

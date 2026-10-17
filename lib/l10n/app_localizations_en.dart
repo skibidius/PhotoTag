@@ -59,6 +59,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraTryAgain => 'Try again';
 
   @override
+  String get openSettings => 'Open settings';
+
+  @override
   String get cameraPhotoSaved => 'Photo saved';
 
   @override
@@ -77,10 +80,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cameraLocationUnavailable => 'Location is unavailable';
-
-  @override
-  String get permissionsNeeded =>
-      'Camera and location permissions are required';
 
   @override
   String get cameraGrid => 'Grid';

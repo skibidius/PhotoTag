@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhotoTag — GPS camera with location watermarks</title>
+<meta name="description" content="Field photos with coordinates, compass direction, altitude and time stamped straight into the image. Android and iOS.">
+<link rel="icon" href="icon.png">
+<style>
+  :root{
+    --bg:#f7fafb; --fg:#101418; --muted:#5b6b73; --card:#ffffff;
+    --teal:#009586; --blue:#0066cc; --border:rgba(0,0,0,.08);
+    --shadow:0 10px 30px rgba(0,40,60,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0b1114; --fg:#eef6f8; --muted:#9fb2ba; --card:#11191d;
+           --border:rgba(255,255,255,.10); --shadow:0 10px 30px rgba(0,0,0,.45); }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Google Sans","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px; margin:0 auto; padding:0 20px}
+  .hero{
+    text-align:center; padding:72px 0 40px;
+    background:radial-gradient(1200px 500px at 50% -10%, rgba(0,149,134,.22), transparent 65%);
+  }
+  .icon{
+    width:112px; height:112px; border-radius:26px; box-shadow:var(--shadow);
+  }
+  h1{font-size:44px; margin:22px 0 8px; letter-spacing:-.02em}
+  .tagline{font-size:18px; color:var(--muted); max-width:620px; margin:0 auto}
+  .actions{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; align-items:center; margin-top:30px}
+  .btn{
+    display:inline-flex; align-items:center; gap:10px; text-decoration:none;
+    padding:14px 24px; border-radius:999px; font-weight:600; font-size:16px;
+    background:linear-gradient(135deg,var(--teal),var(--blue)); color:#fff;
+    box-shadow:0 8px 22px rgba(0,120,150,.28); transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 12px 28px rgba(0,120,150,.34)}
+  .btn.ghost{background:var(--card); color:var(--fg); border:1px solid var(--border); box-shadow:none}
+  .altstore img{height:56px; width:auto; display:block}
+  .hint{color:var(--muted); font-size:14px; margin-top:18px}
+  .hint a{color:var(--teal)}
+  section{padding:26px 0}
+  .shots{display:flex; gap:14px; overflow-x:auto; padding-bottom:8px; justify-content:center; scrollbar-width:thin}
+  .shots img{width:190px; border-radius:16px; border:1px solid var(--border); box-shadow:var(--shadow); flex:0 0 auto}
+  .features{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px}
+  .feature{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px}
+  .feature h3{margin:0 0 6px; font-size:16px}
+  .feature p{margin:0; color:var(--muted); font-size:14px}
+  footer{text-align:center; color:var(--muted); font-size:13px; padding:40px 0 60px}
+  footer a{color:var(--muted)}
+  h2{font-size:22px; margin:0 0 14px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <img class="icon" src="icon.png" alt="PhotoTag icon">
+    <h1>PhotoTag</h1>
+    <p class="tagline">Point, shoot, and the photo comes back with coordinates, compass direction, altitude and time burned into the corner.</p>
+
+    <div class="actions">
+      <a class="btn" href="https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.apk">
+        Download for Android
+      </a>
+      <a class="altstore" href="https://altstore.io/source/skibidius.github.io/PhotoTag/altstore.json?app=com.phototag">
+        <img src="altstore-badge.png" alt="Download on AltStore">
+      </a>
+    </div>
+    <p class="hint">
+      iOS: tap the AltStore badge to add the source.
+      No AltStore yet? <a href="https://altstore.io">Get it here</a>, or
+      <a href="https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.ipa">download the IPA</a>.
+    </p>
+    <p class="hint">
+      <a class="btn ghost" href="https://github.com/skibidius/PhotoTag">View on GitHub</a>
+    </p>
+  </header>
+
+  <section>
+    <div class="shots">
+      <img src="screenshots/en/camera.png" alt="Camera">
+      <img src="screenshots/en/watermark.png" alt="Watermark">
+      <img src="screenshots/en/projects.png" alt="Projects">
+      <img src="screenshots/en/settings.png" alt="Settings">
+      <img src="screenshots/en/gallery.png" alt="Gallery">
+    </div>
+  </section>
+
+  <section>
+    <h2>What it does</h2>
+    <div class="features">
+      <div class="feature"><h3>Full-resolution capture</h3><p>Shoots at the sensor's maximum resolution and stamps without downscaling.</p></div>
+      <div class="feature"><h3>Location watermark</h3><p>Coordinates (DD, DMS, DDM, UTM, MGRS), bearing, altitude, accuracy, address, note and a counter.</p></div>
+      <div class="feature"><h3>Projects</h3><p>Group shots by site or client and export a project to ZIP — originals, watermarked, or both.</p></div>
+      <div class="feature"><h3>EXIF metadata</h3><p>GPS, altitude and direction are also written into the file's EXIF.</p></div>
+      <div class="feature"><h3>Background queue</h3><p>Keep shooting while photos are watermarked and saved in the background.</p></div>
+      <div class="feature"><h3>Offline &amp; bilingual</h3><p>GPS and geocoding work offline. English and Russian interface.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    MIT licensed · <a href="https://github.com/skibidius/PhotoTag">github.com/skibidius/PhotoTag</a>
+  </footer>
+</main>
+</body>
+</html>

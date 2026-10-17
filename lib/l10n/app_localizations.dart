@@ -194,6 +194,12 @@ abstract class AppLocalizations {
   /// **'Try again'**
   String get cameraTryAgain;
 
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get openSettings;
+
   /// No description provided for @cameraPhotoSaved.
   ///
   /// In en, this message translates to:
@@ -217,12 +223,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location is unavailable'**
   String get cameraLocationUnavailable;
-
-  /// No description provided for @permissionsNeeded.
-  ///
-  /// In en, this message translates to:
-  /// **'Camera and location permissions are required'**
-  String get permissionsNeeded;
 
   /// No description provided for @cameraGrid.
   ///

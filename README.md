@@ -43,12 +43,11 @@ ready to drop into a report or send straight from the field.
 **Android** — [download the latest APK](https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.apk)
 and open it. Allow installation from unknown sources when prompted.
 
-**iOS** — install [AltStore](https://altstore.io/) and add the source in
-AltStore → *Sources* → **+**:
+**iOS** — install [AltStore](https://altstore.io/) and either tap
+**[Add PhotoTag to AltStore](https://altstore.io/source/skibidius.github.io/PhotoTag/altstore.json?app=com.phototag)**,
+or add the source manually in AltStore → *Sources* → **+**:
 
-```
-https://skibidius.github.io/PhotoTag/altstore.json
-```
+<https://skibidius.github.io/PhotoTag/altstore.json>
 
 PhotoTag then shows up in AltStore and installs/updates in one tap. If you
 prefer, [download the latest IPA](https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.ipa)

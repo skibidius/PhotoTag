@@ -58,6 +58,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cameraTryAgain => 'Повторить';
 
   @override
+  String get openSettings => 'Открыть настройки';
+
+  @override
   String get cameraPhotoSaved => 'Фото сохранено';
 
   @override
@@ -78,9 +81,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cameraLocationUnavailable => 'Геолокация недоступна';
-
-  @override
-  String get permissionsNeeded => 'Нужны разрешения на камеру и геолокацию';
 
   @override
   String get cameraGrid => 'Сетка';

@@ -132,7 +132,7 @@ jobs:
             "identifier": "com.phototag.source",
             "subtitle": "GPS camera with location watermarks",
             "description": "Field photos with coordinates, direction, altitude and time stamped straight into the image. Projects, offline geocoding and ZIP export.",
-            "website": "https://github.com/skibidius/PhotoTag",
+            "website": "https://skibidius.github.io/PhotoTag/",
             "tintColor": "#009586",
             "iconURL": "https://skibidius.github.io/PhotoTag/icon.png",
             "featuredApps": ["com.phototag"],
@@ -146,6 +146,20 @@ jobs:
                 "iconURL": "https://skibidius.github.io/PhotoTag/icon.png",
                 "tintColor": "#009586",
                 "category": "utilities",
+                "screenshots": [
+                  "https://skibidius.github.io/PhotoTag/screenshots/en/camera.png",
+                  "https://skibidius.github.io/PhotoTag/screenshots/en/watermark.png",
+                  "https://skibidius.github.io/PhotoTag/screenshots/en/projects.png"
+                ],
+                "appPermissions": {
+                  "entitlements": [],
+                  "privacy": {
+                    "NSCameraUsageDescription": "PhotoTag uses the camera to capture photos with location watermarks.",
+                    "NSLocationWhenInUseUsageDescription": "PhotoTag uses your location to stamp coordinates, direction and altitude onto photos.",
+                    "NSPhotoLibraryAddUsageDescription": "PhotoTag saves your stamped photos to your photo library.",
+                    "NSPhotoLibraryUsageDescription": "PhotoTag saves your stamped photos to your photo library."
+                  }
+                },
                 "versions": [
                   {
                     "version": "${VERSION}",

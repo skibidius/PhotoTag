@@ -44,12 +44,11 @@
 **Android** — [скачайте последний APK](https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.apk)
 и откройте его. При необходимости разрешите установку из неизвестных источников.
 
-**iOS** — установите [AltStore](https://altstore.io/) и добавьте источник в
-AltStore → *Sources* → **+**:
+**iOS** — установите [AltStore](https://altstore.io/) и нажмите
+**[Добавить PhotoTag в AltStore](https://altstore.io/source/skibidius.github.io/PhotoTag/altstore.json?app=com.phototag)**
+либо добавьте источник вручную в AltStore → *Sources* → **+**:
 
-```
-https://skibidius.github.io/PhotoTag/altstore.json
-```
+<https://skibidius.github.io/PhotoTag/altstore.json>
 
 PhotoTag появится в AltStore и будет ставиться и обновляться в одно касание.
 Если удобнее — [скачайте последний IPA](https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.ipa)

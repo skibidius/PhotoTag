@@ -132,6 +132,8 @@ class LocationService extends ChangeNotifier {
     }
   }
 
+  Future<void> openAppSettings() => Geolocator.openAppSettings();
+
   @override
   void dispose() {
     _positionSub?.cancel();

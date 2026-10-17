@@ -20,6 +20,7 @@
   "cameraCannotStart": "Unable to start the camera.",
   "cameraCannotInit": "Unable to initialize the camera.",
   "cameraTryAgain": "Try again",
+  "openSettings": "Open settings",
   "cameraPhotoSaved": "Photo saved",
   "cameraCaptureFailed": "Could not capture the photo",
   "savingCount": "{count, plural, =1{Saving 1 photo…} other{Saving {count} photos…}}",
@@ -31,7 +32,6 @@
     }
   },
   "cameraLocationUnavailable": "Location is unavailable",
-  "permissionsNeeded": "Camera and location permissions are required",
   "cameraGrid": "Grid",
   "cameraSettings": "Settings",
   "cameraSwitch": "Switch camera",

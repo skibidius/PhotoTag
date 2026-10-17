@@ -25,6 +25,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabPhotos => 'Photos';
 
   @override
+  String get tabSettings => 'Settings';
+
+  @override
   String get cancel => 'Cancel';
 
   @override
@@ -86,12 +89,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cameraLocationUnavailable => 'Location is unavailable';
-
-  @override
-  String get cameraGrid => 'Grid';
-
-  @override
-  String get cameraSettings => 'Settings';
 
   @override
   String get cameraSwitch => 'Switch camera';

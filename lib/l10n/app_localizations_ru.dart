@@ -25,6 +25,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tabPhotos => 'Фото';
 
   @override
+  String get tabSettings => 'Настройки';
+
+  @override
   String get cancel => 'Отмена';
 
   @override
@@ -87,12 +90,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cameraLocationUnavailable => 'Геолокация недоступна';
-
-  @override
-  String get cameraGrid => 'Сетка';
-
-  @override
-  String get cameraSettings => 'Настройки';
 
   @override
   String get cameraSwitch => 'Сменить камеру';

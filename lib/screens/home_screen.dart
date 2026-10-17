@@ -5,6 +5,7 @@ import '../services/update_service.dart';
 import 'camera_screen.dart';
 import 'gallery_screen.dart';
 import 'projects_screen.dart';
+import 'settings_screen.dart';
 
 /// Root scaffold with bottom navigation between the camera, projects and the
 /// photo gallery.
@@ -50,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
           CameraScreen(active: _index == 0),
           const ProjectsScreen(),
           const GalleryScreen(),
+          const SettingsScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -70,6 +72,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.photo_library_outlined),
             selectedIcon: const Icon(Icons.photo_library),
             label: l10n.tabPhotos,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: l10n.tabSettings,
           ),
         ],
       ),

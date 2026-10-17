@@ -131,4 +131,66 @@ void main() {
     await tester.pump();
     expect(find.byIcon(Icons.close), findsNothing);
   });
+
+  testWidgets('map clusters photos taken at the same place', (
+    WidgetTester tester,
+  ) async {
+    final SettingsController controller = SettingsController();
+    final List<PhotoRecord> records = <PhotoRecord>[
+      _record(id: 'a', lat: 55.7558, lng: 37.6173, bearing: 0),
+      _record(id: 'b', lat: 55.7558, lng: 37.6173, bearing: 90),
+      _record(id: 'c', lat: 55.7558, lng: 37.6173, bearing: 180),
+    ];
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<SettingsController>.value(
+        value: controller,
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: PhotoMapScreen(title: 'Spot', records: records),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('3'), findsOneWidget);
+    expect(find.byType(DirectionMarker), findsNothing);
+
+    // Tapping a cluster zooms in without losing the cluster.
+    await tester.tap(find.text('3'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('3'), findsOneWidget);
+  });
+
+  testWidgets('zooming splits a cluster into separate markers', (
+    WidgetTester tester,
+  ) async {
+    final SettingsController controller = SettingsController();
+    final List<PhotoRecord> records = <PhotoRecord>[
+      _record(id: 'a', lat: 55.7558, lng: 37.6173, bearing: 0),
+      _record(id: 'b', lat: 55.7560, lng: 37.6175, bearing: 90),
+      _record(id: 'c', lat: 55.7562, lng: 37.6177, bearing: 180),
+    ];
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<SettingsController>.value(
+        value: controller,
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: PhotoMapScreen(title: 'Spot', records: records),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('3'), findsOneWidget);
+
+    await tester.tap(find.text('3'));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('3'), findsNothing);
+    expect(find.byType(DirectionMarker), findsNWidgets(3));
+  });
 }

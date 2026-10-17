@@ -242,7 +242,6 @@ class _CameraMock extends StatelessWidget {
             ),
           ),
           _topBar(),
-          _sideControls(),
           _bottomControls(),
         ],
       ),
@@ -291,23 +290,6 @@ class _CameraMock extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _sideControls() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Padding(
-        padding: const EdgeInsets.only(right: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _circle(child: const Icon(Icons.grid_4x4, color: Colors.white)),
-            const SizedBox(height: 12),
-            _circle(child: const Icon(Icons.settings_outlined, color: Colors.white)),
-          ],
         ),
       ),
     );

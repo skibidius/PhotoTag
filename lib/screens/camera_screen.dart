@@ -15,10 +15,8 @@ import '../services/geocode_service.dart';
 import '../services/location_service.dart';
 import '../services/project_store.dart';
 import '../services/settings_controller.dart';
-import '../utils/page_route.dart';
 import '../utils/route_observer.dart';
 import '../widgets/stamp_overlay.dart';
-import 'settings_screen.dart';
 
 /// Camera startup failures, localised at render time.
 enum _CameraError { noCamera, permission, cannotStart, cannotInit }
@@ -412,10 +410,6 @@ class _CameraScreenState extends State<CameraScreen>
     }
   }
 
-  void _openSettings() {
-    Navigator.of(context).push(sharedAxisRoute(const SettingsScreen()));
-  }
-
   StampContext _liveContext(AppSettings settings) {
     final LocationFix? fix = _location.fix;
     return StampContext(
@@ -486,7 +480,6 @@ class _CameraScreenState extends State<CameraScreen>
         // aligned to the photo frame (not the screen).
         _buildPreview(settings, liveCtx, accent),
         _buildTopBar(settings, location, accent),
-        _buildSideControls(settings, accent),
         if (!hasProject)
           Positioned(
             left: 24,
@@ -631,37 +624,6 @@ class _CameraScreenState extends State<CameraScreen>
               _LocationPill(location: location, accent: accent),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Grid and settings live in a vertical rail on the right edge.
-  Widget _buildSideControls(AppSettings settings, Color accent) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Padding(
-        padding: const EdgeInsets.only(right: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _ControlButton(
-              icon: settings.showGrid
-                  ? Icons.grid_4x4
-                  : Icons.grid_4x4_outlined,
-              onTap: () => _settings.update(
-                (AppSettings s) => s.copyWith(showGrid: !s.showGrid),
-              ),
-              tooltip: l10n.cameraGrid,
-            ),
-            const SizedBox(height: 12),
-            _ControlButton(
-              icon: Icons.settings_outlined,
-              onTap: _openSettings,
-              tooltip: l10n.cameraSettings,
-            ),
-          ],
         ),
       ),
     );

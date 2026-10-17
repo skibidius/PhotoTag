@@ -128,6 +128,12 @@ abstract class AppLocalizations {
   /// **'Photos'**
   String get tabPhotos;
 
+  /// No description provided for @tabSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get tabSettings;
+
   /// No description provided for @cancel.
   ///
   /// In en, this message translates to:
@@ -235,18 +241,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location is unavailable'**
   String get cameraLocationUnavailable;
-
-  /// No description provided for @cameraGrid.
-  ///
-  /// In en, this message translates to:
-  /// **'Grid'**
-  String get cameraGrid;
-
-  /// No description provided for @cameraSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get cameraSettings;
 
   /// No description provided for @cameraSwitch.
   ///

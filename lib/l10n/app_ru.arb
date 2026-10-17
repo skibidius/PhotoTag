@@ -7,6 +7,7 @@
   "tabCamera": "Камера",
   "tabProjects": "Проекты",
   "tabPhotos": "Фото",
+  "tabSettings": "Настройки",
 
   "cancel": "Отмена",
   "create": "Создать",
@@ -27,8 +28,6 @@
   "chooseProject": "Выбрать",
   "savingCount": "{count, plural, =1{Сохраняем 1 фото…} few{Сохраняем {count} фото…} many{Сохраняем {count} фото…} other{Сохраняем {count} фото…}}",
   "cameraLocationUnavailable": "Геолокация недоступна",
-  "cameraGrid": "Сетка",
-  "cameraSettings": "Настройки",
   "cameraSwitch": "Сменить камеру",
   "cameraFlash": "Вспышка",
   "locationOff": "Геолокация выключена",

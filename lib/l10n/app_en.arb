@@ -7,6 +7,7 @@
   "tabCamera": "Camera",
   "tabProjects": "Projects",
   "tabPhotos": "Photos",
+  "tabSettings": "Settings",
 
   "cancel": "Cancel",
   "create": "Create",
@@ -34,8 +35,6 @@
     }
   },
   "cameraLocationUnavailable": "Location is unavailable",
-  "cameraGrid": "Grid",
-  "cameraSettings": "Settings",
   "cameraSwitch": "Switch camera",
   "cameraFlash": "Flash",
   "locationOff": "Location off",

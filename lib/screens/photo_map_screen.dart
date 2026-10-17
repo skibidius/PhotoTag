@@ -14,7 +14,7 @@ import '../services/settings_controller.dart';
 import '../utils/formatters.dart';
 import '../utils/page_route.dart';
 import '../widgets/basemap_picker.dart';
-import '../widgets/direction_marker.dart';
+import '../widgets/photo_cluster_layer.dart';
 import 'photo_detail_screen.dart';
 
 /// Shows every geotagged photo of a project (or of the whole library) on a map.
@@ -137,6 +137,27 @@ class _PhotoMapScreenState extends State<PhotoMapScreen> {
         PhotoDetailScreen(records: _records, initialIndex: index),
       ),
     );
+  }
+
+  void _zoomToCluster(List<PhotoRecord> records) {
+    if (records.isEmpty) return;
+    HapticFeedback.selectionClick();
+    if (records.length == 1) {
+      _select(records.first, center: true);
+      return;
+    }
+
+    final double current = _mapController.camera.zoom;
+    final double target = math.min(
+      current + 2,
+      _basemap.maxZoom.toDouble(),
+    );
+    final LatLng center = LatLngBounds.fromPoints(
+      records
+          .map((PhotoRecord r) => LatLng(r.latitude!, r.longitude!))
+          .toList(),
+    ).center;
+    _mapController.move(center, target);
   }
 
   void _showPhotoList() {
@@ -304,16 +325,11 @@ class _PhotoMapScreenState extends State<PhotoMapScreen> {
                     options: _mapOptions(basemap, scheme.surface),
                     children: <Widget>[
                       ...basemapTileLayers(basemap, _locale),
-                      MarkerLayer(
-                        markers: <Marker>[
-                          for (final PhotoRecord record in _records)
-                            if (record != _selected)
-                              _markerFor(context, record, scheme,
-                                  selected: false),
-                          if (_selected != null)
-                            _markerFor(context, _selected!, scheme,
-                                selected: true),
-                        ],
+                      PhotoClusterLayer(
+                        records: _records,
+                        selected: _selected,
+                        onPhotoTap: _select,
+                        onClusterTap: _zoomToCluster,
                       ),
                     ],
                   ),
@@ -363,26 +379,6 @@ class _PhotoMapScreenState extends State<PhotoMapScreen> {
     );
   }
 
-  Marker _markerFor(
-    BuildContext context,
-    PhotoRecord record,
-    ColorScheme scheme, {
-    required bool selected,
-  }) {
-    return Marker(
-      point: LatLng(record.latitude!, record.longitude!),
-      width: selected ? 72 : 60,
-      height: selected ? 72 : 60,
-      alignment: Alignment.center,
-      child: DirectionMarker(
-        bearing: record.bearing,
-        color: scheme.primary,
-        iconColor: scheme.onPrimary,
-        selected: selected,
-        onTap: () => _select(record),
-      ),
-    );
-  }
 }
 
 class _SelectedPhotoCard extends StatelessWidget {

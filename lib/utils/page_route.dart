@@ -8,6 +8,9 @@ Route<T> sharedAxisRoute<T>(
   SharedAxisTransitionType type = SharedAxisTransitionType.horizontal,
 }) {
   return PageRouteBuilder<T>(
+    // Keep the previous page visible during the transition so there is no
+    // white flash while the new page fades in.
+    opaque: false,
     transitionDuration: const Duration(milliseconds: 320),
     reverseTransitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (BuildContext context, Animation<double> animation,

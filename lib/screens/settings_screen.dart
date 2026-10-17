@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -112,16 +114,10 @@ class SettingsScreen extends StatelessWidget {
               controller.update((AppSettings s) => s.copyWith(stampTone: v));
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.opacity_outlined),
-            title: Text(l10n.stampOpacity((settings.opacity * 100).round())),
-            subtitle: Slider(
-              value: settings.opacity,
-              min: 0.3,
-              max: 1.0,
-              onChanged: (double v) =>
-                  controller.update((AppSettings s) => s.copyWith(opacity: v)),
-            ),
+          _OpacityTile(
+            value: settings.opacity,
+            onChanged: (double v) =>
+                controller.update((AppSettings s) => s.copyWith(opacity: v)),
           ),
 
           _Header(l10n.sectionFields),
@@ -369,6 +365,42 @@ class _PickerTile<T> extends StatelessWidget {
   }
 }
 
+class _OpacityTile extends StatefulWidget {
+  const _OpacityTile({required this.value, required this.onChanged});
+
+  final double value;
+  final ValueChanged<double> onChanged;
+
+  @override
+  State<_OpacityTile> createState() => _OpacityTileState();
+}
+
+class _OpacityTileState extends State<_OpacityTile> {
+  late double _value = widget.value;
+
+  @override
+  void didUpdateWidget(_OpacityTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value) _value = widget.value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return ListTile(
+      leading: const Icon(Icons.opacity_outlined),
+      title: Text(l10n.stampOpacity((_value * 100).round())),
+      subtitle: Slider(
+        value: _value,
+        min: 0.3,
+        max: 1.0,
+        onChanged: (double v) => setState(() => _value = v),
+        onChangeEnd: widget.onChanged,
+      ),
+    );
+  }
+}
+
 class _Toggle extends StatelessWidget {
   const _Toggle({
     required this.icon,
@@ -531,6 +563,7 @@ class _TextField extends StatefulWidget {
 class _TextFieldState extends State<_TextField> {
   late final TextEditingController _controller =
       TextEditingController(text: widget.value);
+  Timer? _debounce;
 
   @override
   void didUpdateWidget(_TextField oldWidget) {
@@ -541,8 +574,17 @@ class _TextFieldState extends State<_TextField> {
     }
   }
 
+  void _handleChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(
+      const Duration(milliseconds: 250),
+      () => widget.onChanged(value),
+    );
+  }
+
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -560,7 +602,7 @@ class _TextFieldState extends State<_TextField> {
           prefixIcon: Icon(widget.icon),
           border: const OutlineInputBorder(),
         ),
-        onChanged: widget.onChanged,
+        onChanged: _handleChanged,
       ),
     );
   }

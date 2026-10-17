@@ -129,10 +129,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get exportOriginal => 'Оригиналы';
 
   @override
-  String get exportWatermarked => 'С оттисками';
+  String get exportWatermarked => 'С вотермарками';
 
   @override
-  String get exportBoth => 'Оттиски + оригиналы';
+  String get exportBoth => 'Вотермарки + оригиналы';
 
   @override
   String get exportEmpty => 'В этом проекте нет фото.';
@@ -198,10 +198,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sectionCoordinates => 'Координаты';
 
   @override
-  String get sectionAppearance => 'Вид оттиска';
+  String get sectionAppearance => 'Вид вотермарки';
 
   @override
-  String get sectionFields => 'Поля оттиска';
+  String get sectionFields => 'Поля вотермарки';
 
   @override
   String get sectionDetails => 'Детали';
@@ -337,7 +337,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cameraGridSetting => 'Сетка третей';
 
   @override
-  String get cameraHud => 'Показ оттиска';
+  String get cameraHud => 'Показ вотермарки';
 
   @override
   String get cameraMaxResolution => 'Максимальное разрешение';
@@ -349,7 +349,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cameraKeepOriginal => 'Сохранять оригинал';
 
   @override
-  String get cameraKeepOriginalHint => 'Также сохранять фото без оттиска';
+  String get cameraKeepOriginalHint => 'Также сохранять фото без вотермарки';
 
   @override
   String get language => 'Язык';

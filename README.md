@@ -16,6 +16,8 @@ ready to drop into a report or send straight from the field.
 - **Export** a project to a ZIP archive — originals, watermarked, or both
 - **English and Russian** interface
 - **Offline first** — GPS and geocoding work without a connection
+- Coordinates, altitude and direction are also written into the photo's EXIF
+  metadata
 - Saves to the system gallery and shares from the app
 - Tap to focus, pinch to zoom, lens presets, flash, grid and a live stamp preview
 
@@ -56,9 +58,6 @@ iOS:
 ```sh
 flutter build ios --no-codesign
 ```
-
-Both platforms build on every push — see `.github/workflows/ci.yml`. Push a tag
-like `v1.0.1` and the signed artifacts are attached to a new release.
 
 ## License
 

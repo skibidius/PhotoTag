@@ -11,6 +11,7 @@ import 'services/photo_store.dart';
 import 'services/project_store.dart';
 import 'services/settings_controller.dart';
 import 'theme/app_theme.dart';
+import 'utils/route_observer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +73,7 @@ class PhotoTagApp extends StatelessWidget {
             locale: _localeFor(controller.value.language),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
+            navigatorObservers: <NavigatorObserver>[routeObserver],
             home: const HomeScreen(),
           );
         },

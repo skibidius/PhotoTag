@@ -186,33 +186,10 @@ class ProjectsScreen extends StatelessWidget {
                     leading: const Icon(Icons.folder_outlined),
                     title: Text(project),
                     subtitle: Text(l10n.photosCount(_countFor(photos, project))),
-                    trailing: PopupMenuButton<String>(
-                      onSelected: (String value) {
-                        if (value == 'export') {
-                          _exportProject(context, project);
-                        } else if (value == 'delete') {
-                          _confirmDelete(context, project);
-                        }
-                      },
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<String>>[
-                        PopupMenuItem<String>(
-                          value: 'export',
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.archive_outlined),
-                            title: Text(l10n.exportTitle),
-                          ),
-                        ),
-                        PopupMenuItem<String>(
-                          value: 'delete',
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.delete_outline),
-                            title: Text(l10n.delete),
-                          ),
-                        ),
-                      ],
+                    trailing: IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      tooltip: l10n.exportTitle,
+                      onPressed: () => _showProjectMenu(context, project),
                     ),
                     onTap: () => Navigator.of(context).push(
                       sharedAxisRoute(GalleryScreen(projectFilter: project)),
@@ -221,6 +198,37 @@ class ProjectsScreen extends StatelessWidget {
               ],
             ),
     );
+  }
+
+  Future<void> _showProjectMenu(BuildContext context, String project) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final String? action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (BuildContext context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.archive_outlined),
+              title: Text(l10n.exportTitle),
+              onTap: () => Navigator.of(context).pop('export'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: Text(l10n.delete),
+              onTap: () => Navigator.of(context).pop('delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!context.mounted) return;
+    if (action == 'export') {
+      await _exportProject(context, project);
+    } else if (action == 'delete') {
+      await _confirmDelete(context, project);
+    }
   }
 }
 

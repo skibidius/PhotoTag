@@ -23,10 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const <Widget>[
-          CameraScreen(),
-          ProjectsScreen(),
-          GalleryScreen(),
+        children: <Widget>[
+          CameraScreen(active: _index == 0),
+          const ProjectsScreen(),
+          const GalleryScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(

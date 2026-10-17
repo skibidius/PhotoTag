@@ -18,6 +18,7 @@ import '../services/photo_store.dart';
 import '../services/project_store.dart';
 import '../services/settings_controller.dart';
 import '../utils/page_route.dart';
+import '../utils/route_observer.dart';
 import '../widgets/stamp_overlay.dart';
 import 'gallery_screen.dart';
 import 'settings_screen.dart';
@@ -29,14 +30,18 @@ enum _CameraError { noCamera, permission, cannotStart, cannotInit }
 /// the stamp from the same widget shown in the preview, and burns it into the
 /// full-resolution photo without ever leaving the app.
 class CameraScreen extends StatefulWidget {
-  const CameraScreen({super.key});
+  const CameraScreen({super.key, this.active = true});
+
+  /// Whether the camera tab is currently selected. When false the preview is
+  /// paused to keep the rest of the app smooth.
+  final bool active;
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
 class _CameraScreenState extends State<CameraScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, RouteAware {
   static const double _capturePixelRatio = 6.0;
   final GlobalKey _captureKey = GlobalKey();
 
@@ -55,6 +60,9 @@ class _CameraScreenState extends State<CameraScreen>
   Offset? _focusPoint;
   bool _focusRingVisible = false;
   Timer? _focusTimer;
+
+  bool _routeVisible = true;
+  bool _previewPaused = false;
 
   bool _capturing = false;
   StampContext? _captureCtx;
@@ -80,6 +88,46 @@ class _CameraScreenState extends State<CameraScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) => _ensureLocation());
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final ModalRoute<dynamic>? route = ModalRoute.of(context);
+    if (route is PageRoute) routeObserver.subscribe(this, route);
+  }
+
+  @override
+  void didUpdateWidget(CameraScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.active != oldWidget.active) _syncPreview();
+  }
+
+  @override
+  void didPushNext() {
+    _routeVisible = false;
+    _syncPreview();
+  }
+
+  @override
+  void didPopNext() {
+    _routeVisible = true;
+    _syncPreview();
+  }
+
+  /// Pauses the preview whenever the camera is off-screen (another tab or a
+  /// route on top), which keeps scrolling elsewhere at a smooth frame rate.
+  void _syncPreview() {
+    final CameraController? controller = _controller;
+    if (controller == null || !controller.value.isInitialized) return;
+    final bool shouldRun = widget.active && _routeVisible;
+    if (shouldRun && _previewPaused) {
+      controller.resumePreview();
+      _previewPaused = false;
+    } else if (!shouldRun && !_previewPaused) {
+      controller.pausePreview();
+      _previewPaused = true;
+    }
+  }
+
   Future<void> _ensureLocation() async {
     final bool ok = await _location.start();
     if (!ok && mounted) {
@@ -100,6 +148,7 @@ class _CameraScreenState extends State<CameraScreen>
   void dispose() {
     _clock?.cancel();
     _focusTimer?.cancel();
+    routeObserver.unsubscribe(this);
     _location.removeListener(_onLocationChanged);
     WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
@@ -177,7 +226,11 @@ class _CameraScreenState extends State<CameraScreen>
       _zoom = 1.0.clamp(_minZoom, _maxZoom);
       await controller.setZoomLevel(_zoom);
       await controller.setFlashMode(_flashMode);
-      if (mounted) setState(() => _initializing = false);
+      _previewPaused = false;
+      if (mounted) {
+        setState(() => _initializing = false);
+        _syncPreview();
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -263,9 +316,8 @@ class _CameraScreenState extends State<CameraScreen>
     setState(() => _capturing = true);
 
     try {
-      // Refresh the fix so the stamp is as accurate as possible.
-      await _location.refresh();
-
+      // Capture immediately — don't block on a fresh GPS fix; the location
+      // stream already keeps the latest position warm.
       final XFile file = await controller.takePicture();
       final Uint8List photoBytes = await file.readAsBytes();
 
@@ -291,6 +343,12 @@ class _CameraScreenState extends State<CameraScreen>
         photoBytes: photoBytes,
         stampPng: stampPng,
         position: settings.stampPosition,
+        timestamp: ctx.timestamp,
+        latitude: fix?.latitude,
+        longitude: fix?.longitude,
+        altitude: fix?.altitude,
+        bearing: fix?.heading,
+        accuracy: fix?.accuracy,
       );
 
       final PhotoRecord record = await _photos.save(
@@ -309,14 +367,8 @@ class _CameraScreenState extends State<CameraScreen>
         coordText: ctx.coordText,
       );
 
-      // Make the photo visible in the system gallery.
-      try {
-        if (!await Gal.hasAccess(toAlbum: false)) {
-          await Gal.requestAccess(toAlbum: false);
-        }
-        await Gal.putImage(record.path, album: 'PhotoTag');
-      } catch (_) {}
-
+      // Show the result right away, then copy to the system gallery in the
+      // background so the shutter feels fast.
       HapticFeedback.lightImpact();
       if (mounted) {
         final AppLocalizations l10n = AppLocalizations.of(context);
@@ -330,6 +382,7 @@ class _CameraScreenState extends State<CameraScreen>
           ),
         );
       }
+      unawaited(_saveToSystemGallery(record.path));
 
       // Advance the automatic photo counter.
       await _settings.update((AppSettings s) => s.copyWith(counter: s.counter + 1));
@@ -343,6 +396,15 @@ class _CameraScreenState extends State<CameraScreen>
       if (mounted) setState(() => _capturing = false);
       if (_captureCtx != null && mounted) setState(() => _captureCtx = null);
     }
+  }
+
+  Future<void> _saveToSystemGallery(String path) async {
+    try {
+      if (!await Gal.hasAccess(toAlbum: false)) {
+        await Gal.requestAccess(toAlbum: false);
+      }
+      await Gal.putImage(path, album: 'PhotoTag');
+    } catch (_) {}
   }
 
   Future<Uint8List> _renderStampPng(StampContext ctx) async {
@@ -438,6 +500,7 @@ class _CameraScreenState extends State<CameraScreen>
         // aligned to the photo frame (not the screen).
         _buildPreview(settings, liveCtx, accent),
         _buildTopBar(settings, location, accent),
+        _buildSideControls(settings, accent),
         _buildBottomControls(settings, accent),
       ],
     );
@@ -540,38 +603,45 @@ class _CameraScreenState extends State<CameraScreen>
 
   Widget _buildTopBar(
       AppSettings settings, LocationService location, Color accent) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+        child: Row(
+          children: <Widget>[
+            Flexible(child: _ProjectChip(onTap: _openProjectPicker)),
+            const Spacer(),
+            _LocationPill(location: location, accent: accent),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Grid and settings live in a vertical rail on the right edge.
+  Widget _buildSideControls(AppSettings settings, Color accent) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Flexible(child: _ProjectChip(onTap: _openProjectPicker)),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => _settings.update(
-                    (AppSettings s) => s.copyWith(showGrid: !s.showGrid),
-                  ),
-                  icon: Icon(
-                    settings.showGrid
-                        ? Icons.grid_4x4
-                        : Icons.grid_4x4_outlined,
-                    color: Colors.white,
-                  ),
-                  tooltip: l10n.cameraGrid,
-                ),
-                IconButton(
-                  onPressed: _openSettings,
-                  icon: const Icon(Icons.settings_outlined, color: Colors.white),
-                  tooltip: l10n.cameraSettings,
-                ),
-              ],
+            _ControlButton(
+              icon: settings.showGrid
+                  ? Icons.grid_4x4
+                  : Icons.grid_4x4_outlined,
+              onTap: () => _settings.update(
+                (AppSettings s) => s.copyWith(showGrid: !s.showGrid),
+              ),
+              tooltip: l10n.cameraGrid,
             ),
-            const SizedBox(height: 4),
-            _LocationPill(location: location, accent: accent),
+            const SizedBox(height: 12),
+            _ControlButton(
+              icon: Icons.settings_outlined,
+              onTap: _openSettings,
+              tooltip: l10n.cameraSettings,
+            ),
           ],
         ),
       ),

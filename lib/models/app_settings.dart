@@ -50,7 +50,7 @@ class AppSettings {
     this.counter = 1,
     this.showGrid = false,
     this.showHud = true,
-    this.saveOriginal = false,
+    this.saveOriginal = true,
     this.highResolution = true,
     this.language = AppLanguage.system,
   });
@@ -194,7 +194,7 @@ class AppSettings {
       counter: json['counter'] as int? ?? 1,
       showGrid: json['showGrid'] as bool? ?? false,
       showHud: json['showHud'] as bool? ?? true,
-      saveOriginal: json['saveOriginal'] as bool? ?? false,
+      saveOriginal: json['saveOriginal'] as bool? ?? true,
       highResolution: json['highResolution'] as bool? ?? true,
       language: enumByName(AppLanguage.values, json['language'] as String?, AppLanguage.system),
     );

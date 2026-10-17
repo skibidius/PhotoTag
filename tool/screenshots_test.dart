@@ -213,25 +213,36 @@ class _CameraMock extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          const _Scene(seed: 1),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 118, 14, 168),
-            child: Align(
-              alignment: settings.stampPosition.alignment,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.sizeOf(context).width * 0.78,
-                ),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: settings.stampPosition.alignment,
-                  child: StampOverlay(
-                      settings: settings, data: data, accent: accent),
-                ),
+          Center(
+            child: AspectRatio(
+              aspectRatio: 3 / 4,
+              child: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  const _Scene(seed: 1),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Align(
+                      alignment: settings.stampPosition.alignment,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.sizeOf(context).width * 0.72,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: settings.stampPosition.alignment,
+                          child: StampOverlay(
+                              settings: settings, data: data, accent: accent),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
           _topBar(),
+          _sideControls(),
           _bottomControls(),
         ],
       ),
@@ -241,35 +252,28 @@ class _CameraMock extends StatelessWidget {
   Widget _topBar() {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+        child: Row(
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.45),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      const Icon(Icons.folder_outlined, size: 18, color: Colors.white),
-                      const SizedBox(width: 6),
-                      Text(project,
-                          style: const TextStyle(color: Colors.white, fontSize: 13)),
-                      const Icon(Icons.arrow_drop_down, color: Colors.white70, size: 18),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                _circle(child: const Icon(Icons.grid_4x4, color: Colors.white)),
-                _circle(child: const Icon(Icons.settings_outlined, color: Colors.white)),
-              ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.45),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Icon(Icons.folder_outlined, size: 18, color: Colors.white),
+                  const SizedBox(width: 6),
+                  Text(project,
+                      style: const TextStyle(color: Colors.white, fontSize: 13)),
+                  const Icon(Icons.arrow_drop_down,
+                      color: Colors.white70, size: 18),
+                ],
+              ),
             ),
-            const SizedBox(height: 4),
+            const Spacer(),
             _pill(
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -283,6 +287,23 @@ class _CameraMock extends StatelessWidget {
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sideControls() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _circle(child: const Icon(Icons.grid_4x4, color: Colors.white)),
+            const SizedBox(height: 12),
+            _circle(child: const Icon(Icons.settings_outlined, color: Colors.white)),
           ],
         ),
       ),

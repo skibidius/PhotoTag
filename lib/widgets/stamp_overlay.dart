@@ -11,8 +11,8 @@ import '../utils/formatters.dart';
 const double kStampReferenceWidth = 1000.0;
 
 /// The stamp burned onto each photo. It is a pure function of [settings] and
-/// [context], which lets the same widget render the live camera HUD and the
-/// final high-resolution image.
+/// [data], which lets the same widget render the live camera HUD and the final
+/// high-resolution image.
 class StampOverlay extends StatelessWidget {
   const StampOverlay({
     super.key,
@@ -28,62 +28,58 @@ class StampOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double s = _sizeScale;
-    final bool dark = settings.stampTone == StampTone.light;
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final String locale = Localizations.localeOf(context).toString();
+    final _StampPalette p = _StampPalette(settings.stampTone, settings.opacity);
+    final List<Widget> lines = _lines(s, p, l10n, locale);
 
-    final Color text = dark ? Colors.white : const Color(0xFF1F1F1F);
-    final Color secondary = dark
-        ? Colors.white.withValues(alpha: 0.80)
-        : const Color(0xFF1F1F1F).withValues(alpha: 0.68);
-    final Color scrim = dark
-        ? Colors.black.withValues(alpha: settings.opacity)
-        : Colors.white.withValues(alpha: settings.opacity);
-    final Color border = dark
-        ? Colors.white.withValues(alpha: 0.14)
-        : Colors.black.withValues(alpha: 0.10);
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: kStampReferenceWidth),
-      child: Material(
-        color: Colors.transparent,
+    if (settings.stampStyle == StampStyle.card) {
+      return ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: kStampReferenceWidth),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: scrim,
-            borderRadius: BorderRadius.circular(30 * s),
-            border: Border.all(color: border, width: 1),
+            color: p.scrim,
+            borderRadius: BorderRadius.circular(28 * s),
+            border: Border.all(color: p.border, width: 1),
             boxShadow: <BoxShadow>[
               BoxShadow(
-                color: Colors.black.withValues(alpha: dark ? 0.35 : 0.12),
-                blurRadius: 40 * s,
-                offset: Offset(0, 16 * s),
+                color: Colors.black.withValues(alpha: p.dark ? 0.38 : 0.14),
+                blurRadius: 46 * s,
+                offset: Offset(0, 18 * s),
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(30 * s),
+            borderRadius: BorderRadius.circular(28 * s),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                // Accent rule across the top.
-                Container(height: 6 * s, color: accent),
+                Container(height: 5 * s, color: accent),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(34 * s, 28 * s, 34 * s, 32 * s),
+                  padding: EdgeInsets.fromLTRB(32 * s, 26 * s, 32 * s, 30 * s),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _lines(
-                      text,
-                      secondary,
-                      border,
-                      s,
-                      AppLocalizations.of(context),
-                      Localizations.localeOf(context).toString(),
-                    ),
+                    children: lines,
                   ),
                 ),
               ],
             ),
           ),
+        ),
+      );
+    }
+
+    // Minimal / outline: no background, just well-contrasted text.
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: kStampReferenceWidth),
+      child: Padding(
+        padding: EdgeInsets.all(16 * s),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: lines,
         ),
       ),
     );
@@ -100,14 +96,65 @@ class StampOverlay extends StatelessWidget {
     }
   }
 
-  List<Widget> _lines(Color text, Color secondary, Color border, double s,
-      AppLocalizations l10n, String locale) {
+  List<Shadow> _shadows(double s, _StampPalette p) {
+    switch (settings.stampStyle) {
+      case StampStyle.card:
+        return const <Shadow>[];
+      case StampStyle.minimal:
+        return <Shadow>[
+          Shadow(
+            color: p.halo.withValues(alpha: 0.6),
+            blurRadius: 18 * s,
+            offset: Offset(0, 3 * s),
+          ),
+        ];
+      case StampStyle.outline:
+        final Color outline = p.halo.withValues(alpha: 0.9);
+        final double o = 2.4 * s;
+        return <Shadow>[
+          Shadow(color: outline, offset: Offset(-o, -o)),
+          Shadow(color: outline, offset: Offset(o, -o)),
+          Shadow(color: outline, offset: Offset(-o, o)),
+          Shadow(color: outline, offset: Offset(o, o)),
+          Shadow(color: outline, offset: Offset(-o, 0)),
+          Shadow(color: outline, offset: Offset(o, 0)),
+          Shadow(color: outline, offset: Offset(0, -o)),
+          Shadow(color: outline, offset: Offset(0, o)),
+        ];
+    }
+  }
+
+  TextStyle _ts(
+    double size,
+    FontWeight weight,
+    Color color,
+    List<Shadow> shadows, {
+    bool mono = false,
+    double height = 1.25,
+    double letterSpacing = 0,
+  }) {
+    return TextStyle(
+      fontFamily: mono ? 'RobotoMono' : 'GoogleSans',
+      fontSize: size,
+      fontWeight: weight,
+      height: height,
+      color: color,
+      letterSpacing: letterSpacing,
+      shadows: shadows,
+    );
+  }
+
+  List<Widget> _lines(
+      double s, _StampPalette p, AppLocalizations l10n, String locale) {
     final List<Widget> lines = <Widget>[];
+    final List<Shadow> shadows = _shadows(s, p);
+    final bool isCard = settings.stampStyle == StampStyle.card;
 
     final String dateTime = _dateTimeText(locale);
     final String coords = data.coordText;
     final String meta = _metaText;
     final String address = _addressText;
+    final String footer = _footerText(l10n);
 
     void addSpace([double factor = 1]) {
       if (lines.isNotEmpty) lines.add(SizedBox(height: 14 * s * factor));
@@ -118,24 +165,18 @@ class StampOverlay extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Container(
-            width: 14 * s,
-            height: 14 * s,
+            width: 13 * s,
+            height: 13 * s,
             decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
           ),
-          SizedBox(width: 16 * s),
+          SizedBox(width: 15 * s),
           Expanded(
             child: Text(
               dateTime,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontFamily: 'GoogleSans',
-                fontSize: 40 * s,
-                fontWeight: FontWeight.w500,
-                height: 1.1,
-                color: text,
-                letterSpacing: 0.2,
-              ),
+              style: _ts(40 * s, FontWeight.w600, p.text, shadows,
+                  height: 1.1, letterSpacing: 0.2),
             ),
           ),
         ],
@@ -143,106 +184,77 @@ class StampOverlay extends StatelessWidget {
     }
 
     if (coords.isNotEmpty && settings.showCoordinates) {
-      addSpace(1.4);
+      addSpace(1.35);
       lines.add(Text(
         coords,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontFamily: 'RobotoMono',
-          fontSize: 34 * s,
-          fontWeight: FontWeight.w400,
-          height: 1.25,
-          color: text,
-        ),
+        style: _ts(34 * s, FontWeight.w500, p.text, shadows, mono: true),
       ));
     }
 
     if (meta.isNotEmpty) {
-      addSpace();
+      addSpace(0.9);
       lines.add(Text(
         meta,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontFamily: 'RobotoMono',
-          fontSize: 27 * s,
-          fontWeight: FontWeight.w400,
-          height: 1.25,
-          color: secondary,
-        ),
+        style: _ts(27 * s, FontWeight.w400, p.secondary, shadows, mono: true),
       ));
     }
 
     if (address.isNotEmpty) {
-      addSpace(1.3);
+      addSpace(1.25);
       lines.add(Text(
         address,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontFamily: 'GoogleSans',
-          fontSize: 30 * s,
-          fontWeight: FontWeight.w400,
-          height: 1.3,
-          color: secondary,
-        ),
+        style: _ts(30 * s, FontWeight.w400, p.secondary, shadows, height: 1.3),
       ));
     }
 
-    if (_footerText(l10n).isNotEmpty) {
-      addSpace(1.4);
-      lines.add(Container(
-        width: double.infinity,
-        height: 1,
-        color: border,
-      ));
-      addSpace(1.1);
+    if (footer.isNotEmpty) {
+      addSpace(1.3);
+      if (isCard) {
+        lines.add(Container(width: double.infinity, height: 1, color: p.border));
+        addSpace(1.05);
+      }
       lines.add(Text(
-        _footerText(l10n),
+        footer,
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontFamily: 'GoogleSans',
-          fontSize: 30 * s,
-          fontWeight: FontWeight.w400,
-          height: 1.35,
-          color: secondary,
-        ),
+        style: _ts(30 * s, FontWeight.w400, p.secondary, shadows, height: 1.35),
       ));
     }
 
     if (data.counter != null && settings.showCounter) {
-      addSpace(1.5);
+      addSpace(1.4);
+      final Color onAccent = accent.computeLuminance() > 0.5
+          ? const Color(0xFF1F1F1F)
+          : Colors.white;
       lines.add(Align(
         alignment: Alignment.centerRight,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 18 * s, vertical: 8 * s),
           decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.18),
+            color: isCard
+                ? accent.withValues(alpha: 0.20)
+                : accent.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text(
             l10n.stampCounter(data.counter.toString().padLeft(3, '0')),
-            style: TextStyle(
-              fontFamily: 'RobotoMono',
-              fontSize: 24 * s,
-              fontWeight: FontWeight.w500,
-              color: accent.computeLuminance() > 0.5
-                  ? const Color(0xFF1F1F1F)
-                  : Colors.white,
-              letterSpacing: 1,
-            ),
+            style: _ts(24 * s, FontWeight.w500,
+                isCard ? onAccent : onAccent, const <Shadow>[],
+                mono: true, letterSpacing: 1),
           ),
         ),
       ));
     }
 
     if (lines.isEmpty) {
-      // A place-holder so the widget still has a sensible intrinsic size.
       lines.add(SizedBox(width: 340 * s, height: 90 * s));
     }
-
     return lines;
   }
 
@@ -278,8 +290,7 @@ class StampOverlay extends StatelessWidget {
   String get _metaText {
     final List<String> parts = <String>[];
     if (settings.showBearing && data.bearing != null) {
-      parts.add(
-          '${Formatters.cardinal(data.bearing!)} ${data.bearing!.round()}°');
+      parts.add('${Formatters.cardinal(data.bearing!)} ${data.bearing!.round()}°');
     }
     if (settings.showAltitude && data.altitude != null) {
       parts.add('${data.altitude!.round()} m');
@@ -289,4 +300,28 @@ class StampOverlay extends StatelessWidget {
     }
     return parts.join(' · ');
   }
+}
+
+/// Colours for the two stamp tones.
+class _StampPalette {
+  _StampPalette(StampTone tone, double opacity)
+      : dark = tone == StampTone.light,
+        text = tone == StampTone.light ? Colors.white : const Color(0xFF1F1F1F),
+        secondary = tone == StampTone.light
+            ? Colors.white.withValues(alpha: 0.82)
+            : const Color(0xFF1F1F1F).withValues(alpha: 0.70),
+        scrim = tone == StampTone.light
+            ? Colors.black.withValues(alpha: opacity)
+            : Colors.white.withValues(alpha: opacity),
+        border = tone == StampTone.light
+            ? Colors.white.withValues(alpha: 0.14)
+            : Colors.black.withValues(alpha: 0.10),
+        halo = tone == StampTone.light ? Colors.black : Colors.white;
+
+  final bool dark;
+  final Color text;
+  final Color secondary;
+  final Color scrim;
+  final Color border;
+  final Color halo;
 }

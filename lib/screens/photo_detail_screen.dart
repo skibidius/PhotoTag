@@ -193,6 +193,7 @@ class _ZoomablePageState extends State<_ZoomablePage> {
           child: Image.file(
             File(widget.record.path),
             fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
           ),
         ),
       ),

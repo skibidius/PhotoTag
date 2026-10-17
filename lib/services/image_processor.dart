@@ -3,15 +3,19 @@ import 'package:image/image.dart' as img;
 
 import '../models/app_settings.dart';
 
-/// Composites the stamp onto a full-resolution photo without downscaling it,
-/// and writes GPS/altitude/direction into the JPEG's EXIF metadata.
+/// Result of compressing a captured photo in one background pass.
+typedef ProcessedPhoto = ({Uint8List jpeg, Uint8List thumbnail});
+
+/// Composites the stamp onto a full-resolution photo, writes GPS/altitude/
+/// direction into the JPEG's EXIF metadata, and produces a thumbnail — all in
+/// a single background isolate so capture stays responsive.
 class ImageProcessor {
   ImageProcessor._();
 
-  /// Fraction of the photo width occupied by the stamp.
   static const double _stampWidthFraction = 0.78;
+  static const int _thumbnailWidth = 512;
 
-  static Future<Uint8List> compositeJpeg({
+  static Future<ProcessedPhoto> process({
     required Uint8List photoBytes,
     required Uint8List stampPng,
     required StampPosition position,
@@ -20,10 +24,9 @@ class ImageProcessor {
     double? longitude,
     double? altitude,
     double? bearing,
-    double? accuracy,
   }) {
     return compute(
-      _composite,
+      _process,
       (
         photo: photoBytes,
         stamp: stampPng,
@@ -34,7 +37,7 @@ class ImageProcessor {
         altitude: altitude,
         bearing: bearing,
       ),
-      debugLabel: 'composite-stamp',
+      debugLabel: 'process-photo',
     );
   }
 }
@@ -50,12 +53,17 @@ typedef _CompositeArgs = ({
   double? bearing,
 });
 
-Uint8List _composite(_CompositeArgs args) {
-  final img.Image? decoded = img.decodeImage(args.photo);
-  if (decoded == null) return args.photo;
+ProcessedPhoto _process(_CompositeArgs args) {
+  final img.Image? decoded =
+      img.decodeJpg(args.photo) ?? img.decodeImage(args.photo);
+  if (decoded == null) {
+    return (jpeg: args.photo, thumbnail: args.photo);
+  }
 
   // Normalise EXIF orientation so the overlay matches the framing.
-  final img.Image photo = img.bakeOrientation(decoded);
+  final int orientation = decoded.exif.imageIfd.orientation ?? 1;
+  final img.Image photo =
+      orientation == 1 ? decoded : img.bakeOrientation(decoded);
   photo.exif.imageIfd.orientation = 1;
 
   final img.Image? stamp = img.decodePng(args.stamp);
@@ -120,7 +128,21 @@ Uint8List _composite(_CompositeArgs args) {
   }
 
   _writeMetadata(photo, args);
-  return Uint8List.fromList(img.encodeJpg(photo, quality: 100));
+
+  final Uint8List jpeg = Uint8List.fromList(img.encodeJpg(photo, quality: 100));
+
+  final int thumbWidth =
+      photo.width < ImageProcessor._thumbnailWidth ? photo.width : ImageProcessor._thumbnailWidth;
+  final img.Image thumb = img.copyResize(
+    photo,
+    width: thumbWidth,
+    height: (thumbWidth * photo.height / photo.width).round(),
+    interpolation: img.Interpolation.average,
+  );
+  final Uint8List thumbnail =
+      Uint8List.fromList(img.encodeJpg(thumb, quality: 82));
+
+  return (jpeg: jpeg, thumbnail: thumbnail);
 }
 
 void _writeMetadata(img.Image photo, _CompositeArgs args) {
@@ -152,8 +174,7 @@ void _writeMetadata(img.Image photo, _CompositeArgs args) {
     }
     if (args.bearing != null) {
       gps[0x0010] = img.IfdValueAscii('T');
-      gps[0x0011] =
-          img.IfdValueRational((args.bearing! * 100).round(), 100);
+      gps[0x0011] = img.IfdValueRational((args.bearing! * 100).round(), 100);
     }
   } catch (_) {
     // Metadata is best-effort; never fail a capture because of it.
@@ -180,5 +201,7 @@ img.IfdValueRational _triple(int a, int b, int c, {int cDenom = 1}) {
 }
 
 String _two(int v) => v.toString().padLeft(2, '0');
-String _date(DateTime t) => '${t.year.toString().padLeft(4, '0')}:${_two(t.month)}:${_two(t.day)}';
-String _time(DateTime t) => '${_two(t.hour)}:${_two(t.minute)}:${_two(t.second)}';
+String _date(DateTime t) =>
+    '${t.year.toString().padLeft(4, '0')}:${_two(t.month)}:${_two(t.day)}';
+String _time(DateTime t) =>
+    '${_two(t.hour)}:${_two(t.minute)}:${_two(t.second)}';

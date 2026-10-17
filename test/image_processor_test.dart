@@ -24,7 +24,7 @@ void main() {
     );
     final Uint8List stampPng = Uint8List.fromList(img.encodePng(stamp));
 
-    final Uint8List result = await ImageProcessor.compositeJpeg(
+    final ProcessedPhoto processed = await ImageProcessor.process(
       photoBytes: photoBytes,
       stampPng: stampPng,
       position: StampPosition.bottomLeft,
@@ -35,7 +35,7 @@ void main() {
       bearing: 315,
     );
 
-    final img.Image? decoded = img.decodeJpg(result);
+    final img.Image? decoded = img.decodeJpg(processed.jpeg);
     expect(decoded, isNotNull);
 
     final img.IfdDirectory gps = decoded!.exif.gpsIfd;

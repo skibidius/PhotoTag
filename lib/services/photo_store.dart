@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,6 +57,7 @@ class PhotoStore extends ChangeNotifier {
 
   Future<PhotoRecord> save({
     required Uint8List jpeg,
+    required Uint8List thumbnailJpeg,
     Uint8List? originalJpeg,
     required DateTime takenAt,
     double? latitude,
@@ -77,10 +77,8 @@ class PhotoStore extends ChangeNotifier {
     final File fullFile = File(p.join(_photoDir!.path, '$id.jpg'));
     await fullFile.writeAsBytes(jpeg, flush: true);
 
-    final Uint8List thumb =
-        await compute(_makeThumbnail, jpeg, debugLabel: 'thumb');
     final File thumbFile = File(p.join(_photoDir!.path, '${id}_thumb.jpg'));
-    await thumbFile.writeAsBytes(thumb, flush: true);
+    await thumbFile.writeAsBytes(thumbnailJpeg, flush: true);
 
     String? originalPath;
     if (originalJpeg != null) {
@@ -139,28 +137,4 @@ class PhotoStore extends ChangeNotifier {
       );
     } catch (_) {}
   }
-}
-
-Uint8List _makeThumbnail(Uint8List jpeg) {
-  final img.Image? decoded = img.decodeImage(jpeg);
-  if (decoded == null) return jpeg;
-
-  const int maxDim = 512;
-  int width = decoded.width;
-  int height = decoded.height;
-  if (width >= height && width > maxDim) {
-    height = (height * maxDim / width).round();
-    width = maxDim;
-  } else if (height > width && height > maxDim) {
-    width = (width * maxDim / height).round();
-    height = maxDim;
-  }
-
-  final img.Image resized = img.copyResize(
-    decoded,
-    width: width,
-    height: height,
-    interpolation: img.Interpolation.average,
-  );
-  return Uint8List.fromList(img.encodeJpg(resized, quality: 82));
 }

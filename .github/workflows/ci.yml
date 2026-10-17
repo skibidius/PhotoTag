@@ -100,3 +100,67 @@ jobs:
             dist/phototag.apk
             dist/phototag.aab
             dist/phototag.ipa
+
+  altstore:
+    name: Publish AltStore source
+    needs: [release]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Build source JSON
+        run: |
+          set -e
+          VERSION="${GITHUB_REF_NAME#v}"
+          BUILD=$(sed -nE 's/^version:.*\+([0-9]+).*/\1/p' pubspec.yaml)
+          SIZE=$(stat -c%s dist/phototag.ipa)
+          DATE=$(date +%F)
+          mkdir -p public
+          cp assets/icon/icon.png public/icon.png
+          cat > public/altstore.json <<EOF
+          {
+            "name": "PhotoTag",
+            "identifier": "com.phototag.source",
+            "subtitle": "GPS camera with location watermarks",
+            "description": "Field photos with coordinates, direction, altitude and time stamped straight into the image. Projects, offline geocoding and ZIP export.",
+            "website": "https://github.com/skibidius/PhotoTag",
+            "tintColor": "#009586",
+            "iconURL": "https://raw.githubusercontent.com/skibidius/PhotoTag/altstore/icon.png",
+            "featuredApps": ["com.phototag"],
+            "apps": [
+              {
+                "name": "PhotoTag",
+                "bundleIdentifier": "com.phototag",
+                "developerName": "skibidius",
+                "subtitle": "GPS camera with location watermarks",
+                "localizedDescription": "Point, shoot, and the photo comes back with coordinates, compass direction, altitude and time burned into the corner. Built for field reports, site surveys and inspections.",
+                "iconURL": "https://raw.githubusercontent.com/skibidius/PhotoTag/altstore/icon.png",
+                "tintColor": "#009586",
+                "category": "utilities",
+                "versions": [
+                  {
+                    "version": "${VERSION}",
+                    "buildVersion": "${BUILD}",
+                    "date": "${DATE}",
+                    "downloadURL": "https://github.com/skibidius/PhotoTag/releases/download/${GITHUB_REF_NAME}/phototag.ipa",
+                    "size": ${SIZE},
+                    "minOSVersion": "13.0"
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+      - name: Publish source branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: altstore
+          commit_message: "AltStore source for ${{ github.ref_name }}"

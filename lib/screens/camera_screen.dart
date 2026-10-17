@@ -339,7 +339,7 @@ class _CameraScreenState extends State<CameraScreen>
       );
 
       final Uint8List stampPng = await _renderStampPng(ctx);
-      final Uint8List result = await ImageProcessor.compositeJpeg(
+      final ProcessedPhoto processed = await ImageProcessor.process(
         photoBytes: photoBytes,
         stampPng: stampPng,
         position: settings.stampPosition,
@@ -348,11 +348,11 @@ class _CameraScreenState extends State<CameraScreen>
         longitude: fix?.longitude,
         altitude: fix?.altitude,
         bearing: fix?.heading,
-        accuracy: fix?.accuracy,
       );
 
       final PhotoRecord record = await _photos.save(
-        jpeg: result,
+        jpeg: processed.jpeg,
+        thumbnailJpeg: processed.thumbnail,
         originalJpeg: settings.saveOriginal ? photoBytes : null,
         takenAt: ctx.timestamp,
         latitude: fix?.latitude,

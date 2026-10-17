@@ -41,14 +41,19 @@ ready to drop into a report or send straight from the field.
 **Android** — [download the latest APK](https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.apk)
 and open it. Allow installation from unknown sources when prompted.
 
-**iOS** — [download the latest IPA](https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.ipa)
-and install it with [AltStore](https://altstore.io/):
+**iOS** — install [AltStore](https://altstore.io/) and add the source in
+AltStore → *Sources* → **+**:
 
-1. Install AltStore on your iPhone or iPad and sign in with your Apple ID.
-2. Save `phototag.ipa` to the Files app.
-3. Open AltStore → *My Apps* → **+** and pick the IPA (or share the file to AltStore).
-4. AltStore signs the app with your account. A free Apple ID needs re-signing
-   every 7 days; a paid developer account lasts a year.
+```
+https://raw.githubusercontent.com/skibidius/PhotoTag/altstore/altstore.json
+```
+
+PhotoTag then shows up in AltStore and installs/updates in one tap. If you
+prefer, [download the latest IPA](https://github.com/skibidius/PhotoTag/releases/latest/download/phototag.ipa)
+and open it with AltStore.
+
+AltStore signs the app with your Apple ID. A free account needs re-signing every
+7 days; a paid developer account lasts a year.
 
 ## Running from source
 

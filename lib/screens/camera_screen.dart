@@ -43,6 +43,7 @@ class _CameraScreenState extends State<CameraScreen>
   CameraController? _controller;
   List<CameraDescription> _cameras = <CameraDescription>[];
   int _cameraIndex = 0;
+  String? _preferredBackName;
   bool _initializing = true;
   _CameraError? _error;
 
@@ -191,9 +192,8 @@ class _CameraScreenState extends State<CameraScreen>
         });
         return;
       }
-      final int back = _cameras.indexWhere(
-          (CameraDescription c) => c.lensDirection == CameraLensDirection.back);
-      _cameraIndex = back >= 0 ? back : 0;
+      final CameraDescription? back = _preferredBackCamera();
+      _cameraIndex = back == null ? 0 : _cameras.indexOf(back);
       await _initController(_cameras[_cameraIndex]);
     } on CameraException catch (e) {
       setState(() {
@@ -222,6 +222,9 @@ class _CameraScreenState extends State<CameraScreen>
     _controller = controller;
     try {
       await controller.initialize();
+      if (description.lensDirection == CameraLensDirection.back) {
+        _preferredBackName = description.name;
+      }
       _minZoom = await controller.getMinZoomLevel();
       _maxZoom = await controller.getMaxZoomLevel();
       _zoom = 1.0.clamp(_minZoom, _maxZoom);
@@ -243,17 +246,129 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   Future<void> _toggleCamera() async {
-    HapticFeedback.selectionClick();
     if (_cameras.length < 2) return;
-    final CameraLensDirection current = _cameras[_cameraIndex].lensDirection;
-    final CameraLensDirection target = current == CameraLensDirection.back
-        ? CameraLensDirection.front
-        : CameraLensDirection.back;
-    final int idx =
-        _cameras.indexWhere((CameraDescription c) => c.lensDirection == target);
-    if (idx < 0) return;
-    _cameraIndex = idx;
-    await _initController(_cameras[_cameraIndex]);
+    final CameraDescription current = _cameras[_cameraIndex];
+    final CameraDescription? target = current.lensDirection ==
+            CameraLensDirection.back
+        ? _frontCamera()
+        : _preferredBackCamera();
+    if (target == null || target.name == current.name) return;
+    HapticFeedback.selectionClick();
+    _cameraIndex = _cameras.indexOf(target);
+    await _initController(target);
+  }
+
+  /// Switches to a different physical back lens (ultra-wide, wide, tele).
+  Future<void> _switchLens(CameraDescription lens) async {
+    if (_cameras[_cameraIndex].name == lens.name) return;
+    HapticFeedback.selectionClick();
+    _cameraIndex = _cameras.indexOf(lens);
+    if (lens.lensDirection == CameraLensDirection.back) {
+      _preferredBackName = lens.name;
+    }
+    await _initController(lens);
+  }
+
+  CameraDescription? _cameraByName(String? name) {
+    if (name == null) return null;
+    for (final CameraDescription camera in _cameras) {
+      if (camera.name == name) return camera;
+    }
+    return null;
+  }
+
+  CameraDescription? _preferredBackCamera() {
+    final CameraDescription? preferred = _cameraByName(_preferredBackName);
+    if (preferred != null &&
+        preferred.lensDirection == CameraLensDirection.back) {
+      return preferred;
+    }
+    for (final CameraDescription camera in _cameras) {
+      if (camera.lensDirection == CameraLensDirection.back &&
+          camera.lensType == CameraLensType.wide) {
+        return camera;
+      }
+    }
+    for (final CameraDescription camera in _cameras) {
+      if (camera.lensDirection == CameraLensDirection.back) return camera;
+    }
+    return null;
+  }
+
+  CameraDescription? _frontCamera() {
+    for (final CameraDescription camera in _cameras) {
+      if (camera.lensDirection == CameraLensDirection.front &&
+          camera.lensType == CameraLensType.wide) {
+        return camera;
+      }
+    }
+    for (final CameraDescription camera in _cameras) {
+      if (camera.lensDirection == CameraLensDirection.front) return camera;
+    }
+    return null;
+  }
+
+  /// The back lenses offered to the user, with display labels.
+  ///
+  /// iOS reports ultra-wide/wide/telephoto types. Android often reports only
+  /// "unknown", so if the device exposes several back cameras we still offer
+  /// them as "Lens 1", "Lens 2", … — switching is real either way.
+  List<(CameraDescription, String)> _lensChoices() {
+    final List<CameraDescription> backs = _cameras
+        .where((CameraDescription camera) =>
+            camera.lensDirection == CameraLensDirection.back)
+        .toList();
+
+    final List<CameraDescription> known = backs
+        .where((CameraDescription camera) =>
+            camera.lensType != CameraLensType.unknown)
+        .toList();
+
+    if (known.length > 1) {
+      int rank(CameraDescription camera) {
+        switch (camera.lensType) {
+          case CameraLensType.ultraWide:
+            return 0;
+          case CameraLensType.wide:
+            return 1;
+          case CameraLensType.telephoto:
+            return 2;
+          case CameraLensType.unknown:
+            return 3;
+        }
+      }
+
+      known.sort((CameraDescription a, CameraDescription b) =>
+          rank(a).compareTo(rank(b)));
+      return <(CameraDescription, String)>[
+        for (final CameraDescription camera in known)
+          (camera, _lensLabel(camera)),
+      ];
+    }
+
+    if (backs.length > 1) {
+      final AppLocalizations l10n = AppLocalizations.of(context);
+      return <(CameraDescription, String)>[
+        for (int i = 0; i < backs.length; i++)
+          (backs[i], l10n.cameraLensNumber('${i + 1}')),
+      ];
+    }
+
+    return const <(CameraDescription, String)>[];
+  }
+
+  String _lensLabel(CameraDescription lens) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    switch (lens.lensType) {
+      case CameraLensType.ultraWide:
+        return l10n.cameraLensUltraWide;
+      case CameraLensType.telephoto:
+        return l10n.cameraLensTele;
+      case CameraLensType.wide:
+        return l10n.cameraLensWide;
+      case CameraLensType.unknown:
+        return l10n.cameraLensWide;
+    }
   }
 
   Future<void> _cycleFlash() async {
@@ -339,6 +454,8 @@ class _CameraScreenState extends State<CameraScreen>
       final Uint8List photoBytes = await file.readAsBytes();
 
       final AppSettings settings = _settings.value;
+      final String? project = _projects.active;
+      final int counter = settings.counterFor(project);
       final LocationFix? fix = _location.fix;
       final StampContext ctx = StampContext(
         timestamp: DateTime.now(),
@@ -349,9 +466,9 @@ class _CameraScreenState extends State<CameraScreen>
         bearing: fix?.heading,
         address: _address,
         note: settings.note,
-        project: _projects.active,
+        project: project,
         author: settings.author,
-        counter: settings.counter,
+        counter: counter,
         coordFormat: settings.coordFormat,
       );
 
@@ -364,7 +481,7 @@ class _CameraScreenState extends State<CameraScreen>
         stampPng: stampPng,
         position: settings.stampPosition,
         timestamp: ctx.timestamp,
-        counter: settings.counter,
+        counter: counter,
         coordText: ctx.coordText,
         saveOriginal: settings.saveOriginal,
         jpegQuality: settings.photoQuality.jpegQuality,
@@ -375,12 +492,12 @@ class _CameraScreenState extends State<CameraScreen>
         accuracy: fix?.accuracy,
         address: _address,
         note: settings.note,
-        project: _projects.active,
+        project: project,
       ));
 
       HapticFeedback.lightImpact();
-      // Advance the automatic photo counter.
-      await _settings.update((AppSettings s) => s.copyWith(counter: s.counter + 1));
+      // Advance the automatic photo counter of the active project.
+      await _settings.update((AppSettings s) => s.advanceCounter(project));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -423,7 +540,7 @@ class _CameraScreenState extends State<CameraScreen>
       note: settings.note,
       project: _projects.active,
       author: settings.author,
-      counter: settings.counter,
+      counter: settings.counterFor(_projects.active),
       coordFormat: settings.coordFormat,
     );
   }
@@ -719,6 +836,7 @@ class _CameraScreenState extends State<CameraScreen>
   Widget _buildBottomControls(AppSettings settings, Color accent,
       {required bool hasProject}) {
     final List<double> presets = _zoomPresets;
+    final List<(CameraDescription, String)> lenses = _lensChoices();
     return Positioned(
       bottom: 0,
       left: 0,
@@ -730,6 +848,15 @@ class _CameraScreenState extends State<CameraScreen>
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const _QueueIndicator(),
+              if (lenses.length > 1)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _LensPresets(
+                    lenses: lenses,
+                    active: _cameras[_cameraIndex],
+                    onSelected: _switchLens,
+                  ),
+                ),
               if (presets.length > 1)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 14),
@@ -770,12 +897,16 @@ class _CameraScreenState extends State<CameraScreen>
     );
   }
 
-  /// The lens / zoom presets offered by the current camera, e.g. 0.5×, 1×, 2×.
+  /// The zoom stops offered by the current camera, e.g. 0.5×, 1×, 2×, 3×.
+  ///
+  /// Some phones expose the ultra-wide lens as a zoom ratio below 1.0; showing
+  /// the actual minimum (0.5× or 0.6×) makes that lens reachable.
   List<double> get _zoomPresets {
     final Set<double> set = <double>{1.0};
-    if (_minZoom <= 0.55) set.add(0.5);
+    if (_minZoom < 0.95) set.add(double.parse(_minZoom.toStringAsFixed(1)));
     if (_maxZoom >= 2.0) set.add(2.0);
     if (_maxZoom >= 3.0) set.add(3.0);
+    if (_maxZoom >= 5.0) set.add(5.0);
     final List<double> list = set
         .where((double z) => z >= _minZoom - 0.01 && z <= _maxZoom + 0.01)
         .toList()
@@ -1163,6 +1294,54 @@ class _ShutterButtonState extends State<_ShutterButton> {
   }
 }
 
+class _LensPresets extends StatelessWidget {
+  const _LensPresets({
+    required this.lenses,
+    required this.active,
+    required this.onSelected,
+  });
+
+  final List<(CameraDescription, String)> lenses;
+  final CameraDescription active;
+  final ValueChanged<CameraDescription> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: lenses.map(((CameraDescription, String) entry) {
+        final (CameraDescription lens, String label) = entry;
+        final bool selected = lens.name == active.name;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Material(
+            color: selected
+                ? Colors.white
+                : Colors.black.withValues(alpha: 0.45),
+            shape: const StadiumBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => onSelected(lens),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: selected ? Colors.black : Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
 class _ZoomPresets extends StatelessWidget {
   const _ZoomPresets({
     required this.presets,
@@ -1174,8 +1353,12 @@ class _ZoomPresets extends StatelessWidget {
   final double current;
   final ValueChanged<double> onSelected;
 
-  static String _label(double z) =>
-      z == z.roundToDouble() ? '${z.toInt()}×' : '$z×';
+  static String _label(double z) {
+    final double rounded = double.parse(z.toStringAsFixed(1));
+    return rounded == rounded.roundToDouble()
+        ? '${rounded.toInt()}×'
+        : '$rounded×';
+  }
 
   @override
   Widget build(BuildContext context) {

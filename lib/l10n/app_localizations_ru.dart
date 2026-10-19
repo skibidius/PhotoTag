@@ -98,6 +98,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cameraFlash => 'Вспышка';
 
   @override
+  String get cameraLensUltraWide => 'Ширик';
+
+  @override
+  String get cameraLensWide => 'Основной';
+
+  @override
+  String get cameraLensTele => 'Теле';
+
+  @override
+  String cameraLensNumber(String number) {
+    return 'Объектив $number';
+  }
+
+  @override
   String get locationOff => 'Геолокация выключена';
 
   @override
@@ -212,6 +226,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mapFitAll => 'Показать все фото';
+
+  @override
+  String get mapZoomIn => 'Приблизить';
 
   @override
   String get mapNoPhotos => 'Нет фото с геометками';
@@ -361,6 +378,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get detailsResetCounter => 'Сбросить счётчик';
+
+  @override
+  String detailsCounterProject(String project) {
+    return 'Проект: $project';
+  }
+
+  @override
+  String get detailsCounterNoProject => 'Без проекта';
 
   @override
   String get cameraGridSetting => 'Сетка третей';

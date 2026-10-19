@@ -19,6 +19,8 @@ class PhotoClusterLayer extends StatelessWidget {
     required this.onPhotoTap,
     required this.onClusterTap,
     this.clusterRadius = 64,
+    this.maxClusterSize = 12,
+    this.minSplitDistance = 52,
   });
 
   final List<PhotoRecord> records;
@@ -26,6 +28,14 @@ class PhotoClusterLayer extends StatelessWidget {
   final ValueChanged<PhotoRecord> onPhotoTap;
   final ValueChanged<List<PhotoRecord>> onClusterTap;
   final double clusterRadius;
+
+  /// Maximum photos in one bubble. Dense spots are split into several bubbles
+  /// so individual photos stay reachable.
+  final int maxClusterSize;
+
+  /// Bubbles closer than this are not split any further; tapping them opens
+  /// the photo list instead.
+  final double minSplitDistance;
 
   @override
   Widget build(BuildContext context) {
@@ -126,26 +136,32 @@ class PhotoClusterLayer extends StatelessWidget {
       );
       final (int cx, int cy) = cellOf(point);
 
-      _Cluster? target;
-      outer:
+      _Cluster? nearest;
+      double nearestDistance = double.infinity;
       for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
           final Set<_Cluster>? bucket = grid[(cx + dx, cy + dy)];
           if (bucket == null) continue;
           for (final _Cluster cluster in bucket) {
-            if ((cluster.centroid - point).distance <= clusterRadius) {
-              target = cluster;
-              break outer;
+            final double distance = (cluster.centroid - point).distance;
+            if (distance <= clusterRadius && distance < nearestDistance) {
+              nearest = cluster;
+              nearestDistance = distance;
             }
           }
         }
       }
 
-      if (target == null) {
+      final bool canGrow = nearest != null &&
+          (nearest.records.length < maxClusterSize ||
+              nearestDistance < minSplitDistance);
+
+      if (!canGrow) {
         final _Cluster cluster = _Cluster(record, point);
         clusters.add(cluster);
         grid.putIfAbsent((cx, cy), () => <_Cluster>{}).add(cluster);
       } else {
+        final _Cluster target = nearest;
         final (int, int) oldCell = cellOf(target.centroid);
         target.add(record, point);
         final (int, int) newCell = cellOf(target.centroid);

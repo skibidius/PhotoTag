@@ -157,10 +157,11 @@ void main() {
     expect(find.text('3'), findsOneWidget);
     expect(find.byType(DirectionMarker), findsNothing);
 
-    // Tapping a cluster zooms in without losing the cluster.
+    // Tapping a cluster opens the photo list for that cluster.
     await tester.tap(find.text('3'));
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('3'), findsOneWidget);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Zoom in'), findsOneWidget);
   });
 
   testWidgets('zooming splits a cluster into separate markers', (
@@ -188,9 +189,50 @@ void main() {
     expect(find.text('3'), findsOneWidget);
 
     await tester.tap(find.text('3'));
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(find.text('Zoom in'));
+    await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('3'), findsNothing);
     expect(find.byType(DirectionMarker), findsNWidgets(3));
+  });
+
+  testWidgets('a dense cluster splits into several bubbles', (
+    WidgetTester tester,
+  ) async {
+    final SettingsController controller = SettingsController();
+    final List<PhotoRecord> records = List<PhotoRecord>.generate(
+      24,
+      (int i) => _record(
+        id: 'p$i',
+        lat: 55.7558 + i * 0.0001,
+        lng: 37.6173,
+        bearing: (i * 15).toDouble(),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<SettingsController>.value(
+        value: controller,
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: PhotoMapScreen(title: 'Dense', records: records),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Never one bubble with the whole crowd.
+    expect(find.text('24'), findsNothing);
+    expect(find.byType(DirectionMarker), findsNothing);
+
+    final Finder bubbles = find.byWidgetPredicate((Widget widget) {
+      if (widget is! Text) return false;
+      final int? count = int.tryParse(widget.data ?? '');
+      return count != null && count > 1;
+    });
+    expect(bubbles, findsAtLeastNWidgets(2));
   });
 }

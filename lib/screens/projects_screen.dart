@@ -215,7 +215,11 @@ class ProjectsScreen extends StatelessWidget {
                           tooltip: l10n.photoShowOnMap,
                           onPressed: () => _openMap(context, null),
                         ),
-                      const Icon(Icons.chevron_right),
+                      const SizedBox(
+                        width: 48,
+                        height: 48,
+                        child: Icon(Icons.chevron_right),
+                      ),
                     ],
                   ),
                   onTap: () => Navigator.of(context)

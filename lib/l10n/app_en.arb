@@ -37,6 +37,17 @@
   "cameraLocationUnavailable": "Location is unavailable",
   "cameraSwitch": "Switch camera",
   "cameraFlash": "Flash",
+  "cameraLensUltraWide": "Ultra-wide",
+  "cameraLensWide": "Wide",
+  "cameraLensTele": "Tele",
+  "cameraLensNumber": "Lens {number}",
+  "@cameraLensNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "locationOff": "Location off",
   "locationNoPermission": "No permission",
   "locationLocating": "Locating…",
@@ -108,6 +119,7 @@
   "mapTitle": "Location",
   "mapStyle": "Map style",
   "mapFitAll": "Show all photos",
+  "mapZoomIn": "Zoom in",
   "mapNoPhotos": "No photos with location",
   "mapNoPhotosHint": "Capture photos with GPS enabled to see them on the map.",
 
@@ -175,6 +187,15 @@
     }
   },
   "detailsResetCounter": "Reset counter",
+  "detailsCounterProject": "Project: {project}",
+  "@detailsCounterProject": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "detailsCounterNoProject": "No project",
 
   "cameraGridSetting": "Rule-of-thirds grid",
   "cameraHud": "Live stamp preview",

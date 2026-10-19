@@ -30,6 +30,17 @@
   "cameraLocationUnavailable": "Геолокация недоступна",
   "cameraSwitch": "Сменить камеру",
   "cameraFlash": "Вспышка",
+  "cameraLensUltraWide": "Ширик",
+  "cameraLensWide": "Основной",
+  "cameraLensTele": "Теле",
+  "cameraLensNumber": "Объектив {number}",
+  "@cameraLensNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "locationOff": "Геолокация выключена",
   "locationNoPermission": "Нет доступа",
   "locationLocating": "Определяем…",
@@ -66,6 +77,7 @@
   "mapTitle": "Местоположение",
   "mapStyle": "Стиль карты",
   "mapFitAll": "Показать все фото",
+  "mapZoomIn": "Приблизить",
   "mapNoPhotos": "Нет фото с геометками",
   "mapNoPhotosHint": "Снимайте с включённым GPS, чтобы увидеть фото на карте.",
 
@@ -119,6 +131,15 @@
   "detailsCounter": "Счётчик фото",
   "detailsNextNumber": "Следующее фото — № {value}",
   "detailsResetCounter": "Сбросить счётчик",
+  "detailsCounterProject": "Проект: {project}",
+  "@detailsCounterProject": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "detailsCounterNoProject": "Без проекта",
 
   "cameraGridSetting": "Сетка третей",
   "cameraHud": "Показ вотермарки",

@@ -94,7 +94,6 @@ AppSettings _demoSettings(String locale) => AppSettings(
       author: 'A. Volkov',
       showNote: true,
       showAuthor: true,
-      counter: 42,
     );
 
 String _projectName(String locale) =>
@@ -589,11 +588,16 @@ void main() {
     testWidgets('$locale/settings', (WidgetTester tester) async {
       final SettingsController controller = SettingsController();
       await controller.load();
+      final ProjectStore projects = ProjectStore();
+      await projects.add(_projectName(locale));
       await _render(
         tester,
         locale: locale,
-        screen: ChangeNotifierProvider<SettingsController>.value(
-          value: controller,
+        screen: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<SettingsController>.value(value: controller),
+            ChangeNotifierProvider<ProjectStore>.value(value: projects),
+          ],
           child: const SettingsScreen(),
         ),
         golden: '../docs/screenshots/$locale/settings.png',

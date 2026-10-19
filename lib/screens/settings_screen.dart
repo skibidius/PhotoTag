@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/app_settings.dart';
+import '../services/project_store.dart';
 import '../services/settings_controller.dart';
 import '../utils/coords.dart';
 import '../utils/page_route.dart';
@@ -45,6 +46,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final SettingsController controller = context.watch<SettingsController>();
     final AppSettings settings = controller.value;
+    final String? activeProject = context.watch<ProjectStore>().active;
     final AppLocalizations l10n = AppLocalizations.of(context);
 
     return Scaffold(
@@ -207,14 +209,20 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.pin_outlined),
             title: Text(l10n.detailsCounter),
-            subtitle: Text(l10n
-                .detailsNextNumber(settings.counter.toString().padLeft(3, '0'))),
+            subtitle: Text(
+              '${l10n.detailsNextNumber(
+                settings.counterFor(activeProject).toString().padLeft(3, '0'),
+              )}\n'
+              '${activeProject == null ? l10n.detailsCounterNoProject : l10n.detailsCounterProject(activeProject)}',
+            ),
             trailing: IconButton(
               icon: const Icon(Icons.restart_alt),
               tooltip: l10n.detailsResetCounter,
               onPressed: () {
                 HapticFeedback.selectionClick();
-                controller.update((AppSettings s) => s.copyWith(counter: 1));
+                controller.update(
+                  (AppSettings s) => s.withCounter(activeProject, 1),
+                );
               },
             ),
           ),

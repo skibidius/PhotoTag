@@ -97,6 +97,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraFlash => 'Flash';
 
   @override
+  String get cameraLensUltraWide => 'Ultra-wide';
+
+  @override
+  String get cameraLensWide => 'Wide';
+
+  @override
+  String get cameraLensTele => 'Tele';
+
+  @override
+  String cameraLensNumber(String number) {
+    return 'Lens $number';
+  }
+
+  @override
   String get locationOff => 'Location off';
 
   @override
@@ -209,6 +223,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapFitAll => 'Show all photos';
+
+  @override
+  String get mapZoomIn => 'Zoom in';
 
   @override
   String get mapNoPhotos => 'No photos with location';
@@ -358,6 +375,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get detailsResetCounter => 'Reset counter';
+
+  @override
+  String detailsCounterProject(String project) {
+    return 'Project: $project';
+  }
+
+  @override
+  String get detailsCounterNoProject => 'No project';
 
   @override
   String get cameraGridSetting => 'Rule-of-thirds grid';

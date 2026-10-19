@@ -8,10 +8,11 @@ ready to drop into a report or send straight from the field.
 
 ## Features
 
-- **In-app camera** with the Camera2 engine on Android and selectable quality
+- **In-app camera** with selectable quality, pinch-to-zoom and hardware lens
+  switching where the platform exposes the lenses
 - **Watermark** with coordinates (decimal, DMS, DDM, UTM, MGRS), bearing,
-  altitude, accuracy, date/time, reverse-geocoded address, note, author and an
-  automatic photo counter
+  altitude, accuracy, date/time, reverse-geocoded address, note, author and a
+  separate photo counter for every project
 - **Projects** to keep jobs, sites or clients apart
 - **Export** a project to a ZIP archive — originals, watermarked, or both
 - **English and Russian** interface
@@ -21,7 +22,8 @@ ready to drop into a report or send straight from the field.
   metadata
 - Saves to the system gallery and shares from the app
 - In-app update check
-- Tap to focus, pinch to zoom, lens presets, flash, grid and a live stamp preview
+- Tap to focus, pinch to zoom, lens and zoom presets, flash, grid and a live
+  stamp preview
 - **Google Photos-style gallery** — swipe sideways to browse, down to close,
   swipe up or tap for info
 - **Project map** — every geotagged photo of a project on one map, with a camera

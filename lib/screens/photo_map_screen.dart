@@ -160,7 +160,9 @@ class _PhotoMapScreenState extends State<PhotoMapScreen> {
     _mapController.move(center, target);
   }
 
-  void _showPhotoList() {
+  void _showPhotoList({List<PhotoRecord>? photos}) {
+    final List<PhotoRecord> list = photos ?? _records;
+    if (list.isEmpty) return;
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -174,10 +176,25 @@ class _PhotoMapScreenState extends State<PhotoMapScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-                  child: Text(
-                    l10n.photosAllCount(_records.length),
-                    style: Theme.of(sheetContext).textTheme.titleLarge,
+                  padding: const EdgeInsets.fromLTRB(24, 0, 12, 12),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          l10n.photosAllCount(list.length),
+                          style: Theme.of(sheetContext).textTheme.titleLarge,
+                        ),
+                      ),
+                      if (photos != null)
+                        TextButton.icon(
+                          onPressed: () {
+                            Navigator.of(sheetContext).pop();
+                            _zoomToCluster(list);
+                          },
+                          icon: const Icon(Icons.zoom_in),
+                          label: Text(l10n.mapZoomIn),
+                        ),
+                    ],
                   ),
                 ),
                 Expanded(
@@ -189,9 +206,9 @@ class _PhotoMapScreenState extends State<PhotoMapScreen> {
                       mainAxisSpacing: 3,
                       crossAxisSpacing: 3,
                     ),
-                    itemCount: _records.length,
+                    itemCount: list.length,
                     itemBuilder: (BuildContext context, int i) {
-                      final PhotoRecord record = _records[i];
+                      final PhotoRecord record = list[i];
                       return InkWell(
                         onTap: () {
                           Navigator.of(sheetContext).pop();
@@ -329,7 +346,8 @@ class _PhotoMapScreenState extends State<PhotoMapScreen> {
                         records: _records,
                         selected: _selected,
                         onPhotoTap: _select,
-                        onClusterTap: _zoomToCluster,
+                        onClusterTap: (List<PhotoRecord> photos) =>
+                            _showPhotoList(photos: photos),
                       ),
                     ],
                   ),

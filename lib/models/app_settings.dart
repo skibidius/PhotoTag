@@ -51,7 +51,7 @@ class AppSettings {
     this.showAuthor = false,
     this.note = '',
     this.author = '',
-    this.counter = 1,
+    this.projectCounters = const <String, int>{},
     this.showGrid = false,
     this.showHud = true,
     this.saveOriginal = true,
@@ -80,7 +80,23 @@ class AppSettings {
 
   final String note;
   final String author;
-  final int counter;
+  /// Next photo number for each project (the empty key is "no project").
+  final Map<String, int> projectCounters;
+
+  /// The next photo number for [project] (null means no active project).
+  int counterFor(String? project) => projectCounters[project ?? ''] ?? 1;
+
+  /// Returns a copy with the next number for [project] set to [value].
+  AppSettings withCounter(String? project, int value) => copyWith(
+        projectCounters: <String, int>{
+          ...projectCounters,
+          project ?? '': value,
+        },
+      );
+
+  /// Advances the counter for [project] by one.
+  AppSettings advanceCounter(String? project) =>
+      withCounter(project, counterFor(project) + 1);
 
   final bool showGrid;
   final bool showHud;
@@ -110,7 +126,7 @@ class AppSettings {
     bool? showAuthor,
     String? note,
     String? author,
-    int? counter,
+    Map<String, int>? projectCounters,
     bool? showGrid,
     bool? showHud,
     bool? saveOriginal,
@@ -137,7 +153,7 @@ class AppSettings {
       showAuthor: showAuthor ?? this.showAuthor,
       note: note ?? this.note,
       author: author ?? this.author,
-      counter: counter ?? this.counter,
+      projectCounters: projectCounters ?? this.projectCounters,
       showGrid: showGrid ?? this.showGrid,
       showHud: showHud ?? this.showHud,
       saveOriginal: saveOriginal ?? this.saveOriginal,
@@ -166,7 +182,8 @@ class AppSettings {
         'showAuthor': showAuthor,
         'note': note,
         'author': author,
-        'counter': counter,
+        'counter': counterFor(null),
+        'projectCounters': projectCounters,
         'showGrid': showGrid,
         'showHud': showHud,
         'saveOriginal': saveOriginal,
@@ -202,7 +219,17 @@ class AppSettings {
       showAuthor: json['showAuthor'] as bool? ?? false,
       note: json['note'] as String? ?? '',
       author: json['author'] as String? ?? '',
-      counter: json['counter'] as int? ?? 1,
+      projectCounters: () {
+        final Object? raw = json['projectCounters'];
+        if (raw is Map) {
+          return raw.map<String, int>(
+            (Object? key, Object? value) =>
+                MapEntry<String, int>(key.toString(), (value as num).toInt()),
+          );
+        }
+        // Migrate the pre-per-project global counter.
+        return <String, int>{'': json['counter'] as int? ?? 1};
+      }(),
       showGrid: json['showGrid'] as bool? ?? false,
       showHud: json['showHud'] as bool? ?? true,
       saveOriginal: json['saveOriginal'] as bool? ?? true,

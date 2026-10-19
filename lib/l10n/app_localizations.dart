@@ -254,6 +254,30 @@ abstract class AppLocalizations {
   /// **'Flash'**
   String get cameraFlash;
 
+  /// No description provided for @cameraLensUltraWide.
+  ///
+  /// In en, this message translates to:
+  /// **'Ultra-wide'**
+  String get cameraLensUltraWide;
+
+  /// No description provided for @cameraLensWide.
+  ///
+  /// In en, this message translates to:
+  /// **'Wide'**
+  String get cameraLensWide;
+
+  /// No description provided for @cameraLensTele.
+  ///
+  /// In en, this message translates to:
+  /// **'Tele'**
+  String get cameraLensTele;
+
+  /// No description provided for @cameraLensNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Lens {number}'**
+  String cameraLensNumber(String number);
+
   /// No description provided for @locationOff.
   ///
   /// In en, this message translates to:
@@ -445,6 +469,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show all photos'**
   String get mapFitAll;
+
+  /// No description provided for @mapZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get mapZoomIn;
 
   /// No description provided for @mapNoPhotos.
   ///
@@ -733,6 +763,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset counter'**
   String get detailsResetCounter;
+
+  /// No description provided for @detailsCounterProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Project: {project}'**
+  String detailsCounterProject(String project);
+
+  /// No description provided for @detailsCounterNoProject.
+  ///
+  /// In en, this message translates to:
+  /// **'No project'**
+  String get detailsCounterNoProject;
 
   /// No description provided for @cameraGridSetting.
   ///

@@ -101,9 +101,11 @@ One-time setup:
 1. Create the app `com.phototag` in the RuStore Console and publish the first
    version manually (the API can create a draft only when an active version
    already exists).
-2. Generate a Public API token in the Console and add it as the GitHub Actions
-   secret `RUSTORE_PUBLIC_TOKEN`. Without the secret the RuStore job is skipped
-   and the GitHub release still succeeds.
+2. Create an API key in the Console and add two GitHub Actions secrets:
+   `RUSTORE_KEY_ID` (the numeric key id) and `RUSTORE_PRIVATE_KEY` (the base64
+   private key). The workflow signs a short-lived JWE token with them. Without
+   both secrets the RuStore job is skipped and the GitHub release still
+   succeeds.
 3. Push a `v*` tag.
 
 The two builds never cross-prompt: RuStore users update through RuStore,

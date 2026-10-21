@@ -1,12 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_rustore_update/flutter_rustore_update.dart'
-    show
-        DownloadResponse,
-        RustoreUpdateClient,
-        UPDATE_AVAILABILITY_AVAILABLE,
-        ACTIVITY_RESULT_NOT_FOUND;
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -61,22 +55,46 @@ class UpdateService {
     return _checkGitHub();
   }
 
-  /// RuStore knows which version the store serves for this package and drives
-  /// the download/install UI itself.
+  /// RuStore exposes the published version of a package on its public
+  /// catalog backend. The regular GitHub API is deliberately not used here:
+  /// a RuStore build must never offer an APK from another store.
   static Future<UpdateInfo?> _checkRuStore() async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
     try {
-      final info = await RustoreUpdateClient.info();
-      if (info.updateAvailability != UPDATE_AVAILABILITY_AVAILABLE) return null;
+      final http.Response response = await http.get(
+        Uri.parse(
+            'https://backapi.rustore.ru/applicationData/overallInfo/com.phototag'),
+        headers: const <String, String>{
+          // A RuStore client version is required by the catalog backend.
+          'ruStoreVerCode': '12000',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 8));
+
+      if (response.statusCode != 200) return null;
+
+      final Map<String, dynamic> data =
+          jsonDecode(response.body) as Map<String, dynamic>;
+      final Map<String, dynamic> body = <String, dynamic>{
+        ...?data['body'] as Map<String, dynamic>?,
+      };
+      final int latestCode = (body['versionCode'] as num?)?.toInt() ??
+          (body['activeVerCode'] as num?)?.toInt() ??
+          0;
+      if (latestCode <= 0) return null;
+
+      final PackageInfo info = await PackageInfo.fromPlatform();
+      final int current = int.tryParse(info.buildNumber) ?? 0;
+      if (latestCode <= current) return null;
+
       return UpdateInfo(
-        version: '',
+        version: body['versionName'] as String? ?? '',
         tag: '',
         releaseUrl: ruStoreAppUrl,
-        buildNumber: info.availableVersionCode,
+        buildNumber: latestCode,
         ruStore: true,
       );
     } catch (_) {
-      // RuStore is missing, outdated, or the device has no RuStore account.
+      // The catalog backend is best-effort; never block startup.
       return null;
     }
   }
@@ -120,15 +138,7 @@ class UpdateService {
   /// Starts the update flow for the build's own store.
   static Future<void> openUpdate(UpdateInfo info) async {
     if (info.ruStore) {
-      try {
-        final DownloadResponse response = await RustoreUpdateClient.immediate();
-        if (response.code == ACTIVITY_RESULT_NOT_FOUND) {
-          await _openUrl(ruStoreAppUrl);
-        }
-      } catch (_) {
-        // Fall back to the store page so the user still has a way forward.
-        await _openUrl(ruStoreAppUrl);
-      }
+      await _openUrl(ruStoreAppUrl);
       return;
     }
 

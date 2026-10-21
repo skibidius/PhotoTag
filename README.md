@@ -100,7 +100,8 @@ One-time setup:
 
 1. Create the app `com.phototag` in the RuStore Console and publish the first
    version manually (the API can create a draft only when an active version
-   already exists).
+   already exists). Use `phototag-rustore.apk` from the release assets for
+   that first upload.
 2. Create an API key in the Console and add two GitHub Actions secrets:
    `RUSTORE_KEY_ID` (the numeric key id) and `RUSTORE_PRIVATE_KEY` (the base64
    private key). The workflow signs a short-lived JWE token with them. Without

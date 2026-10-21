@@ -171,6 +171,16 @@ jobs:
           APK="dist/phototag-rustore.apk"
           test -f "$APK"
 
+          # RuStore only allows the API to create a draft when the app already
+          # has an active version. The catalog returns 404 until then.
+          CATALOG_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 \
+            -H "ruStoreVerCode: 12000" \
+            "https://backapi.rustore.ru/applicationData/overallInfo/${PACKAGE}" || true)
+          if [ "$CATALOG_CODE" = "404" ]; then
+            echo "::error::${PACKAGE} has no published version in RuStore yet. Publish the first version manually in the console; subsequent tags will publish automatically."
+            exit 1
+          fi
+
           echo "Creating a RuStore draft for ${VERSION}..."
           CREATE_BODY=$(jq -n             --arg notes "Обновление PhotoTag до версии ${VERSION}."             '{appName:"PhotoTag", appType:"MAIN", publishType:"INSTANTLY", whatsNew:$notes, moderInfo:"Автоматическая публикация из GitHub Actions"}')
           CREATE_RESPONSE=$(curl -sS -X POST "${API}/version"             -H "${AUTH}"             -H "Content-Type: application/json"             --data "${CREATE_BODY}")

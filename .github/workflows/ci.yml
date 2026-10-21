@@ -67,6 +67,10 @@ jobs:
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk dist/phototag.apk
           cp build/app/outputs/bundle/release/app-release.aab dist/phototag.aab
+      - name: Build the RuStore flavor
+        run: flutter build apk --release --dart-define=PHOTOTAG_STORE=rustore
+      - name: Collect the RuStore APK
+        run: cp build/app/outputs/flutter-apk/app-release.apk dist/phototag-rustore.apk
       - uses: actions/upload-artifact@v4
         with:
           name: android
@@ -96,6 +100,60 @@ jobs:
           name: ios
           if-no-files-found: error
           path: dist/*
+
+  rustore:
+    name: Publish to RuStore
+    needs: [build-android]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: android
+          path: dist
+      - name: Upload to RuStore
+        env:
+          RUSTORE_PUBLIC_TOKEN: ${{ secrets.RUSTORE_PUBLIC_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RUSTORE_PUBLIC_TOKEN:-}" ]; then
+            echo "RUSTORE_PUBLIC_TOKEN is not configured — skipping RuStore publishing."
+            exit 0
+          fi
+
+          PACKAGE="com.phototag"
+          API="https://public-api.rustore.ru/public/v1/application/${PACKAGE}"
+          AUTH="Public-Token: ${RUSTORE_PUBLIC_TOKEN}"
+          VERSION="${GITHUB_REF_NAME#v}"
+          APK="dist/phototag-rustore.apk"
+          test -f "$APK"
+
+          echo "Creating a RuStore draft for ${VERSION}..."
+          CREATE_BODY=$(jq -n             --arg notes "Обновление PhotoTag до версии ${VERSION}."             '{appName:"PhotoTag", appType:"MAIN", publishType:"INSTANTLY", whatsNew:$notes, moderInfo:"Автоматическая публикация из GitHub Actions"}')
+          CREATE_RESPONSE=$(curl -sS -X POST "${API}/version"             -H "${AUTH}"             -H "Content-Type: application/json"             --data "${CREATE_BODY}")
+          echo "${CREATE_RESPONSE}"
+
+          VERSION_ID=$(echo "${CREATE_RESPONSE}" | jq -r '
+            if .body? and (.body|type)=="object" then .body.versionId
+            elif .body? and (.body|type)=="number" then .body
+            else .content.versionId // empty end')
+          if [ -z "${VERSION_ID}" ] || [ "${VERSION_ID}" = "null" ]; then
+            echo "RuStore did not return a version id" >&2
+            exit 1
+          fi
+          echo "Draft version id: ${VERSION_ID}"
+
+          echo "Uploading ${APK}..."
+          UPLOAD_RESPONSE=$(curl -sS -X POST             "${API}/version/${VERSION_ID}/apk?isMainApk=true&servicesType=Unknown"             -H "${AUTH}"             -F "file=@${APK}")
+          echo "${UPLOAD_RESPONSE}"
+          echo "${UPLOAD_RESPONSE}" | jq -e '.code == "OK"' > /dev/null
+
+          echo "Sending to moderation..."
+          COMMIT_RESPONSE=$(curl -sS -X POST             "${API}/version/${VERSION_ID}/commit?priorityUpdate=3"             -H "${AUTH}")
+          echo "${COMMIT_RESPONSE}"
+          echo "${COMMIT_RESPONSE}" | jq -e '.code == "OK"' > /dev/null
+
+          echo "RuStore draft ${VERSION_ID} submitted; it will be published after moderation."
 
   release:
     name: Release

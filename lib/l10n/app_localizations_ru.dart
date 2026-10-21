@@ -256,6 +256,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sectionCamera => 'Камера';
 
   @override
+  String get sectionSupport => 'Поддержка';
+
+  @override
+  String get supportTitle => 'Поддержать проект';
+
+  @override
+  String get supportSubtitle =>
+      'Небольшой донат через CloudTips помогает развитию';
+
+  @override
+  String get supportOpenFailed => 'Не удалось открыть ссылку';
+
+  @override
   String get sectionAbout => 'О приложении';
 
   @override
@@ -457,6 +470,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String updateAvailable(String version) {
     return 'Доступна версия $version';
   }
+
+  @override
+  String get updateAvailableGeneric => 'Доступна новая версия';
 
   @override
   String get update => 'Обновить';

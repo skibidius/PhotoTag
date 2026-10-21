@@ -1,24 +1,45 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_rustore_update/flutter_rustore_update.dart'
+    show
+        DownloadResponse,
+        RustoreUpdateClient,
+        UPDATE_AVAILABILITY_AVAILABLE,
+        ACTIVITY_RESULT_NOT_FOUND;
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Information about a newer release published on GitHub.
+/// Store flavor baked in with `--dart-define=PHOTOTAG_STORE=rustore`.
+///
+/// The regular (GitHub / AltStore) build keeps checking GitHub Releases. The
+/// RuStore build uses the official RuStore In-App Updates SDK instead, so it
+/// never offers an APK from a different store.
+const String _storeFlavor =
+    String.fromEnvironment('PHOTOTAG_STORE', defaultValue: 'github');
+
+const bool isRuStoreBuild = _storeFlavor == 'rustore';
+
+/// Information about an available update.
 class UpdateInfo {
   const UpdateInfo({
     required this.version,
     required this.tag,
     required this.releaseUrl,
+    this.buildNumber,
+    this.ruStore = false,
   });
 
   final String version;
   final String tag;
   final String releaseUrl;
+  final int? buildNumber;
+  final bool ruStore;
 }
 
-/// Checks GitHub Releases for a newer version and opens the right download.
+/// Checks for updates in the store the build came from and starts the right
+/// update flow.
 class UpdateService {
   UpdateService._();
 
@@ -31,9 +52,36 @@ class UpdateService {
       'https://github.com/$_owner/$_repo/releases/latest/download/phototag.ipa';
   static const String altStoreSource =
       'https://raw.githubusercontent.com/$_owner/$_repo/altstore/altstore.json';
+  static const String ruStoreAppUrl =
+      'https://www.rustore.ru/catalog/app/com.phototag';
 
   /// Returns the newer release, or null when already up to date / offline.
   static Future<UpdateInfo?> check() async {
+    if (isRuStoreBuild) return _checkRuStore();
+    return _checkGitHub();
+  }
+
+  /// RuStore knows which version the store serves for this package and drives
+  /// the download/install UI itself.
+  static Future<UpdateInfo?> _checkRuStore() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
+    try {
+      final info = await RustoreUpdateClient.info();
+      if (info.updateAvailability != UPDATE_AVAILABILITY_AVAILABLE) return null;
+      return UpdateInfo(
+        version: '',
+        tag: '',
+        releaseUrl: ruStoreAppUrl,
+        buildNumber: info.availableVersionCode,
+        ruStore: true,
+      );
+    } catch (_) {
+      // RuStore is missing, outdated, or the device has no RuStore account.
+      return null;
+    }
+  }
+
+  static Future<UpdateInfo?> _checkGitHub() async {
     try {
       final http.Response response = await http
           .get(
@@ -61,6 +109,7 @@ class UpdateService {
         tag: tag,
         releaseUrl: data['html_url'] as String? ??
             'https://github.com/$_owner/$_repo/releases/latest',
+        buildNumber: int.tryParse(info.buildNumber),
       );
     } catch (_) {
       // Offline or rate-limited: treat as "no update".
@@ -68,13 +117,31 @@ class UpdateService {
     }
   }
 
-  /// Opens the APK on Android and the release page on iOS (install via
-  /// AltStore).
+  /// Starts the update flow for the build's own store.
   static Future<void> openUpdate(UpdateInfo info) async {
+    if (info.ruStore) {
+      try {
+        final DownloadResponse response = await RustoreUpdateClient.immediate();
+        if (response.code == ACTIVITY_RESULT_NOT_FOUND) {
+          await _openUrl(ruStoreAppUrl);
+        }
+      } catch (_) {
+        // Fall back to the store page so the user still has a way forward.
+        await _openUrl(ruStoreAppUrl);
+      }
+      return;
+    }
+
     final bool ios = defaultTargetPlatform == TargetPlatform.iOS;
-    final Uri uri = Uri.parse(ios ? info.releaseUrl : apkUrl);
+    await _openUrl(ios ? info.releaseUrl : apkUrl);
+  }
+
+  static Future<void> _openUrl(String url) async {
     try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
     } catch (_) {}
   }
 

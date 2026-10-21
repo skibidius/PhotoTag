@@ -87,6 +87,10 @@
   "sectionFields": "Поля вотермарки",
   "sectionDetails": "Детали",
   "sectionCamera": "Камера",
+  "sectionSupport": "Поддержка",
+  "supportTitle": "Поддержать проект",
+  "supportSubtitle": "Небольшой донат через CloudTips помогает развитию",
+  "supportOpenFailed": "Не удалось открыть ссылку",
   "sectionAbout": "О приложении",
 
   "coordFormat": "Формат",
@@ -166,6 +170,7 @@
   "checkingUpdates": "Проверяем…",
   "upToDate": "У вас последняя версия",
   "updateAvailable": "Доступна версия {version}",
+  "updateAvailableGeneric": "Доступна новая версия",
   "update": "Обновить",
 
   "stampByAuthor": "автор: {author}",

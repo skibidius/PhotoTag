@@ -253,6 +253,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sectionCamera => 'Camera';
 
   @override
+  String get sectionSupport => 'Support';
+
+  @override
+  String get supportTitle => 'Support the project';
+
+  @override
+  String get supportSubtitle =>
+      'A small donation via CloudTips helps development';
+
+  @override
+  String get supportOpenFailed => 'Could not open the link';
+
+  @override
   String get sectionAbout => 'About';
 
   @override
@@ -455,6 +468,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String updateAvailable(String version) {
     return 'Version $version is available';
   }
+
+  @override
+  String get updateAvailableGeneric => 'A new version is available';
 
   @override
   String get update => 'Update';

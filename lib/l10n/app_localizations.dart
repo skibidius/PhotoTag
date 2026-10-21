@@ -524,6 +524,30 @@ abstract class AppLocalizations {
   /// **'Camera'**
   String get sectionCamera;
 
+  /// No description provided for @sectionSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get sectionSupport;
+
+  /// No description provided for @supportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Support the project'**
+  String get supportTitle;
+
+  /// No description provided for @supportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A small donation via CloudTips helps development'**
+  String get supportSubtitle;
+
+  /// No description provided for @supportOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link'**
+  String get supportOpenFailed;
+
   /// No description provided for @sectionAbout.
   ///
   /// In en, this message translates to:
@@ -913,6 +937,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version {version} is available'**
   String updateAvailable(String version);
+
+  /// No description provided for @updateAvailableGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version is available'**
+  String get updateAvailableGeneric;
 
   /// No description provided for @update.
   ///

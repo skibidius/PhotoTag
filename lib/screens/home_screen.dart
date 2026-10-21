@@ -31,7 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(l10n.updateAvailable(info.version)),
+        content: Text(info.version.isEmpty
+            ? l10n.updateAvailableGeneric
+            : l10n.updateAvailable(info.version)),
         duration: const Duration(seconds: 8),
         action: SnackBarAction(
           label: l10n.update,

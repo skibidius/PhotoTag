@@ -493,6 +493,7 @@ class _CameraScreenState extends State<CameraScreen>
         address: _address,
         note: settings.note,
         project: project,
+        author: settings.author,
       ));
 
       HapticFeedback.lightImpact();

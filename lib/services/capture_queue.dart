@@ -26,6 +26,7 @@ class CaptureTask {
     this.address,
     this.note,
     this.project,
+    this.author,
   });
 
   final Uint8List photoBytes;
@@ -45,6 +46,7 @@ class CaptureTask {
   final String? address;
   final String? note;
   final String? project;
+  final String? author;
 }
 
 /// Processes captured photos sequentially in the background so the shutter
@@ -90,6 +92,12 @@ class CaptureQueue extends ChangeNotifier {
           longitude: task.longitude,
           altitude: task.altitude,
           bearing: task.bearing,
+          accuracy: task.accuracy,
+          address: task.address,
+          note: task.note,
+          project: task.project,
+          author: task.author,
+          counter: task.counter,
           jpegQuality: task.jpegQuality,
         );
 

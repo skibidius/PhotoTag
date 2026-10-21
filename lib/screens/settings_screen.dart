@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/app_settings.dart';
@@ -39,6 +40,23 @@ class SettingsScreen extends StatelessWidget {
         return l10n.languageEnglish;
       case AppLanguage.russian:
         return l10n.languageRussian;
+    }
+  }
+
+  Future<void> _openSupport(BuildContext context) async {
+    HapticFeedback.selectionClick();
+    try {
+      await launchUrl(
+        Uri.parse('https://pay.cloudtips.ru/3dc66105'),
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (_) {
+      if (context.mounted) {
+        final AppLocalizations l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.supportOpenFailed)),
+        );
+      }
     }
   }
 
@@ -283,6 +301,15 @@ class SettingsScreen extends StatelessWidget {
               HapticFeedback.selectionClick();
               controller.update((AppSettings s) => s.copyWith(language: v));
             },
+          ),
+
+          _Header(l10n.sectionSupport),
+          ListTile(
+            leading: const Icon(Icons.favorite_outline),
+            title: Text(l10n.supportTitle),
+            subtitle: Text(l10n.supportSubtitle),
+            trailing: const Icon(Icons.open_in_new),
+            onTap: () => _openSupport(context),
           ),
 
           _Header(l10n.sectionAbout),

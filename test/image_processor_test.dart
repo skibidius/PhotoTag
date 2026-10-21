@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,12 @@ void main() {
       longitude: 37.6173,
       altitude: 156,
       bearing: 315,
+      accuracy: 5,
+      address: 'Tverskaya St, 1, Moscow',
+      note: 'Осмотр фасада',
+      project: 'North wing',
+      author: 'A. Volkov',
+      counter: 42,
     );
 
     final img.Image? decoded = img.decodeJpg(processed.jpeg);
@@ -53,5 +60,30 @@ void main() {
     expect(dms(gps[0x0004]), closeTo(37.6173, 0.0005));
     expect(gps[0x0006]?.toDouble(), closeTo(156, 0.5));
     expect(gps[0x0011]?.toDouble(), closeTo(315, 0.5));
+    expect(gps[0x0012]?.toString(), 'WGS-84');
+    expect(gps[0x001F]?.toDouble(), closeTo(5, 0.1));
+
+    final img.IfdDirectory image = decoded.exif.imageIfd;
+    expect(image['ImageDescription']?.toString(), contains('North wing'));
+    expect(image['ImageDescription']?.toString(), contains('042'));
+    expect(image['Artist']?.toString(), 'A. Volkov');
+
+    final Uint8List comment =
+        decoded.exif.exifIfd['UserComment']?.toData() ?? Uint8List(0);
+    expect(comment.length, greaterThan(8));
+    expect(utf8.decode(comment.sublist(8), allowMalformed: true),
+        contains('Осмотр фасада'));
+
+    final Uint8List xpComment =
+        image['XPComment']?.toData() ?? Uint8List(0);
+    final List<int> units = <int>[];
+    for (int i = 0; i + 1 < xpComment.length; i += 2) {
+      units.add(xpComment[i] | (xpComment[i + 1] << 8));
+    }
+    expect(String.fromCharCodes(units), contains('Осмотр фасада'));
+
+    final String offset =
+        decoded.exif.exifIfd['OffsetTimeOriginal']?.toString() ?? '';
+    expect(offset, matches(RegExp(r'^[+-]\d{2}:\d{2}$')));
   });
 }

@@ -129,6 +129,10 @@
   "sectionFields": "Stamp fields",
   "sectionDetails": "Details",
   "sectionCamera": "Camera",
+  "sectionSupport": "Support",
+  "supportTitle": "Support the project",
+  "supportSubtitle": "A small donation via CloudTips helps development",
+  "supportOpenFailed": "Could not open the link",
   "sectionAbout": "About",
 
   "coordFormat": "Format",
@@ -222,6 +226,7 @@
   "checkingUpdates": "Checking…",
   "upToDate": "You're up to date",
   "updateAvailable": "Version {version} is available",
+  "updateAvailableGeneric": "A new version is available",
   "@updateAvailable": {
     "placeholders": {
       "version": {

@@ -18,8 +18,9 @@ ready to drop into a report or send straight from the field.
 - **English and Russian** interface
 - **Background queue** — keep shooting while photos are watermarked
 - **Offline first** — GPS and geocoding work without a connection
-- Coordinates, altitude and direction are also written into the photo's EXIF
-  metadata
+- Coordinates, altitude, direction, timestamp, project, note, author and the
+  photo counter are also written into the EXIF metadata (including Unicode
+  fields), not just burned into the pixels
 - Saves to the system gallery and shares from the app
 - In-app update check
 - Tap to focus, pinch to zoom, lens and zoom presets, flash, grid and a live
@@ -85,6 +86,32 @@ iOS:
 ```sh
 flutter build ios --no-codesign
 ```
+
+## RuStore
+
+A `v*` tag publishes to RuStore straight from GitHub Actions. The Android job
+builds a second APK with `--dart-define=PHOTOTAG_STORE=rustore`; that build uses
+the official RuStore In-App Updates SDK, while the regular APK keeps checking
+GitHub Releases. The RuStore job then creates a draft with
+`publishType=INSTANTLY`, uploads the APK and sends it to moderation — after
+approval RuStore publishes it automatically.
+
+One-time setup:
+
+1. Create the app `com.phototag` in the RuStore Console and publish the first
+   version manually (the API can create a draft only when an active version
+   already exists).
+2. Generate a Public API token in the Console and add it as the GitHub Actions
+   secret `RUSTORE_PUBLIC_TOKEN`. Without the secret the RuStore job is skipped
+   and the GitHub release still succeeds.
+3. Push a `v*` tag.
+
+The two builds never cross-prompt: RuStore users update through RuStore,
+GitHub/AltStore users through GitHub Releases.
+
+## Support
+
+If PhotoTag helps you, you can [support the project](https://pay.cloudtips.ru/3dc66105).
 
 ## License
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
@@ -24,6 +26,12 @@ class ImageProcessor {
     double? longitude,
     double? altitude,
     double? bearing,
+    double? accuracy,
+    String? address,
+    String? note,
+    String? project,
+    String? author,
+    int? counter,
     int jpegQuality = 100,
   }) {
     return compute(
@@ -37,6 +45,12 @@ class ImageProcessor {
         lng: longitude,
         altitude: altitude,
         bearing: bearing,
+        accuracy: accuracy,
+        address: address,
+        note: note,
+        project: project,
+        author: author,
+        counter: counter,
         jpegQuality: jpegQuality,
       ),
       debugLabel: 'process-photo',
@@ -53,6 +67,12 @@ typedef _CompositeArgs = ({
   double? lng,
   double? altitude,
   double? bearing,
+  double? accuracy,
+  String? address,
+  String? note,
+  String? project,
+  String? author,
+  int? counter,
   int jpegQuality,
 });
 
@@ -187,10 +207,45 @@ void _writeMetadata(img.Image photo, _CompositeArgs args) {
   try {
     final DateTime time = DateTime.fromMillisecondsSinceEpoch(args.timestampMs);
     final String dateTime = '${_date(time)} ${_time(time)}';
+    final String offset = _utcOffset(time.timeZoneOffset);
+    final String summary = _summary(args, time);
+    final String project = args.project?.trim() ?? '';
+    final String note = args.note?.trim() ?? '';
+    final String author = args.author?.trim() ?? '';
+    final String address = args.address?.trim() ?? '';
+
     photo.exif.imageIfd['DateTime'] = dateTime;
     photo.exif.imageIfd['Software'] = 'PhotoTag';
+    photo.exif.imageIfd['ImageDescription'] = _ascii(summary);
+    photo.exif.imageIfd['ImageUniqueID'] =
+        'PT-${args.timestampMs}-${args.counter ?? 0}';
+    if (author.isNotEmpty) {
+      photo.exif.imageIfd['Artist'] = _ascii(author);
+      photo.exif.imageIfd['Copyright'] = _ascii('(c) ${time.year} $author');
+    }
+
+    // Windows Explorer / photo apps read these as UTF-16LE.
+    photo.exif.imageIfd['XPTitle'] =
+        _utf16le(project.isEmpty ? 'PhotoTag' : 'PhotoTag — $project');
+    photo.exif.imageIfd['XPSubject'] =
+        _utf16le(project.isNotEmpty ? project : address);
+    photo.exif.imageIfd['XPComment'] = _utf16le(summary);
+    photo.exif.imageIfd['XPKeywords'] = _utf16le(<String>[
+      project,
+      note,
+      author,
+      address,
+    ].where((String value) => value.isNotEmpty).join('; '));
+
     photo.exif.exifIfd['DateTimeOriginal'] = dateTime;
     photo.exif.exifIfd['DateTimeDigitized'] = dateTime;
+    photo.exif.exifIfd['OffsetTime'] = offset;
+    photo.exif.exifIfd['OffsetTimeOriginal'] = offset;
+    photo.exif.exifIfd['OffsetTimeDigitized'] = offset;
+    photo.exif.exifIfd['UserComment'] = img.IfdValueUndefined.list(<int>[
+      ..._userCommentPrefix,
+      ...utf8.encode(summary),
+    ]);
 
     final double? lat = args.lat;
     final double? lng = args.lng;
@@ -203,6 +258,11 @@ void _writeMetadata(img.Image photo, _CompositeArgs args) {
     gps[0x0003] = img.IfdValueAscii(lng >= 0 ? 'E' : 'W');
     gps[0x0004] = _dms(lng.abs());
     gps[0x0007] = _triple(time.hour, time.minute, time.second);
+    gps[0x0012] = img.IfdValueAscii('WGS-84');
+    gps[0x001B] = img.IfdValueUndefined.list(<int>[
+      ..._userCommentPrefix,
+      ...utf8.encode('GPS'),
+    ]);
     gps[0x001D] = img.IfdValueAscii(_date(time));
 
     if (args.altitude != null) {
@@ -214,9 +274,85 @@ void _writeMetadata(img.Image photo, _CompositeArgs args) {
       gps[0x0010] = img.IfdValueAscii('T');
       gps[0x0011] = img.IfdValueRational((args.bearing! * 100).round(), 100);
     }
+    if (args.accuracy != null && args.accuracy! > 0) {
+      gps[0x001F] =
+          img.IfdValueRational((args.accuracy! * 100).round(), 100);
+    }
   } catch (_) {
     // Metadata is best-effort; never fail a capture because of it.
   }
+}
+
+const List<int> _userCommentPrefix = <int>[
+  0x41, 0x53, 0x43, 0x49, 0x49, 0x00, 0x00, 0x00, // "ASCII\0\0\0"
+];
+
+String _summary(_CompositeArgs args, DateTime time) {
+  final List<String> parts = <String>['PhotoTag'];
+  final String project = args.project?.trim() ?? '';
+  final String note = args.note?.trim() ?? '';
+  final String author = args.author?.trim() ?? '';
+  final String address = args.address?.trim() ?? '';
+
+  if (project.isNotEmpty) parts.add('Project: $project');
+  if (args.counter != null) {
+    parts.add('Photo #${args.counter!.toString().padLeft(3, '0')}');
+  }
+  parts.add('${_date(time)} ${_time(time)} ${_utcOffset(time.timeZoneOffset)}'.trim());
+  if (args.lat != null && args.lng != null) {
+    parts.add(
+        '${args.lat!.toStringAsFixed(6)}, ${args.lng!.toStringAsFixed(6)}');
+  }
+  if (args.altitude != null) parts.add('${args.altitude!.round()} m');
+  if (args.bearing != null) parts.add('${args.bearing!.round()}°');
+  if (args.accuracy != null) parts.add('±${args.accuracy!.round()} m');
+  if (address.isNotEmpty) parts.add(address);
+  if (note.isNotEmpty) parts.add('Note: $note');
+  if (author.isNotEmpty) parts.add(author);
+  return parts.join(' | ');
+}
+
+String _utcOffset(Duration offset) {
+  final Duration abs = offset.abs();
+  final String sign = offset.isNegative ? '-' : '+';
+  return '$sign${abs.inHours.toString().padLeft(2, '0')}:'
+      '${(abs.inMinutes % 60).toString().padLeft(2, '0')}';
+}
+
+/// Replaces characters that cannot be stored in an EXIF ASCII field.
+String _ascii(String input) {
+  const Map<int, String> replacements = <int, String>{
+    0x00b0: ' deg', // °
+    0x00b1: '+/-', // ±
+    0x2013: '-', // –
+    0x2014: '-', // —
+    0x2116: 'No.', // №
+  };
+
+  final StringBuffer buffer = StringBuffer();
+  for (final int rune in input.runes) {
+    final String? replacement = replacements[rune];
+    if (replacement != null) {
+      buffer.write(replacement);
+    } else if (rune >= 0x20 && rune <= 0x7e) {
+      buffer.writeCharCode(rune);
+    } else {
+      buffer.write('?');
+    }
+  }
+  return buffer.toString();
+}
+
+/// Packs a string as UTF-16LE with a null terminator (Windows XP tags).
+img.IfdValueUndefined _utf16le(String value) {
+  final List<int> bytes = <int>[];
+  for (final int unit in value.codeUnits) {
+    bytes
+      ..add(unit & 0xff)
+      ..add((unit >> 8) & 0xff);
+  }
+  bytes.addAll(const <int>[0, 0]);
+  return img.IfdValueUndefined.list(bytes);
 }
 
 /// Builds the three-value (degrees, minutes, seconds) GPS rational.

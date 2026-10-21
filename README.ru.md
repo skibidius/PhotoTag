@@ -91,8 +91,8 @@ flutter build ios --no-codesign
 
 Пуш тега `v*` публикует приложение в RuStore прямо из GitHub Actions. Android-джоб
 собирает второй APK с `--dart-define=PHOTOTAG_STORE=rustore`: эта сборка
-использует официальный RuStore In-App Updates SDK, а обычный APK продолжает
-проверять обновления в GitHub Releases. Затем RuStore-джоб создаёт черновик с
+проверяет опубликованную версию в каталоге RuStore и открывает RuStore для
+обновления, а обычный APK продолжает проверять GitHub Releases. Затем RuStore-джоб создаёт черновик с
 `publishType=INSTANTLY`, загружает APK и отправляет его на модерацию — после
 одобрения RuStore публикует версию автоматически.
 

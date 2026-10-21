@@ -125,7 +125,7 @@ jobs:
             exit 0
           fi
 
-          python3 -m pip install --quiet cryptography
+          python3 -m pip install --quiet cryptography 2>/dev/null || python3 -m pip install --quiet --break-system-packages cryptography
           python3 - <<'PY'
           import base64, datetime, json, os
           from cryptography.hazmat.primitives import hashes, serialization

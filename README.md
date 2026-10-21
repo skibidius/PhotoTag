@@ -90,9 +90,9 @@ flutter build ios --no-codesign
 ## RuStore
 
 A `v*` tag publishes to RuStore straight from GitHub Actions. The Android job
-builds a second APK with `--dart-define=PHOTOTAG_STORE=rustore`; that build uses
-the official RuStore In-App Updates SDK, while the regular APK keeps checking
-GitHub Releases. The RuStore job then creates a draft with
+builds a second APK with `--dart-define=PHOTOTAG_STORE=rustore`; that build
+checks the published version in the RuStore catalog and opens RuStore to
+update, while the regular APK keeps checking GitHub Releases. The RuStore job then creates a draft with
 `publishType=INSTANTLY`, uploads the APK and sends it to moderation — after
 approval RuStore publishes it automatically.
 

@@ -439,7 +439,7 @@ class _GalleryMock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).photosAllCount(6))),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).photosAllCount(12))),
       body: GridView.builder(
         padding: const EdgeInsets.all(4),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -447,7 +447,7 @@ class _GalleryMock extends StatelessWidget {
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
         ),
-        itemCount: 6,
+        itemCount: 12,
         itemBuilder: (BuildContext context, int index) {
           return ClipRRect(
             borderRadius: BorderRadius.circular(8),

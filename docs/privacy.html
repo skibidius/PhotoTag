@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhotoTag — Privacy Policy / Политика конфиденциальности</title>
+<meta name="description" content="PhotoTag privacy policy: photos, location and metadata stay on the device.">
+<link rel="icon" href="icon.png">
+<style>
+  :root{
+    --primary:#0d9488; --on-primary:#ffffff;
+    --primary-container:#ccfbf1; --on-primary-container:#134e4a;
+    --surface:#f8fafc; --on-surface:#0f172a;
+    --surface-container:#eef3f8; --on-surface-variant:#475569;
+    --outline-variant:#d6dfe7; --tint:#e9f6f4;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --primary:#2dd4bf; --on-primary:#04211d;
+      --primary-container:#0f3d3a; --on-primary-container:#99f6e4;
+      --surface:#0b0f14; --on-surface:#e6edf3;
+      --surface-container:#141b23; --on-surface-variant:#9aa9b8;
+      --outline-variant:#243141; --tint:#101b1e;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; color:var(--on-surface);
+    font-family:-apple-system,BlinkMacSystemFont,"Google Sans","Roboto","Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    background-color:var(--surface);
+    background-image:linear-gradient(180deg, var(--tint), var(--surface));
+    background-repeat:no-repeat; background-size:100% 420px;
+  }
+  .wrap{max-width:820px; margin:0 auto; padding:0 22px}
+  .appbar{position:sticky; top:0; z-index:10; background:color-mix(in srgb, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px)}
+  .appbar .wrap{display:flex; align-items:center; gap:12px; height:62px}
+  .appbar img{width:30px; height:30px; border-radius:8px}
+  .appbar .title{font-weight:600}
+  .appbar .spacer{flex:1}
+  .appbar a{color:var(--on-surface-variant); text-decoration:none; font-size:14px; font-weight:500; padding:8px 14px; border-radius:999px}
+  .appbar a:hover{background:var(--surface-container); color:var(--on-surface)}
+  main{padding:42px 0 24px}
+  h1{font-size:30px; line-height:1.2; margin:0 0 6px; letter-spacing:-.4px}
+  .muted{color:var(--on-surface-variant); font-size:14px; margin:0 0 28px}
+  h2{font-size:19px; margin:30px 0 8px}
+  p, li{font-size:15px}
+  ul{padding-left:22px}
+  li{margin:4px 0}
+  .card{background:var(--surface-container); border:1px solid var(--outline-variant); border-radius:20px; padding:18px 20px; margin:22px 0}
+  .pill{display:inline-block; background:var(--primary-container); color:var(--on-primary-container);
+    border-radius:999px; padding:3px 10px; font-size:12px; font-weight:600; letter-spacing:.3px}
+  a{color:var(--primary)}
+  hr{border:0; border-top:1px solid var(--outline-variant); margin:38px 0}
+  footer{color:var(--on-surface-variant); font-size:13px; text-align:center; padding:24px 0 52px}
+  footer a{color:var(--on-surface-variant)}
+  footer a:hover{color:var(--primary)}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="wrap">
+    <img src="icon.png" alt="">
+    <span class="title">PhotoTag</span>
+    <span class="spacer"></span>
+    <a href="./">На главную</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <span class="pill">Политика конфиденциальности</span>
+  <h1>PhotoTag</h1>
+  <p class="muted">Обновлено: 21 октября 2026 г.</p>
+
+  <div class="card">
+    <strong>Коротко:</strong> у PhotoTag нет аккаунтов и собственных серверов.
+    Фотографии, координаты, заметки и настройки хранятся на вашем устройстве.
+    Разработчик не получает и не продаёт ваши данные.
+  </div>
+
+  <h2>Какие данные использует приложение</h2>
+  <ul>
+    <li><strong>Камера</strong> — чтобы делать снимки.</li>
+    <li><strong>Геолокация</strong> — чтобы записать координаты, высоту, точность и направление камеры на вотермарке и в EXIF.</li>
+    <li><strong>Фотографии и файлы</strong> — чтобы сохранить снимок в приложении и в системной галерее, а также для экспорта проекта в ZIP.</li>
+    <li><strong>Адрес</strong> — обратное геокодирование выполняет системный сервис (Apple или Google) по координатам; PhotoTag не отправляет координаты на собственный сервер, потому что его нет.</li>
+    <li><strong>Настройки</strong> — язык, внешний вид вотермарки, проекты, счётчики и выбранная подложка карты хранятся локально.</li>
+  </ul>
+
+  <h2>Передача данных</h2>
+  <p>
+    PhotoTag не имеет серверов, аналитики, рекламных SDK и трекеров. Снимки и
+    метаданные не покидают устройство, кроме случаев, когда вы сами делитесь
+    фотографией, экспортируете архив или сохраняете снимок в облачную галерею.
+  </p>
+  <p>
+    Приложение загружает тайлы карт (Яндекс, Google, OpenStreetMap, OpenTopoMap)
+    для отображения карты — эти запросы идут напрямую к выбранному картографическому
+    сервису. Обратное геокодирование выполняет системный геокодер.
+  </p>
+
+  <h2>Разрешения</h2>
+  <p>
+    Камера, геолокация и доступ к фото запрашиваются только при первом использовании
+    соответствующей функции. Разрешения можно отозвать в настройках Android/iOS;
+    часть функций после этого станет недоступна.
+  </p>
+
+  <h2>Удаление данных</h2>
+  <p>
+    Удалите снимки в приложении или в системной галерее. Удаление приложения
+    удаляет локальные проекты, настройки и счётчики. Если вы сохранили фото в
+    облачную галерею, удаление выполняется средствами этого сервиса.
+  </p>
+
+  <h2>Поддержка</h2>
+  <p>
+    Страница поддержки открывается по ссылке CloudTips; при переходе действует
+    политика конфиденциальности CloudTips. Вопросы по приложению — через
+    <a href="https://github.com/skibidius/PhotoTag/issues">GitHub Issues</a>.
+  </p>
+
+  <hr>
+
+  <span class="pill">Privacy policy</span>
+  <h1 style="font-size:26px; margin-top:14px">English</h1>
+  <p class="muted">Last updated: 21 October 2026</p>
+
+  <div class="card">
+    <strong>In short:</strong> PhotoTag has no accounts and no servers of its own.
+    Photos, coordinates, notes and settings stay on your device. The developer
+    does not receive or sell your data.
+  </div>
+
+  <h2>Data the app uses</h2>
+  <ul>
+    <li><strong>Camera</strong> — to take photos.</li>
+    <li><strong>Location</strong> — to write coordinates, altitude, accuracy and camera direction into the watermark and EXIF.</li>
+    <li><strong>Photos and files</strong> — to save shots in the app and the system gallery, and to export a project as ZIP.</li>
+    <li><strong>Address</strong> — reverse geocoding is performed by the system geocoder (Apple or Google). PhotoTag has no backend to send it to.</li>
+    <li><strong>Settings</strong> — language, stamp appearance, projects, counters and the chosen map basemap are stored locally.</li>
+  </ul>
+
+  <h2>Data sharing</h2>
+  <p>
+    There is no analytics, advertising SDK or tracking. Photos and metadata never
+    leave the device unless you share a photo, export an archive, or save it to a
+    cloud gallery yourself.
+  </p>
+  <p>
+    Map tiles (Yandex, Google, OpenStreetMap, OpenTopoMap) are requested directly
+    from the selected map provider. Reverse geocoding is handled by the system
+    geocoder.
+  </p>
+
+  <h2>Permissions</h2>
+  <p>
+    Camera, location and photo-library access are requested only when the matching
+    feature is used. You can revoke them in Android/iOS settings; some features
+    will stop working.
+  </p>
+
+  <h2>Deleting data</h2>
+  <p>
+    Delete photos in the app or the system gallery. Uninstalling the app removes
+    local projects, settings and counters. Photos saved to a cloud gallery are
+    managed by that service.
+  </p>
+
+  <h2>Support</h2>
+  <p>
+    The support page opens CloudTips; CloudTips' own privacy policy applies there.
+    For app questions use
+    <a href="https://github.com/skibidius/PhotoTag/issues">GitHub Issues</a>.
+  </p>
+</main>
+
+<footer>
+  <a href="./">PhotoTag</a> · <a href="https://github.com/skibidius/PhotoTag">GitHub</a>
+</footer>
+</body>
+</html>

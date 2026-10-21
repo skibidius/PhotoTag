@@ -47,7 +47,7 @@ class SettingsScreen extends StatelessWidget {
     HapticFeedback.selectionClick();
     try {
       await launchUrl(
-        Uri.parse('https://pay.cloudtips.ru/3dc66105'),
+        Uri.parse('https://pay.cloudtips.ru/p/3dc66105'),
         mode: LaunchMode.externalApplication,
       );
     } catch (_) {

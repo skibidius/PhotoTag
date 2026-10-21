@@ -114,7 +114,7 @@ flutter build ios --no-codesign
 
 ## Поддержка
 
-Если PhotoTag помогает вам, можно [поддержать проект](https://pay.cloudtips.ru/3dc66105).
+Если PhotoTag помогает вам, можно [поддержать проект](https://pay.cloudtips.ru/p/3dc66105).
 
 ## Лицензия
 

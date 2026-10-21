@@ -229,6 +229,7 @@ jobs:
             dist/phototag.apk
             dist/phototag.aab
             dist/phototag.ipa
+            dist/phototag-rustore.apk
 
   altstore:
     name: Update AltStore source

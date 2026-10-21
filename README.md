@@ -114,7 +114,7 @@ GitHub/AltStore users through GitHub Releases.
 
 ## Support
 
-If PhotoTag helps you, you can [support the project](https://pay.cloudtips.ru/3dc66105).
+If PhotoTag helps you, you can [support the project](https://pay.cloudtips.ru/p/3dc66105).
 
 ## License
 

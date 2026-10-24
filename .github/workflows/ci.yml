@@ -67,10 +67,8 @@ jobs:
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk dist/phototag.apk
           cp build/app/outputs/bundle/release/app-release.aab dist/phototag.aab
-      - name: Build the RuStore flavor
-        run: flutter build apk --release --dart-define=PHOTOTAG_STORE=rustore
       - name: Collect the RuStore APK
-        run: cp build/app/outputs/flutter-apk/app-release.apk dist/phototag-rustore.apk
+        run: cp dist/phototag.apk dist/phototag-rustore.apk
       - uses: actions/upload-artifact@v4
         with:
           name: android

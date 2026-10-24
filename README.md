@@ -15,6 +15,8 @@ ready to drop into a report or send straight from the field.
   separate photo counter for every project
 - **Projects** to keep jobs, sites or clients apart
 - **Export** a project to a ZIP archive — originals, watermarked, or both
+- **License information** — bundled components and their licenses are listed
+  in the app under About → Open source licenses
 - **English and Russian** interface
 - **Background queue** — keep shooting while photos are watermarked
 - **Offline first** — GPS and geocoding work without a connection
@@ -22,7 +24,6 @@ ready to drop into a report or send straight from the field.
   photo counter are also written into the EXIF metadata (including Unicode
   fields), not just burned into the pixels
 - Saves to the system gallery and shares from the app
-- In-app update check
 - Tap to focus, pinch to zoom, lens and zoom presets, flash, grid and a live
   stamp preview
 - **Google Photos-style gallery** — swipe sideways to browse, down to close,
@@ -89,14 +90,10 @@ flutter build ios --no-codesign
 
 ## RuStore
 
-Every `v*` tag builds two Android APKs. The regular one checks GitHub Releases;
-the `phototag-rustore.apk` build uses `--dart-define=PHOTOTAG_STORE=rustore` and
-checks the published version in the RuStore catalog, opening RuStore to update.
-Both files are attached to the GitHub release — publishing to RuStore itself is
-manual: upload `phototag-rustore.apk` in the RuStore Console.
-
-The two builds never cross-prompt: RuStore users update through RuStore,
-GitHub/AltStore users through GitHub Releases.
+Every `v*` tag attaches two Android APKs to the GitHub release: the regular
+`phototag.apk` and `phototag-rustore.apk`. They are the same build. There is no
+in-app update checker; install a new release or update through the store.
+Publishing to RuStore is manual — upload the APK in the RuStore Console.
 
 ## Support
 
@@ -104,4 +101,5 @@ If PhotoTag helps you, you can [support the project](https://pay.cloudtips.ru/p/
 
 ## License
 
-MIT
+PhotoTag is proprietary. Third-party components keep their own licenses; see
+[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).

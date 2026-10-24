@@ -902,54 +902,6 @@ abstract class AppLocalizations {
   /// **'Version'**
   String get aboutVersion;
 
-  /// No description provided for @aboutLicense.
-  ///
-  /// In en, this message translates to:
-  /// **'License'**
-  String get aboutLicense;
-
-  /// No description provided for @aboutLicenseValue.
-  ///
-  /// In en, this message translates to:
-  /// **'MIT License'**
-  String get aboutLicenseValue;
-
-  /// No description provided for @checkForUpdates.
-  ///
-  /// In en, this message translates to:
-  /// **'Check for updates'**
-  String get checkForUpdates;
-
-  /// No description provided for @checkingUpdates.
-  ///
-  /// In en, this message translates to:
-  /// **'Checking…'**
-  String get checkingUpdates;
-
-  /// No description provided for @upToDate.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'re up to date'**
-  String get upToDate;
-
-  /// No description provided for @updateAvailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Version {version} is available'**
-  String updateAvailable(String version);
-
-  /// No description provided for @updateAvailableGeneric.
-  ///
-  /// In en, this message translates to:
-  /// **'A new version is available'**
-  String get updateAvailableGeneric;
-
-  /// No description provided for @update.
-  ///
-  /// In en, this message translates to:
-  /// **'Update'**
-  String get update;
-
   /// No description provided for @stampByAuthor.
   ///
   /// In en, this message translates to:
@@ -961,6 +913,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'№ {value}'**
   String stampCounter(String value);
+
+  /// No description provided for @openSourceLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source licenses'**
+  String get openSourceLicenses;
+
+  /// No description provided for @aboutCopyright.
+  ///
+  /// In en, this message translates to:
+  /// **'Copyright'**
+  String get aboutCopyright;
+
+  /// No description provided for @aboutCopyrightValue.
+  ///
+  /// In en, this message translates to:
+  /// **'© 2026 PhotoTag. All rights reserved.'**
+  String get aboutCopyrightValue;
 }
 
 class _AppLocalizationsDelegate

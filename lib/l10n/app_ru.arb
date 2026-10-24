@@ -1,21 +1,17 @@
 {
   "@@locale": "ru",
-
   "appTitle": "PhotoTag",
   "appTagline": "GPS-камера с координатами на фото",
-
   "tabCamera": "Камера",
   "tabProjects": "Проекты",
   "tabPhotos": "Фото",
   "tabSettings": "Настройки",
-
   "cancel": "Отмена",
   "create": "Создать",
   "delete": "Удалить",
   "enable": "Включить",
   "view": "Открыть",
   "share": "Поделиться",
-
   "cameraNoCamera": "На этом устройстве нет камеры.",
   "cameraPermissionDenied": "Для съёмки нужен доступ к камере.",
   "cameraCannotStart": "Не удалось запустить камеру.",
@@ -45,7 +41,6 @@
   "locationNoPermission": "Нет доступа",
   "locationLocating": "Определяем…",
   "locationAccuracy": "±{meters} м",
-
   "project": "Проект",
   "projectNone": "Без проекта",
   "projectNew": "Новый проект",
@@ -62,25 +57,21 @@
   "exportEmpty": "В этом проекте нет фото.",
   "exportNoOriginals": "Оригиналы недоступны — включите «Сохранять оригинал» в настройках.",
   "exportPreparing": "Готовим архив…",
-
   "photosAll": "Фото",
   "photosAllCount": "Фото · {count}",
   "photosEmpty": "Пока нет фото",
   "photosEmptyHint": "Здесь появятся ваши снимки.",
   "photosCount": "{count, plural, =1{1 фото} few{{count} фото} many{{count} фото} other{{count} фото}}",
-
   "photoDeleteTitle": "Удалить фото?",
   "photoDeleteBody": "Фото и данные о местоположении будут удалены.",
   "photoShowOnMap": "Показать на карте",
   "photoAccuracy": "Точность ±{meters} м",
-
   "mapTitle": "Местоположение",
   "mapStyle": "Стиль карты",
   "mapFitAll": "Показать все фото",
   "mapZoomIn": "Приблизить",
   "mapNoPhotos": "Нет фото с геометками",
   "mapNoPhotosHint": "Снимайте с включённым GPS, чтобы увидеть фото на карте.",
-
   "settingsTitle": "Настройки",
   "sectionCoordinates": "Координаты",
   "sectionAppearance": "Вид вотермарки",
@@ -92,14 +83,12 @@
   "supportSubtitle": "Небольшой донат через CloudTips помогает развитию",
   "supportOpenFailed": "Не удалось открыть ссылку",
   "sectionAbout": "О приложении",
-
   "coordFormat": "Формат",
   "coordDecimal": "Десятичные градусы",
   "coordDms": "Градусы · минуты · секунды",
   "coordDdm": "Градусы · десятичные минуты",
   "coordUtm": "UTM",
   "coordMgrs": "MGRS",
-
   "stampStyle": "Стиль",
   "styleCard": "Карточка",
   "styleMinimal": "Минимум",
@@ -119,7 +108,6 @@
   "toneLight": "Светлый",
   "toneDark": "Тёмный",
   "stampOpacity": "Непрозрачность фона · {percent}%",
-
   "fieldDateTime": "Дата и время",
   "fieldCoordinates": "Координаты",
   "fieldBearing": "Азимут",
@@ -127,7 +115,6 @@
   "fieldAccuracy": "Точность",
   "fieldAddress": "Адрес",
   "fieldPhotoNumber": "Номер фото",
-
   "detailsNote": "Заметка",
   "detailsNoteHint": "например, осмотр фундамента",
   "detailsAuthor": "Автор",
@@ -144,7 +131,6 @@
     }
   },
   "detailsCounterNoProject": "Без проекта",
-
   "cameraGridSetting": "Сетка третей",
   "cameraHud": "Показ вотермарки",
   "cameraMaxResolution": "Максимальное разрешение",
@@ -155,24 +141,16 @@
   "qualityMaximum": "Максимальное",
   "qualityHigh": "Высокое",
   "qualityBalanced": "Сбалансированное",
-
   "language": "Язык",
   "languageSystem": "Как в системе",
   "languageEnglish": "English",
   "languageRussian": "Русский",
-
   "info": "Информация",
   "about": "О приложении",
   "aboutVersion": "Версия",
-  "aboutLicense": "Лицензия",
-  "aboutLicenseValue": "Лицензия MIT",
-  "checkForUpdates": "Проверить обновления",
-  "checkingUpdates": "Проверяем…",
-  "upToDate": "У вас последняя версия",
-  "updateAvailable": "Доступна версия {version}",
-  "updateAvailableGeneric": "Доступна новая версия",
-  "update": "Обновить",
-
   "stampByAuthor": "автор: {author}",
-  "stampCounter": "№ {value}"
+  "stampCounter": "№ {value}",
+  "openSourceLicenses": "Лицензии открытого кода",
+  "aboutCopyright": "Правообладатель",
+  "aboutCopyrightValue": "© 2026 PhotoTag. Все права защищены."
 }

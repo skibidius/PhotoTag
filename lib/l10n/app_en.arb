@@ -1,21 +1,17 @@
 {
   "@@locale": "en",
-
   "appTitle": "PhotoTag",
   "appTagline": "GPS camera with location watermarks",
-
   "tabCamera": "Camera",
   "tabProjects": "Projects",
   "tabPhotos": "Photos",
   "tabSettings": "Settings",
-
   "cancel": "Cancel",
   "create": "Create",
   "delete": "Delete",
   "enable": "Enable",
   "view": "View",
   "share": "Share",
-
   "cameraNoCamera": "No camera is available on this device.",
   "cameraPermissionDenied": "Camera permission is required to capture photos.",
   "cameraCannotStart": "Unable to start the camera.",
@@ -59,7 +55,6 @@
       }
     }
   },
-
   "project": "Project",
   "projectNone": "No project",
   "projectNew": "New project",
@@ -83,7 +78,6 @@
   "exportEmpty": "This project has no photos.",
   "exportNoOriginals": "Original copies aren't available — enable “Keep original copy” in Settings.",
   "exportPreparing": "Preparing archive…",
-
   "photosAll": "Photos",
   "photosAllCount": "Photos · {count}",
   "@photosAllCount": {
@@ -103,7 +97,6 @@
       }
     }
   },
-
   "photoDeleteTitle": "Delete photo?",
   "photoDeleteBody": "This photo and its location data will be removed.",
   "photoShowOnMap": "Show on map",
@@ -115,14 +108,12 @@
       }
     }
   },
-
   "mapTitle": "Location",
   "mapStyle": "Map style",
   "mapFitAll": "Show all photos",
   "mapZoomIn": "Zoom in",
   "mapNoPhotos": "No photos with location",
   "mapNoPhotosHint": "Capture photos with GPS enabled to see them on the map.",
-
   "settingsTitle": "Settings",
   "sectionCoordinates": "Coordinates",
   "sectionAppearance": "Stamp appearance",
@@ -134,14 +125,12 @@
   "supportSubtitle": "A small donation via CloudTips helps development",
   "supportOpenFailed": "Could not open the link",
   "sectionAbout": "About",
-
   "coordFormat": "Format",
   "coordDecimal": "Decimal degrees",
   "coordDms": "Degrees · minutes · seconds",
   "coordDdm": "Degrees · decimal minutes",
   "coordUtm": "UTM",
   "coordMgrs": "MGRS",
-
   "stampStyle": "Style",
   "styleCard": "Card",
   "styleMinimal": "Minimal",
@@ -168,7 +157,6 @@
       }
     }
   },
-
   "fieldDateTime": "Date & time",
   "fieldCoordinates": "Coordinates",
   "fieldBearing": "Compass bearing",
@@ -176,7 +164,6 @@
   "fieldAccuracy": "Accuracy",
   "fieldAddress": "Address",
   "fieldPhotoNumber": "Photo number",
-
   "detailsNote": "Note",
   "detailsNoteHint": "e.g. Foundation inspection",
   "detailsAuthor": "Author",
@@ -200,7 +187,6 @@
     }
   },
   "detailsCounterNoProject": "No project",
-
   "cameraGridSetting": "Rule-of-thirds grid",
   "cameraHud": "Live stamp preview",
   "cameraMaxResolution": "Maximum resolution",
@@ -211,31 +197,13 @@
   "qualityMaximum": "Maximum",
   "qualityHigh": "High",
   "qualityBalanced": "Balanced",
-
   "language": "Language",
   "languageSystem": "System default",
   "languageEnglish": "English",
   "languageRussian": "Русский",
-
   "info": "Info",
   "about": "About",
   "aboutVersion": "Version",
-  "aboutLicense": "License",
-  "aboutLicenseValue": "MIT License",
-  "checkForUpdates": "Check for updates",
-  "checkingUpdates": "Checking…",
-  "upToDate": "You're up to date",
-  "updateAvailable": "Version {version} is available",
-  "updateAvailableGeneric": "A new version is available",
-  "@updateAvailable": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "update": "Update",
-
   "stampByAuthor": "by {author}",
   "@stampByAuthor": {
     "placeholders": {
@@ -251,5 +219,8 @@
         "type": "String"
       }
     }
-  }
+  },
+  "openSourceLicenses": "Open source licenses",
+  "aboutCopyright": "Copyright",
+  "aboutCopyrightValue": "© 2026 PhotoTag. All rights reserved."
 }

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../l10n/app_localizations.dart';
-import '../services/update_service.dart';
 
-/// A small About screen with the app icon, name, version and license.
+/// About screen with the app icon, version, copyright and the complete list of
+/// third-party licenses.
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
 
@@ -36,18 +36,13 @@ class _AboutScreenState extends State<AboutScreen> {
         padding: const EdgeInsets.symmetric(vertical: 24),
         children: <Widget>[
           Center(
-            child: Container(
-              width: 96,
-              height: 96,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: <Color>[Color(0xFF009586), Color(0xFF004940)],
-                ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Image.asset(
+                'assets/icon/icon.png',
+                width: 96,
+                height: 96,
               ),
-              child: const Icon(Icons.place, color: Colors.white, size: 52),
             ),
           ),
           const SizedBox(height: 16),
@@ -85,81 +80,33 @@ class _AboutScreenState extends State<AboutScreen> {
           const SizedBox(height: 24),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.balance_outlined),
-            title: Text(l10n.aboutLicense),
-            trailing: Text(l10n.aboutLicenseValue),
+            leading: const Icon(Icons.description_outlined),
+            title: Text(l10n.openSourceLicenses),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showLicensePage(
+              context: context,
+              applicationName: l10n.appTitle,
+              applicationVersion: _version,
+              applicationIcon: Padding(
+                padding: const EdgeInsets.all(8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    'assets/icon/icon.png',
+                    width: 64,
+                    height: 64,
+                  ),
+                ),
+              ),
+            ),
           ),
-          const _UpdateTile(),
+          ListTile(
+            leading: const Icon(Icons.copyright),
+            title: Text(l10n.aboutCopyright),
+            subtitle: Text(l10n.aboutCopyrightValue),
+          ),
         ],
       ),
-    );
-  }
-}
-
-class _UpdateTile extends StatefulWidget {
-  const _UpdateTile();
-
-  @override
-  State<_UpdateTile> createState() => _UpdateTileState();
-}
-
-class _UpdateTileState extends State<_UpdateTile> {
-  bool _checking = true;
-  UpdateInfo? _update;
-
-  @override
-  void initState() {
-    super.initState();
-    _check();
-  }
-
-  Future<void> _check({bool manual = false}) async {
-    setState(() => _checking = true);
-    final UpdateInfo? info = await UpdateService.check();
-    if (!mounted) return;
-    setState(() {
-      _update = info;
-      _checking = false;
-    });
-    if (info == null && manual) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).upToDate)),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-
-    if (_checking) {
-      return ListTile(
-        leading: const SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-        title: Text(l10n.checkingUpdates),
-      );
-    }
-
-    final UpdateInfo? update = _update;
-    if (update != null) {
-      return ListTile(
-        leading: const Icon(Icons.system_update_outlined),
-        title: Text(l10n.updateAvailable(update.version)),
-        trailing: FilledButton(
-          onPressed: () => UpdateService.openUpdate(update),
-          child: Text(l10n.update),
-        ),
-      );
-    }
-
-    return ListTile(
-      leading: const Icon(Icons.refresh),
-      title: Text(l10n.checkForUpdates),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () => _check(manual: true),
     );
   }
 }

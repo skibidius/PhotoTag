@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart'
+    show LicenseEntryWithLineBreaks, LicenseRegistry;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -16,6 +18,7 @@ import 'utils/route_observer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  _registerBundledFontLicenses();
   await initializeDateFormatting();
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
@@ -39,6 +42,26 @@ Future<void> main() async {
     location: location,
     captureQueue: CaptureQueue(photos),
   ));
+}
+
+/// Flutter's license page collects pub-package licenses automatically, but the
+/// bundled Google Sans and Roboto Mono font assets need to be registered.
+void _registerBundledFontLicenses() {
+  LicenseRegistry.addLicense(() async* {
+    final String license =
+        await rootBundle.loadString('assets/licenses/GoogleSans-OFL.txt');
+    yield LicenseEntryWithLineBreaks(const <String>['Google Sans'], license);
+  });
+  LicenseRegistry.addLicense(() async* {
+    final String license =
+        await rootBundle.loadString('assets/licenses/RobotoMono-OFL.txt');
+    yield LicenseEntryWithLineBreaks(const <String>['Roboto Mono'], license);
+  });
+  LicenseRegistry.addLicense(() async* {
+    final String license = await rootBundle
+        .loadString('assets/licenses/MaterialIcons-CC-BY-4.0.txt');
+    yield LicenseEntryWithLineBreaks(const <String>['Material Icons'], license);
+  });
 }
 
 class PhotoTagApp extends StatelessWidget {

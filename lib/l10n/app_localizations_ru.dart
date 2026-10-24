@@ -452,32 +452,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aboutVersion => 'Версия';
 
   @override
-  String get aboutLicense => 'Лицензия';
-
-  @override
-  String get aboutLicenseValue => 'Лицензия MIT';
-
-  @override
-  String get checkForUpdates => 'Проверить обновления';
-
-  @override
-  String get checkingUpdates => 'Проверяем…';
-
-  @override
-  String get upToDate => 'У вас последняя версия';
-
-  @override
-  String updateAvailable(String version) {
-    return 'Доступна версия $version';
-  }
-
-  @override
-  String get updateAvailableGeneric => 'Доступна новая версия';
-
-  @override
-  String get update => 'Обновить';
-
-  @override
   String stampByAuthor(String author) {
     return 'автор: $author';
   }
@@ -486,4 +460,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String stampCounter(String value) {
     return '№ $value';
   }
+
+  @override
+  String get openSourceLicenses => 'Лицензии открытого кода';
+
+  @override
+  String get aboutCopyright => 'Правообладатель';
+
+  @override
+  String get aboutCopyrightValue => '© 2026 PhotoTag. Все права защищены.';
 }

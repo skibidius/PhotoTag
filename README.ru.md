@@ -89,25 +89,11 @@ flutter build ios --no-codesign
 
 ## RuStore
 
-Пуш тега `v*` публикует приложение в RuStore прямо из GitHub Actions. Android-джоб
-собирает второй APK с `--dart-define=PHOTOTAG_STORE=rustore`: эта сборка
+Каждый тег `v*` собирает два Android-APK. Обычный проверяет обновления в GitHub
+Releases; сборка `phototag-rustore.apk` с `--dart-define=PHOTOTAG_STORE=rustore`
 проверяет опубликованную версию в каталоге RuStore и открывает RuStore для
-обновления, а обычный APK продолжает проверять GitHub Releases. Затем RuStore-джоб создаёт черновик с
-`publishType=INSTANTLY`, загружает APK и отправляет его на модерацию — после
-одобрения RuStore публикует версию автоматически.
-
-Разовая настройка:
-
-1. Создайте приложение `com.phototag` в консоли RuStore и опубликуйте первую
-   версию вручную (API умеет создавать черновик только при наличии активной
-   версии). Для первой загрузки используйте `phototag-rustore.apk` из ассетов
-   релиза.
-2. Создайте API-ключ в консоли и добавьте два секрета GitHub Actions:
-   `RUSTORE_KEY_ID` (числовой id ключа) и `RUSTORE_PRIVATE_KEY` (приватный
-   ключ в base64). Workflow сам подписывает короткоживущий JWE-токен. Без
-   обоих секретов RuStore-джоб пропускается, а релиз на GitHub всё равно
-   выходит.
-3. Отправьте тег `v*`.
+обновления. Оба файла прикладываются к релизу на GitHub — публикация в RuStore
+выполняется вручную: загрузите `phototag-rustore.apk` в консоли RuStore.
 
 Сборки не мешают друг другу: пользователи RuStore обновляются через RuStore,
 пользователи GitHub/AltStore — через GitHub Releases.

@@ -89,25 +89,11 @@ flutter build ios --no-codesign
 
 ## RuStore
 
-A `v*` tag publishes to RuStore straight from GitHub Actions. The Android job
-builds a second APK with `--dart-define=PHOTOTAG_STORE=rustore`; that build
-checks the published version in the RuStore catalog and opens RuStore to
-update, while the regular APK keeps checking GitHub Releases. The RuStore job then creates a draft with
-`publishType=INSTANTLY`, uploads the APK and sends it to moderation — after
-approval RuStore publishes it automatically.
-
-One-time setup:
-
-1. Create the app `com.phototag` in the RuStore Console and publish the first
-   version manually (the API can create a draft only when an active version
-   already exists). Use `phototag-rustore.apk` from the release assets for
-   that first upload.
-2. Create an API key in the Console and add two GitHub Actions secrets:
-   `RUSTORE_KEY_ID` (the numeric key id) and `RUSTORE_PRIVATE_KEY` (the base64
-   private key). The workflow signs a short-lived JWE token with them. Without
-   both secrets the RuStore job is skipped and the GitHub release still
-   succeeds.
-3. Push a `v*` tag.
+Every `v*` tag builds two Android APKs. The regular one checks GitHub Releases;
+the `phototag-rustore.apk` build uses `--dart-define=PHOTOTAG_STORE=rustore` and
+checks the published version in the RuStore catalog, opening RuStore to update.
+Both files are attached to the GitHub release — publishing to RuStore itself is
+manual: upload `phototag-rustore.apk` in the RuStore Console.
 
 The two builds never cross-prompt: RuStore users update through RuStore,
 GitHub/AltStore users through GitHub Releases.
